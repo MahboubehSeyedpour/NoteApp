@@ -29,7 +29,7 @@ class NoteRepositoryImpl @Inject constructor(
         return noteDao.getNoteById(id)
     }
 
-    override fun getLastNoteId(): Long? {
+    override suspend fun getLastNoteId(): Long? {
         return noteDao.getLastNoteId()
     }
 }

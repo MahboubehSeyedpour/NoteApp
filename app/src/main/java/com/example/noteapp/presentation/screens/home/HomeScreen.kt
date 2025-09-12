@@ -1,5 +1,6 @@
 package com.example.noteapp.presentation.screens.home
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,25 +13,22 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Menu
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.DarkGray
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.HorizontalRuler
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -54,6 +52,8 @@ import kotlinx.coroutines.flow.collectLatest
 fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltViewModel()) {
 
     val lifecycle = LocalLifecycleOwner.current.lifecycle
+    val notes by viewModel.notes.collectAsState()
+    val context = LocalContext.current
 
     LaunchedEffect(viewModel.events) {
         lifecycle.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
@@ -64,6 +64,11 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                     )
 
                     HomeEvents.NavigateToSearchScreen -> navController.navigate(Screens.SearchScreen.route)
+                    is HomeEvents.Error -> Toast.makeText(
+                        context,
+                        event.message,
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }
@@ -86,7 +91,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                 placeholder = "Search your notes"
             ),
             titleText = "Recent All Note",
-            notes = viewModel.notes,
+            notes = notes,
             onNoteClick = {},
             onLabelsClick = {},
             onFabClick = {},
