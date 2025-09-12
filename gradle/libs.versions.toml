@@ -29,6 +29,7 @@ kotlinxCoroutinesAndroid = "1.8.1"
 
 appcompat = "1.7.0"
 roomRuntimeAndroid = "2.7.2"
+runtimeAnnotationAndroid = "1.9.0"
 
 
 [libraries]
@@ -65,6 +66,7 @@ kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-c
 
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 androidx-room-runtime-android = { group = "androidx.room", name = "room-runtime-android", version.ref = "roomRuntimeAndroid" }
+androidx-runtime-annotation-android = { group = "androidx.compose.runtime", name = "runtime-annotation-android", version.ref = "runtimeAnnotationAndroid" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

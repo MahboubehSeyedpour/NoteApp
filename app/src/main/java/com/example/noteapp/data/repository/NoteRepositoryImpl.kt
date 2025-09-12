@@ -1,7 +1,6 @@
 package com.example.noteapp.data.repository
 
 import com.example.noteapp.data.local.dao.NoteDao
-import com.example.noteapp.data.local.database.NoteDatabaseProvider
 import com.example.noteapp.domain.model.Note
 import com.example.noteapp.domain.repository.NoteRepository
 import kotlinx.coroutines.flow.Flow
