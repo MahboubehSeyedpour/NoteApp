@@ -7,13 +7,19 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "notes-table")
 data class Note(
     @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    val id: Long = 0,
 
     @ColumnInfo(name = "note-title")
     val title: String,
 
     @ColumnInfo(name = "note-description")
-    val description: String,
+    val description: String?,
+
+    @ColumnInfo(name = "note-cat")
+    val category: String?,
+
+    @ColumnInfo(name = "note-time")
+    val time: String?,
 
     @ColumnInfo(name = "pinned")
     val pinned: Boolean = false,

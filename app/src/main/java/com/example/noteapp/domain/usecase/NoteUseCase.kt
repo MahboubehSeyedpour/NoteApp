@@ -1,10 +1,11 @@
 package com.example.noteapp.domain.usecase
 
 import android.content.Context
-import javax.inject.Inject
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.example.noteapp.data.repository.NoteRepositoryImpl
+import com.example.noteapp.domain.model.Note
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -15,8 +16,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import com.example.noteapp.domain.model.Note
-import com.example.noteapp.data.repository.NoteRepositoryImpl
+import javax.inject.Inject
 
 class NoteUseCase @Inject constructor(
     private val coroutineScope: CoroutineScope,
@@ -36,9 +36,6 @@ class NoteUseCase @Inject constructor(
         observeKeysJob?.cancel()
         observeKeysJob = coroutineScope.launch {
             getAllNotes().collectLatest { notes ->
-//                val processedNotes = notes.mapNotNull { note ->
-//                }
-//                this@NoteUseCase.notes = processedNotes
             }
         }
     }
@@ -47,8 +44,8 @@ class NoteUseCase @Inject constructor(
         return noteRepository.getAllNotes()
     }
 
-    suspend fun addNote(note: Note) {
-        if (note.id == 0) {
+    private suspend fun addNote(note: Note) {
+        if (note.id == 0L) {
             noteRepository.addNote(note)
         } else {
             noteRepository.updateNote(note)

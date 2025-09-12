@@ -39,9 +39,9 @@ import com.example.noteapp.R
 import com.example.noteapp.presentation.components.CustomBottomBar
 import com.example.noteapp.presentation.components.CustomNoteCard
 import com.example.noteapp.presentation.components.NotesTopBar
+import com.example.noteapp.presentation.model.NoteUI
 import com.example.noteapp.presentation.navigation.Screens
 import com.example.noteapp.presentation.screens.home.model.HomeTopBarConfig
-import com.example.noteapp.presentation.screens.home.model.NoteUi
 import com.example.noteapp.presentation.screens.home.model.NotesHomeColors
 import com.example.noteapp.presentation.screens.home.model.NotesHomeMetrics
 import com.example.noteapp.presentation.screens.home.model.NotesHomeShapes
@@ -59,8 +59,8 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
         lifecycle.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
             viewModel.events.collectLatest { event ->
                 when (event) {
-                    is HomeEvents.NavigateToMovieDetailsScreen -> navController.navigate(
-                        route = "${Screens.NoteDetailsScreen.route}?interScreenData=${event.interScreenData}"
+                    is HomeEvents.NavigateToNoteDetailsScreen -> navController.navigate(
+                        route = "${Screens.NoteDetailsScreen.route}?id=${event.noteId}"
                     )
 
                     HomeEvents.NavigateToSearchScreen -> navController.navigate(Screens.SearchScreen.route)
@@ -92,7 +92,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
             ),
             titleText = "Recent All Note",
             notes = notes,
-            onNoteClick = {},
+            onNoteClick = { noteId -> viewModel.onNoteDetailsClicked(noteId) },
             onLabelsClick = {},
             onFabClick = {},
             bottomBarLabel = "Labels",
@@ -104,8 +104,8 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
 fun Notes(
     topBarConfig: HomeTopBarConfig,
     titleText: String,
-    notes: List<NoteUi>,
-    onNoteClick: (NoteUi) -> Unit,
+    notes: List<NoteUI>,
+    onNoteClick: (Long) -> Unit,
     onLabelsClick: () -> Unit,
     onFabClick: () -> Unit,
     colors: NotesHomeColors = NotesHomeColors(),
@@ -168,7 +168,7 @@ fun Notes(
                 items(notes) { note ->
                     CustomNoteCard(
                         note = note,
-                        onClick = { onNoteClick(note) },
+                        onClick = { onNoteClick(note.id) },
                         colors = colors,
                         shapes = shapes,
                         metrics = metrics,

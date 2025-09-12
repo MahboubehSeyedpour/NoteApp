@@ -29,7 +29,8 @@ fun CustomPillChip(
     shape: Shape,
     hPad: Dp,
     vPad: Dp,
-    textStyle: TextStyle
+    textStyle: TextStyle,
+    onClick: () -> Unit
 ) {
     Surface(
         color = containerColor,
