@@ -63,7 +63,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                         route = "${Screens.NoteDetailsScreen.route}?id=${event.noteId}"
                     )
 
-                    HomeEvents.NavigateToSearchScreen -> navController.navigate(Screens.SearchScreen.route)
+                    HomeEvents.NavigateToAddNoteScreen -> navController.navigate(Screens.AddNoteScreen.route)
                     is HomeEvents.Error -> Toast.makeText(
                         context,
                         event.message,
@@ -94,7 +94,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
             notes = notes,
             onNoteClick = { noteId -> viewModel.onNoteDetailsClicked(noteId) },
             onLabelsClick = {},
-            onFabClick = {},
+            onFabClick = { viewModel.onAddNoteClicked() },
             bottomBarLabel = "Labels",
         )
     }

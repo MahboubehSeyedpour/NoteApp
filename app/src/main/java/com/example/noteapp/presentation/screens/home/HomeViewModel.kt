@@ -41,6 +41,10 @@ class HomeViewModel @Inject constructor(
         )
     }
 
+    fun onAddNoteClicked() = viewModelScope.launch {
+        _events.emit(HomeEvents.NavigateToAddNoteScreen)
+    }
+
 //    init {
 //        viewModelScope.launch(io) {
 //            noteRepository.addNote(

@@ -1,4 +1,4 @@
-package com.example.noteapp.presentation.screens.note_details
+package com.example.noteapp.presentation.components
 
 import android.Manifest
 import android.content.Intent

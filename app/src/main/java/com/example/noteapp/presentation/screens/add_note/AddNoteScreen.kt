@@ -1,4 +1,4 @@
-package com.example.noteapp.presentation.screens.note_details
+package com.example.noteapp.presentation.screens.add_note
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -50,14 +50,16 @@ import com.example.noteapp.presentation.components.ReminderEntryPoint
 import com.example.noteapp.presentation.components.ReminderPickerDialog
 import com.example.noteapp.presentation.screens.home.model.NotesHomeColors
 import com.example.noteapp.presentation.screens.home.model.NotesHomeMetrics
+import com.example.noteapp.presentation.screens.note_details.NoteContent
+import com.example.noteapp.presentation.screens.note_details.NoteDetailEvents
 import com.example.noteapp.presentation.screens.note_details.components.BadgesRow
 import com.example.noteapp.presentation.theme.Background
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
-fun NoteDetailsScreen(
+fun AddNoteScreen(
     navController: NavController,
-    viewModel: NoteDetailViewModel = hiltViewModel()
+    viewModel: AddNoteViewModel = hiltViewModel()
 ) {
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -78,6 +80,7 @@ fun NoteDetailsScreen(
             }
         }
     }
+
 
     CustomBottomSheet(
         visible = showSheet,
@@ -172,11 +175,10 @@ fun NoteDetailsScreen(
                     .fillMaxSize()
                     .padding(inner), contentAlignment = Alignment.Center
             ) {
-                Text("Note not found")
+                Text("can not initialize note")
             }
         }
     }
-
 }
 
 @Composable

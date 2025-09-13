@@ -22,6 +22,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.noteapp.presentation.navigation.Screens
+import com.example.noteapp.presentation.screens.add_note.AddNoteScreen
 import com.example.noteapp.presentation.screens.home.HomeScreen
 import com.example.noteapp.presentation.screens.note_details.NoteDetailsScreen
 import com.example.noteapp.presentation.theme.NoteAppTheme
@@ -77,6 +78,7 @@ fun NoteApp(viewModel: MainViewModel, navController: NavHostController) {
             ) {
                 NoteDetailsScreen(navController)
             }
+            composable(Screens.AddNoteScreen.route) { AddNoteScreen(navController) }
         }
     }
 }
