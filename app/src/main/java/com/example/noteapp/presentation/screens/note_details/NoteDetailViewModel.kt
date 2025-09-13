@@ -33,7 +33,7 @@ class NoteDetailViewModel @Inject constructor(
     @IoDispatcher private val io: CoroutineDispatcher
 ) : ViewModel() {
 
-    private val noteId: Int = checkNotNull(savedStateHandle.get<Long>("id")).toInt()
+    private val noteId: Long = checkNotNull(savedStateHandle.get<Long>("id"))
 
     private val _uiState = MutableStateFlow(NoteDetailUIState())
     val uiState: StateFlow<NoteDetailUIState> = _uiState

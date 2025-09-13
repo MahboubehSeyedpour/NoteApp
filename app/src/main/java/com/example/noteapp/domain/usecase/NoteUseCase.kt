@@ -58,14 +58,14 @@ class NoteUseCase @Inject constructor(
         }
     }
 
-    fun deleteNoteById(id: Int) {
+    fun deleteNoteById(id: Long) {
         coroutineScope.launch(NonCancellable + Dispatchers.IO) {
             val noteToDelete = noteRepository.getNoteById(id).first()
             noteRepository.deleteNote(noteToDelete)
         }
     }
 
-    fun getNoteById(id: Int): Flow<NoteEntity> {
+    fun getNoteById(id: Long): Flow<NoteEntity> {
         return noteRepository.getNoteById(id)
     }
 

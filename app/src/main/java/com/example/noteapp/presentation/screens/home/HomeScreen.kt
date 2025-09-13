@@ -17,13 +17,18 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Menu
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.DarkGray
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -61,6 +66,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
     val notes by viewModel.notes.collectAsState()
     val context = LocalContext.current
     val layoutMode by viewModel.layoutMode.collectAsState()
+    var confirmDeleteId by remember { mutableStateOf<Long?>(null) }
 
     LaunchedEffect(viewModel.events) {
         lifecycle.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
@@ -79,6 +85,22 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                 }
             }
         }
+    }
+    if (confirmDeleteId != null) {
+        AlertDialog(
+            onDismissRequest = { confirmDeleteId = null },
+            title = { Text("Delete note?") },
+            text = { Text("This action cannot be undone.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.deleteNoteById(confirmDeleteId!!)
+                    confirmDeleteId = null
+                }) { Text("Delete") }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmDeleteId = null }) { Text("Cancel") }
+            }
+        )
     }
 
     Column(
@@ -107,6 +129,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
             onLabelsClick = {},
             onFabClick = { viewModel.onAddNoteClicked() },
             bottomBarLabel = "Labels",
+            onNoteLongPress = { noteId -> confirmDeleteId = noteId },
         )
     }
 }
@@ -123,6 +146,7 @@ fun Notes(
     colors: NotesHomeColors = NotesHomeColors(),
     shapes: NotesHomeShapes = NotesHomeShapes(),
     metrics: NotesHomeMetrics = NotesHomeMetrics(),
+    onNoteLongPress: (Long) -> Unit,
     titleTextStyle: TextStyle = MaterialTheme.typography.titleMedium.copy(
         fontWeight = FontWeight.SemiBold
     ),
@@ -182,7 +206,8 @@ fun Notes(
                     noteBodyStyle = noteBodyStyle,
                     chipTextStyle = chipTextStyle,
                     onNoteClick = onNoteClick,
-                    layoutMode = layoutMode
+                    layoutMode = layoutMode,
+                    onNoteLongPress = onNoteLongPress
                 )
                 LayoutMode.GRID -> NotesGrid(
                     notes = notes,
@@ -193,7 +218,8 @@ fun Notes(
                     noteBodyStyle = noteBodyStyle,
                     chipTextStyle = chipTextStyle,
                     onNoteClick = onNoteClick,
-                    layoutMode = layoutMode
+                    layoutMode = layoutMode,
+                    onNoteLongPress = onNoteLongPress
                 )
             }
         }
@@ -210,7 +236,8 @@ private fun NotesList(
     noteBodyStyle: TextStyle,
     chipTextStyle: TextStyle,
     onNoteClick: (Long) -> Unit,
-    layoutMode: LayoutMode
+    layoutMode: LayoutMode,
+    onNoteLongPress: (Long) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.padding(horizontal = metrics.screenPadding),
@@ -226,7 +253,8 @@ private fun NotesList(
                 bodyStyle = noteBodyStyle,
                 chipTextStyle = chipTextStyle,
                 onClick = { onNoteClick(note.id) },
-                layoutMode = layoutMode
+                layoutMode = layoutMode,
+                onLongClick = { onNoteLongPress(note.id) }
             )
         }
     }
@@ -242,7 +270,8 @@ private fun NotesGrid(
     noteBodyStyle: TextStyle,
     chipTextStyle: TextStyle,
     onNoteClick: (Long) -> Unit,
-    layoutMode: LayoutMode
+    layoutMode: LayoutMode,
+    onNoteLongPress: (Long) -> Unit
 ) {
     val minCell = 160.dp
 
@@ -262,7 +291,8 @@ private fun NotesGrid(
                 titleStyle = noteTitleStyle,
                 bodyStyle = noteBodyStyle,
                 chipTextStyle = chipTextStyle,
-                layoutMode = layoutMode
+                layoutMode = layoutMode,
+                onLongClick = { onNoteLongPress(note.id) }
             )
             Spacer(Modifier.height(metrics.verticalSpacing))
         }

@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -53,5 +54,18 @@ class HomeViewModel @Inject constructor(
 
     fun onGridToggleClicked() {
         _layoutMode.update { mode -> if (mode == LayoutMode.LIST) LayoutMode.GRID else LayoutMode.LIST }
+    }
+
+    fun deleteNoteById(noteId: Long) {
+        viewModelScope.launch(io) {
+            runCatching {
+                val note = noteRepository.getNoteById(noteId).first()
+                noteRepository.deleteNote(note)
+            }.onFailure {
+                viewModelScope.launch {
+                    _events.emit(HomeEvents.Error("Failed to delete note: ${it.message}"))
+                }
+            }
+        }
     }
 }

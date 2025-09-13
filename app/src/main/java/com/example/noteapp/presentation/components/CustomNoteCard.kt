@@ -1,5 +1,7 @@
 package com.example.noteapp.presentation.components
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,6 +26,7 @@ import com.example.noteapp.presentation.screens.home.model.NotesHomeColors
 import com.example.noteapp.presentation.screens.home.model.NotesHomeMetrics
 import com.example.noteapp.presentation.screens.home.model.NotesHomeShapes
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CustomNoteCard(
     note: Note,
@@ -35,9 +38,9 @@ fun CustomNoteCard(
     bodyStyle: TextStyle,
     chipTextStyle: TextStyle,
     layoutMode: LayoutMode,
+    onLongClick: () -> Unit,
 ) {
     Surface(
-        onClick = onClick,
         shape = shapes.cardShape,
         color = colors.cardContainer,
         contentColor = colors.cardContent,
@@ -45,6 +48,10 @@ fun CustomNoteCard(
     ) {
         Column(
             modifier = Modifier
+                .combinedClickable(
+                    onClick = onClick,
+                    onLongClick = onLongClick
+                )
                 .fillMaxWidth()
                 .padding(metrics.cardPadding)
         ) {
