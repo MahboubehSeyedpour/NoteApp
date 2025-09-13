@@ -33,8 +33,6 @@ import com.example.noteapp.presentation.components.CustomReminderDialog
 import com.example.noteapp.presentation.components.NoteDetailScreenTopBar
 import com.example.noteapp.presentation.components.ReminderEntryPoint
 import com.example.noteapp.presentation.components.ReminderPickerDialog
-import com.example.noteapp.presentation.screens.home.model.NotesHomeColors
-import com.example.noteapp.presentation.screens.home.model.NotesHomeMetrics
 import com.example.noteapp.presentation.screens.note_details.NoteContent
 import com.example.noteapp.presentation.screens.note_details.NoteDetailEvents
 import com.example.noteapp.presentation.theme.Background
@@ -128,8 +126,6 @@ fun AddNoteScreen(
             CustomBottomBar(
                 label = "Labels",
                 onLabelsClick = {},
-                colors = NotesHomeColors(),
-                metrics = NotesHomeMetrics(),
                 onFabClick = { viewModel.onDoneClicked() },
                 fabIcon = Icons.Default.Done
             )

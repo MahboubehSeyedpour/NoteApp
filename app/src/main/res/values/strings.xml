@@ -22,5 +22,5 @@
     <string name="note_load_failure">Note not found</string>
     <string name="note_init_failure">Can not initialize note</string>
     <string name="note_title">Title</string>
-    <string name="note_description">Write your note...</string>
+    <string name="note_description">Note…</string>
 </resources>

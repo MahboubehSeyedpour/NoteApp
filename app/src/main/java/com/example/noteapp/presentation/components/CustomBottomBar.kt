@@ -20,23 +20,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.DarkGray
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.example.noteapp.R
-import com.example.noteapp.presentation.screens.home.model.NotesHomeColors
-import com.example.noteapp.presentation.screens.home.model.NotesHomeMetrics
+import com.example.noteapp.presentation.theme.Background
 import com.example.noteapp.presentation.theme.Black
+import com.example.noteapp.presentation.theme.Primary
+import com.example.noteapp.presentation.theme.White
 
 @Composable
 fun CustomBottomBar(
     label: String,
     onLabelsClick: () -> Unit,
-    colors: NotesHomeColors,
-    metrics: NotesHomeMetrics,
     onFabClick: () -> Unit,
     fabIcon: ImageVector
 ) {
-    Surface(color = colors.bottomBarContainer) {
+    Surface(color = Background) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -49,7 +49,7 @@ fun CustomBottomBar(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = metrics.screenPadding)
+                    .padding(horizontal = dimensionResource(R.dimen.screen_padding))
                     .padding(bottom = 24.dp, top = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -59,17 +59,17 @@ fun CustomBottomBar(
                         Icon(
                             imageVector = ImageVector.vectorResource(R.drawable.ic_tag),
                             contentDescription = null,
-                            modifier = Modifier.size(metrics.iconSize),
+                            modifier = Modifier.size(dimensionResource(R.dimen.icon_size)),
                             tint = Black
                         )
                         Spacer(Modifier.width(8.dp))
-                        Text(label, color = colors.bottomBarContent)
+                        Text(label, color = Black)
                     }
                 }
                 FloatingActionButton(
                     onClick = onFabClick,
-                    containerColor = colors.fabContainer,
-                    contentColor = colors.fabContent,
+                    containerColor = Primary,
+                    contentColor = White,
                     shape = CircleShape
                 ) {
                     Icon(fabIcon, contentDescription = "Add")

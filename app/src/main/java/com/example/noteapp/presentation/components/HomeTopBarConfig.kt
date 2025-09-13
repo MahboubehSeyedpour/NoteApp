@@ -1,4 +1,4 @@
-package com.example.noteapp.presentation.screens.home.model
+package com.example.noteapp.presentation.components
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.painter.Painter

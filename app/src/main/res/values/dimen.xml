@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="screen_padding">16.dp</dimen>
+    <dimen name="card_padding">16.dp</dimen>
+    <dimen name="vertical_spacing">12.dp</dimen>
+    <dimen name="icon_size">24.dp</dimen>
+    <dimen name="chip_horizontal_padding">10.dp</dimen>
+    <dimen name="chip_vertical_padding">6.dp</dimen>
+    <dimen name="card_elevation">1.dp</dimen>
+</resources>

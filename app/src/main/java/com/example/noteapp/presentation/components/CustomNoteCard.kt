@@ -19,24 +19,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.noteapp.R
 import com.example.noteapp.core.enums.LayoutMode
+import com.example.noteapp.core.shapes.Shapes
 import com.example.noteapp.domain.model.Note
-import com.example.noteapp.presentation.screens.home.model.NotesHomeColors
-import com.example.noteapp.presentation.screens.home.model.NotesHomeMetrics
-import com.example.noteapp.presentation.screens.home.model.NotesHomeShapes
+import com.example.noteapp.presentation.theme.Black
+import com.example.noteapp.presentation.theme.Primary
+import com.example.noteapp.presentation.theme.SecondaryBg
+import com.example.noteapp.presentation.theme.SecondaryContent
+import com.example.noteapp.presentation.theme.White
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CustomNoteCard(
     note: Note,
-    colors: NotesHomeColors,
-    shapes: NotesHomeShapes,
-    metrics: NotesHomeMetrics,
     titleStyle: TextStyle,
     bodyStyle: TextStyle,
     chipTextStyle: TextStyle,
@@ -50,21 +51,21 @@ fun CustomNoteCard(
         if (isSelected) MaterialTheme.colorScheme.primary else Transparent
 
     Surface(
-        shape = shapes.cardShape,
-        color = colors.cardContainer,
-        contentColor = colors.cardContent,
-        tonalElevation = metrics.cardElevation
+        shape = Shapes().cardShape,
+        color = White,
+        contentColor = Black,
+        tonalElevation = dimensionResource(R.dimen.card_elevation)
     ) {
         Column(
             modifier = Modifier
-                .border(2.dp, highlight, shapes.cardShape)
-                .clip(shapes.cardShape)
+                .border(2.dp, highlight, Shapes().cardShape)
+                .clip(Shapes().cardShape)
                 .combinedClickable(
                     onClick = onClick,
                     onLongClick = onLongClick
                 )
                 .fillMaxWidth()
-                .padding(metrics.cardPadding)
+                .padding(dimensionResource(R.dimen.card_padding))
         ) {
             Text(
                 text = note.title,
@@ -90,9 +91,6 @@ fun CustomNoteCard(
                         Badges(
                             note.timeBadge,
                             note.categoryBadge,
-                            colors,
-                            shapes,
-                            metrics,
                             chipTextStyle
                         )
                     }
@@ -105,9 +103,6 @@ fun CustomNoteCard(
                         Badges(
                             note.timeBadge,
                             note.categoryBadge,
-                            colors,
-                            shapes,
-                            metrics,
                             chipTextStyle
                         )
                     }
@@ -119,19 +114,16 @@ fun CustomNoteCard(
 
 @Composable
 private fun Badges(
-    timeBadge: String?, categoryBadge: String?, colors: NotesHomeColors,
-    shapes: NotesHomeShapes,
-    metrics: NotesHomeMetrics,
-    chipTextStyle: TextStyle,
+    timeBadge: String?, categoryBadge: String?, chipTextStyle: TextStyle,
 ) {
     timeBadge?.let {
         CustomPillChip(
             text = it,
-            containerColor = colors.chipContainerPrimary,
-            contentColor = colors.chipContentPrimary,
-            shape = shapes.chipShape,
-            hPad = metrics.chipHorizontalPadding,
-            vPad = metrics.chipVerticalPadding,
+            containerColor = Primary,
+            contentColor = White,
+            shape = Shapes().chipShape,
+            hPad = dimensionResource(R.dimen.chip_horizontal_padding),
+            vPad = dimensionResource(R.dimen.chip_vertical_padding),
             textStyle = chipTextStyle,
             icon = ImageVector.vectorResource(R.drawable.ic_timer),
         )
@@ -139,11 +131,11 @@ private fun Badges(
     categoryBadge?.let {
         CustomPillChip(
             text = it,
-            containerColor = colors.chipContainerSecondary,
-            contentColor = colors.chipContentSecondary,
-            shape = shapes.chipShape,
-            hPad = metrics.chipHorizontalPadding,
-            vPad = metrics.chipVerticalPadding,
+            containerColor = SecondaryBg,
+            contentColor = SecondaryContent,
+            shape = Shapes().chipShape,
+            hPad = dimensionResource(R.dimen.chip_horizontal_padding),
+            vPad = dimensionResource(R.dimen.chip_vertical_padding),
             textStyle = chipTextStyle,
             icon = null,
         )

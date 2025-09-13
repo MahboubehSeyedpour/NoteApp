@@ -21,24 +21,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.DarkGray
 import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.noteapp.R
-import com.example.noteapp.presentation.screens.home.model.HomeTopBarConfig
-import com.example.noteapp.presentation.screens.home.model.NotesHomeColors
+import com.example.noteapp.presentation.theme.Background
+import com.example.noteapp.presentation.theme.Black
 
 @Composable
 fun NotesTopBar(
     config: HomeTopBarConfig,
-    colors: NotesHomeColors,
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(colors.topBarContainer)
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .background(Color.Transparent)
+            .padding(horizontal = dimensionResource(R.dimen.screen_padding), vertical = 12.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -76,8 +77,8 @@ fun NotesTopBar(
                 value = config.searchText,
                 onValueChange = config.onSearchChange,
                 placeholder = config.placeholder,
-                containerColor = colors.searchBackground,
-                contentColor = colors.searchContent,
+                containerColor = Background,
+                contentColor = Black,
                 modifier = Modifier.weight(1f)
             )
 

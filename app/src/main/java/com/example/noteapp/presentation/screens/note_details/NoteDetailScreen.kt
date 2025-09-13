@@ -48,8 +48,6 @@ import com.example.noteapp.presentation.components.CustomReminderDialog
 import com.example.noteapp.presentation.components.NoteDetailScreenTopBar
 import com.example.noteapp.presentation.components.ReminderEntryPoint
 import com.example.noteapp.presentation.components.ReminderPickerDialog
-import com.example.noteapp.presentation.screens.home.model.NotesHomeColors
-import com.example.noteapp.presentation.screens.home.model.NotesHomeMetrics
 import com.example.noteapp.presentation.screens.note_details.components.BadgesRow
 import com.example.noteapp.presentation.theme.Background
 import kotlinx.coroutines.flow.collectLatest
@@ -141,8 +139,6 @@ fun NoteDetailsScreen(
             CustomBottomBar(
                 label = "Labels",
                 onLabelsClick = {},
-                colors = NotesHomeColors(),
-                metrics = NotesHomeMetrics(),
                 onFabClick = { viewModel.onDoneClicked() },
                 fabIcon = Icons.Default.Done
             )
@@ -213,7 +209,7 @@ fun NoteContent(
                 onValueChange = onTitleChange,
                 modifier = Modifier.fillMaxWidth(),
                 textStyle = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold),
-                placeholder = { Text(context.getString(R.string.note_load_failure)) },
+                placeholder = { Text(context.getString(R.string.note_title)) },
                 singleLine = true,
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,

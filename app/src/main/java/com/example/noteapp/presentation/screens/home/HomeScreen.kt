@@ -44,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.DarkGray
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
@@ -61,12 +62,10 @@ import com.example.noteapp.core.enums.LayoutMode
 import com.example.noteapp.domain.model.Note
 import com.example.noteapp.presentation.components.CustomBottomBar
 import com.example.noteapp.presentation.components.CustomNoteCard
+import com.example.noteapp.presentation.components.HomeTopBarConfig
 import com.example.noteapp.presentation.components.NotesTopBar
 import com.example.noteapp.presentation.navigation.Screens
-import com.example.noteapp.presentation.screens.home.model.HomeTopBarConfig
-import com.example.noteapp.presentation.screens.home.model.NotesHomeColors
-import com.example.noteapp.presentation.screens.home.model.NotesHomeMetrics
-import com.example.noteapp.presentation.screens.home.model.NotesHomeShapes
+import com.example.noteapp.presentation.theme.Background
 import com.example.noteapp.presentation.theme.NoteAppTheme
 import kotlinx.coroutines.flow.collectLatest
 
@@ -173,9 +172,6 @@ fun Content(
     onNoteClick: (Long) -> Unit,
     onLabelsClick: () -> Unit,
     onFabClick: () -> Unit,
-    colors: NotesHomeColors = NotesHomeColors(),
-    shapes: NotesHomeShapes = NotesHomeShapes(),
-    metrics: NotesHomeMetrics = NotesHomeMetrics(),
     onNoteLongPress: (Long) -> Unit,
     titleTextStyle: TextStyle = MaterialTheme.typography.titleMedium.copy(
         fontWeight = FontWeight.SemiBold
@@ -197,7 +193,7 @@ fun Content(
     val inSelection = selectedIds.isNotEmpty()
 
     Scaffold(
-        containerColor = colors.background,
+        containerColor = Background,
         topBar = {
             if (inSelection) {
                 TopAppBar(
@@ -221,7 +217,7 @@ fun Content(
                     }
                 )
             } else {
-                NotesTopBar(config = topBarConfig, colors = colors)
+                NotesTopBar(config = topBarConfig)
             }
         },
         bottomBar = {
@@ -229,14 +225,18 @@ fun Content(
                 BottomAppBar {
                     Spacer(Modifier.weight(1f))
                     TextButton(onClick = onPinSelected) { Text(context.getString(R.string.pin)) }
-                    TextButton(onClick = { onDeleteSelected(selectedIds.first()) }) { Text(context.getString(R.string.delete)) }
+                    TextButton(onClick = { onDeleteSelected(selectedIds.first()) }) {
+                        Text(
+                            context.getString(
+                                R.string.delete
+                            )
+                        )
+                    }
                 }
             } else {
                 CustomBottomBar(
                     label = bottomBarLabel,
                     onLabelsClick = onLabelsClick,
-                    colors = colors,
-                    metrics = metrics,
                     onFabClick = onFabClick,
                     fabIcon = fabIcon
                 )
@@ -246,19 +246,16 @@ fun Content(
         Column(
             modifier = Modifier
                 .padding(inner)
-                .padding(horizontal = metrics.screenPadding)
+                .padding(horizontal = dimensionResource(R.dimen.screen_padding))
         ) {
-            Spacer(Modifier.height(metrics.verticalSpacing))
+            Spacer(Modifier.height(dimensionResource(R.dimen.screen_padding)))
             if (!inSelection) {
-                Text(text = titleText, style = titleTextStyle, color = colors.listTitle)
-                Spacer(Modifier.height(metrics.verticalSpacing * 2))
+                Text(text = titleText, style = titleTextStyle, color = DarkGray)
+                Spacer(Modifier.height(dimensionResource(R.dimen.screen_padding) * 2))
             }
             when (layoutMode) {
                 LayoutMode.LIST -> NotesList(
                     notes = notes,
-                    metrics = metrics,
-                    colors = colors,
-                    shapes = shapes,
                     noteTitleStyle = noteTitleStyle,
                     noteBodyStyle = noteBodyStyle,
                     chipTextStyle = chipTextStyle,
@@ -270,9 +267,6 @@ fun Content(
 
                 LayoutMode.GRID -> NotesGrid(
                     notes = notes,
-                    metrics = metrics,
-                    colors = colors,
-                    shapes = shapes,
                     noteTitleStyle = noteTitleStyle,
                     noteBodyStyle = noteBodyStyle,
                     chipTextStyle = chipTextStyle,
@@ -289,9 +283,6 @@ fun Content(
 @Composable
 private fun NotesList(
     notes: List<Note>,
-    metrics: NotesHomeMetrics,
-    colors: NotesHomeColors,
-    shapes: NotesHomeShapes,
     noteTitleStyle: TextStyle,
     noteBodyStyle: TextStyle,
     chipTextStyle: TextStyle,
@@ -305,17 +296,14 @@ private fun NotesList(
     val others = notes.filterNot { it.pinned }
 
     LazyColumn(
-        modifier = Modifier.padding(horizontal = metrics.screenPadding),
-        verticalArrangement = Arrangement.spacedBy(metrics.verticalSpacing)
+        modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.screen_padding)),
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.screen_padding))
     ) {
 
         items(pinned, key = { it.id }) { note ->
             CustomNoteCard(
                 note = note,
                 isSelected = note.id in selectedIds,
-                colors = colors,
-                shapes = shapes,
-                metrics = metrics,
                 titleStyle = noteTitleStyle,
                 bodyStyle = noteBodyStyle,
                 chipTextStyle = chipTextStyle,
@@ -328,7 +316,7 @@ private fun NotesList(
         if (pinned.isNotEmpty() && others.isNotEmpty()) {
             item {
                 HorizontalDivider(
-                    modifier = Modifier.padding(vertical = metrics.verticalSpacing),
+                    modifier = Modifier.padding(vertical = dimensionResource(R.dimen.screen_padding)),
                     thickness = 1.dp,
                     color = MaterialTheme.colorScheme.outlineVariant
                 )
@@ -338,12 +326,9 @@ private fun NotesList(
         items(others, key = { it.id }) { note ->
             CustomNoteCard(
                 note = note,
-                colors = colors,
-                shapes = shapes,
                 isSelected = note.id in selectedIds,
                 onClick = { onNoteClick(note.id) },
                 onLongClick = { onNoteLongPress(note.id) },
-                metrics = metrics,
                 titleStyle = noteTitleStyle,
                 bodyStyle = noteBodyStyle,
                 chipTextStyle = chipTextStyle,
@@ -356,9 +341,6 @@ private fun NotesList(
 @Composable
 private fun NotesGrid(
     notes: List<Note>,
-    metrics: NotesHomeMetrics,
-    colors: NotesHomeColors,
-    shapes: NotesHomeShapes,
     noteTitleStyle: TextStyle,
     noteBodyStyle: TextStyle,
     chipTextStyle: TextStyle,
@@ -372,13 +354,13 @@ private fun NotesGrid(
     val others = notes.filterNot { it.pinned }
 
     LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(metrics.verticalSpacing)
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.screen_padding))
     ) {
         if (pinned.isNotEmpty()) {
             item {
                 LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(metrics.verticalSpacing),
-                    contentPadding = PaddingValues(horizontal = metrics.screenPadding)
+                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.screen_padding)),
+                    contentPadding = PaddingValues(horizontal = dimensionResource(R.dimen.screen_padding))
                 ) {
                     items(pinned, key = { it.id }) { note ->
                         CustomNoteCard(
@@ -386,22 +368,19 @@ private fun NotesGrid(
                             isSelected = note.id in selectedIds,
                             onClick = { onNoteClick(note.id) },
                             onLongClick = { onNoteLongPress(note.id) },
-                            colors = colors,
-                            shapes = shapes,
-                            metrics = metrics,
                             titleStyle = noteTitleStyle,
                             bodyStyle = noteBodyStyle,
                             chipTextStyle = chipTextStyle,
                             layoutMode = layoutMode,
                         )
-                        Spacer(Modifier.height(metrics.verticalSpacing))
+                        Spacer(Modifier.height(dimensionResource(R.dimen.screen_padding)))
                     }
                 }
             }
             if (others.isNotEmpty()) {
                 item {
                     HorizontalDivider(
-                        modifier = Modifier.padding(vertical = metrics.verticalSpacing),
+                        modifier = Modifier.padding(vertical = dimensionResource(R.dimen.screen_padding)),
                         thickness = 1.dp,
                         color = MaterialTheme.colorScheme.outlineVariant
                     )
@@ -412,9 +391,9 @@ private fun NotesGrid(
         item {
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(minSize = 160.dp),
-                contentPadding = PaddingValues(horizontal = metrics.screenPadding),
-                verticalArrangement = Arrangement.spacedBy(metrics.verticalSpacing),
-                horizontalArrangement = Arrangement.spacedBy(metrics.verticalSpacing),
+                contentPadding = PaddingValues(horizontal = dimensionResource(R.dimen.screen_padding)),
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.screen_padding)),
+                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.screen_padding)),
                 modifier = Modifier.fillMaxHeight()
             ) {
                 items(others, key = { it.id }) { note ->
@@ -423,15 +402,12 @@ private fun NotesGrid(
                         isSelected = note.id in selectedIds,
                         onClick = { onNoteClick(note.id) },
                         onLongClick = { onNoteLongPress(note.id) },
-                        colors = colors,
-                        shapes = shapes,
-                        metrics = metrics,
                         titleStyle = noteTitleStyle,
                         bodyStyle = noteBodyStyle,
                         chipTextStyle = chipTextStyle,
                         layoutMode = layoutMode,
                     )
-                    Spacer(Modifier.height(metrics.verticalSpacing))
+                    Spacer(Modifier.height(dimensionResource(R.dimen.screen_padding)))
                 }
             }
         }
