@@ -32,7 +32,7 @@ class AddNoteViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(
         NoteDetailUIState(
             isLoading = false,
-            note = Note(0, "", "", null, null, null, 0L)
+            note = Note(0, "", "", null, null, null, 0L, false)
         )
     )
     val uiState: StateFlow<NoteDetailUIState> = _uiState

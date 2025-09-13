@@ -6,22 +6,33 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -67,6 +78,8 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
     val context = LocalContext.current
     val layoutMode by viewModel.layoutMode.collectAsState()
     var confirmDeleteId by remember { mutableStateOf<Long?>(null) }
+    val query by viewModel.query.collectAsState()
+    val selected by viewModel.selected.collectAsState()
 
     LaunchedEffect(viewModel.events) {
         lifecycle.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
@@ -86,6 +99,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
             }
         }
     }
+
     if (confirmDeleteId != null) {
         AlertDialog(
             onDismissRequest = { confirmDeleteId = null },
@@ -93,7 +107,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
             text = { Text("This action cannot be undone.") },
             confirmButton = {
                 TextButton(onClick = {
-                    viewModel.deleteNoteById(confirmDeleteId!!)
+                    viewModel.deleteSelected()
                     confirmDeleteId = null
                 }) { Text("Delete") }
             },
@@ -108,37 +122,51 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
             .fillMaxSize()
             .background(DarkGray)
     ) {
-        Notes(
+        Content(
             topBarConfig = HomeTopBarConfig(
                 avatar = painterResource(R.mipmap.user_avatar_foreground),
-                searchText = "",
-                onSearchChange = {},
-                onGridToggle = {  viewModel.onGridToggleClicked() },
+                searchText = query,                              // ← value
+                onSearchChange = viewModel::onSearchChange,
+                onGridToggle = { viewModel.onGridToggleClicked() },
                 onMenuClick = { /* TODO */ },
                 gridToggleIcon = when (layoutMode) {
                     LayoutMode.LIST -> ImageVector.vectorResource(R.drawable.ic_grid)
                     LayoutMode.GRID -> ImageVector.vectorResource(R.drawable.ic_list)
                 },
                 menuIcon = Icons.Outlined.Menu,
-                placeholder = "Search your notes"
+                placeholder = "Search your notes",
             ),
             titleText = "Recent All Note",
             notes = notes,
             layoutMode = layoutMode,
-            onNoteClick = { noteId -> viewModel.onNoteDetailsClicked(noteId) },
+            selectedIds = selected,
+            onNoteClick = { id ->
+                if (selected.isEmpty()) viewModel.onNoteDetailsClicked(id)
+                else viewModel.toggleSelection(id)
+            },
+            onDeleteSelected = { id ->
+                confirmDeleteId = id
+            },
+            onPinSelected = { viewModel.pinSelected() },
             onLabelsClick = {},
             onFabClick = { viewModel.onAddNoteClicked() },
             bottomBarLabel = "Labels",
-            onNoteLongPress = { noteId -> confirmDeleteId = noteId },
+            onNoteLongPress = { id -> viewModel.toggleSelection(id) },
+            onClearSelection = { viewModel.clearSelection() },
         )
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Notes(
+fun Content(
     topBarConfig: HomeTopBarConfig,
     titleText: String,
     notes: List<Note>,
+    selectedIds: Set<Long>,
+    onDeleteSelected: (Long) -> Unit,
+    onPinSelected: () -> Unit,
+    onClearSelection: () -> Unit,
     layoutMode: LayoutMode,
     onNoteClick: (Long) -> Unit,
     onLabelsClick: () -> Unit,
@@ -162,23 +190,54 @@ fun Notes(
     bottomBarLabel: String,
     fabIcon: ImageVector = Icons.Outlined.Add
 ) {
+
+    val inSelection = selectedIds.isNotEmpty()
+
     Scaffold(
         containerColor = colors.background,
         topBar = {
-            NotesTopBar(
-                config = topBarConfig,
-                colors = colors,
-            )
+            if (inSelection) {
+                TopAppBar(
+                    title = { Text("${selectedIds.size} selected") },
+                    navigationIcon = {
+                        IconButton(onClick = onClearSelection) {
+                            Icon(Icons.Outlined.Close, contentDescription = "Clear selection")
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = onPinSelected) {
+                            Icon(
+                                ImageVector.vectorResource(R.drawable.ic_pin),
+                                modifier = Modifier.size(24.dp),
+                                contentDescription = "Pin"
+                            )
+                        }
+                        IconButton(onClick = { onDeleteSelected(selectedIds.first()) }) {
+                            Icon(Icons.Outlined.Delete, contentDescription = "Delete")
+                        }
+                    }
+                )
+            } else {
+                NotesTopBar(config = topBarConfig, colors = colors)
+            }
         },
         bottomBar = {
-            CustomBottomBar(
-                label = bottomBarLabel,
-                onLabelsClick = onLabelsClick,
-                colors = colors,
-                metrics = metrics,
-                onFabClick = onFabClick,
-                fabIcon = fabIcon
-            )
+            if (inSelection) {
+                BottomAppBar {
+                    Spacer(Modifier.weight(1f))
+                    TextButton(onClick = onPinSelected) { Text("Pin") }
+                    TextButton(onClick = { onDeleteSelected(selectedIds.first()) }) { Text("Delete") }
+                }
+            } else {
+                CustomBottomBar(
+                    label = bottomBarLabel,
+                    onLabelsClick = onLabelsClick,
+                    colors = colors,
+                    metrics = metrics,
+                    onFabClick = onFabClick,
+                    fabIcon = fabIcon
+                )
+            }
         }
     ) { inner ->
         Column(
@@ -187,15 +246,10 @@ fun Notes(
                 .padding(horizontal = metrics.screenPadding)
         ) {
             Spacer(Modifier.height(metrics.verticalSpacing))
-            Text(
-                text = titleText,
-                style = titleTextStyle,
-                color = colors.listTitle
-            )
-
-            Spacer(Modifier.height(metrics.verticalSpacing))
-            Spacer(Modifier.height(metrics.verticalSpacing))
-
+            if (!inSelection) {
+                Text(text = titleText, style = titleTextStyle, color = colors.listTitle)
+                Spacer(Modifier.height(metrics.verticalSpacing * 2))
+            }
             when (layoutMode) {
                 LayoutMode.LIST -> NotesList(
                     notes = notes,
@@ -205,10 +259,12 @@ fun Notes(
                     noteTitleStyle = noteTitleStyle,
                     noteBodyStyle = noteBodyStyle,
                     chipTextStyle = chipTextStyle,
-                    onNoteClick = onNoteClick,
                     layoutMode = layoutMode,
-                    onNoteLongPress = onNoteLongPress
+                    onNoteClick = onNoteClick,
+                    onNoteLongPress = onNoteLongPress,
+                    selectedIds = selectedIds
                 )
+
                 LayoutMode.GRID -> NotesGrid(
                     notes = notes,
                     metrics = metrics,
@@ -217,9 +273,10 @@ fun Notes(
                     noteTitleStyle = noteTitleStyle,
                     noteBodyStyle = noteBodyStyle,
                     chipTextStyle = chipTextStyle,
-                    onNoteClick = onNoteClick,
                     layoutMode = layoutMode,
-                    onNoteLongPress = onNoteLongPress
+                    onNoteClick = onNoteClick,
+                    onNoteLongPress = onNoteLongPress,
+                    selectedIds = selectedIds
                 )
             }
         }
@@ -235,17 +292,24 @@ private fun NotesList(
     noteTitleStyle: TextStyle,
     noteBodyStyle: TextStyle,
     chipTextStyle: TextStyle,
-    onNoteClick: (Long) -> Unit,
     layoutMode: LayoutMode,
-    onNoteLongPress: (Long) -> Unit
+    onNoteClick: (Long) -> Unit,
+    onNoteLongPress: (Long) -> Unit,
+    selectedIds: Set<Long>
 ) {
+
+    val pinned = notes.filter { it.pinned }
+    val others = notes.filterNot { it.pinned }
+
     LazyColumn(
         modifier = Modifier.padding(horizontal = metrics.screenPadding),
         verticalArrangement = Arrangement.spacedBy(metrics.verticalSpacing)
     ) {
-        items(notes, key = { it.id }) { note ->
+
+        items(pinned, key = { it.id }) { note ->
             CustomNoteCard(
                 note = note,
+                isSelected = note.id in selectedIds,
                 colors = colors,
                 shapes = shapes,
                 metrics = metrics,
@@ -253,8 +317,34 @@ private fun NotesList(
                 bodyStyle = noteBodyStyle,
                 chipTextStyle = chipTextStyle,
                 onClick = { onNoteClick(note.id) },
+                onLongClick = { onNoteLongPress(note.id) },
                 layoutMode = layoutMode,
-                onLongClick = { onNoteLongPress(note.id) }
+            )
+        }
+
+        if (pinned.isNotEmpty() && others.isNotEmpty()) {
+            item {
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = metrics.verticalSpacing),
+                    thickness = 1.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
+            }
+        }
+
+        items(others, key = { it.id }) { note ->
+            CustomNoteCard(
+                note = note,
+                colors = colors,
+                shapes = shapes,
+                isSelected = note.id in selectedIds,
+                onClick = { onNoteClick(note.id) },
+                onLongClick = { onNoteLongPress(note.id) },
+                metrics = metrics,
+                titleStyle = noteTitleStyle,
+                bodyStyle = noteBodyStyle,
+                chipTextStyle = chipTextStyle,
+                layoutMode = layoutMode,
             )
         }
     }
@@ -269,32 +359,78 @@ private fun NotesGrid(
     noteTitleStyle: TextStyle,
     noteBodyStyle: TextStyle,
     chipTextStyle: TextStyle,
-    onNoteClick: (Long) -> Unit,
     layoutMode: LayoutMode,
-    onNoteLongPress: (Long) -> Unit
+    onNoteClick: (Long) -> Unit,
+    onNoteLongPress: (Long) -> Unit,
+    selectedIds: Set<Long>
 ) {
     val minCell = 160.dp
+    val pinned = notes.filter { it.pinned }
+    val others = notes.filterNot { it.pinned }
 
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = minCell),
-        contentPadding = PaddingValues(horizontal = metrics.screenPadding),
-        verticalArrangement = Arrangement.spacedBy(metrics.verticalSpacing),
-        horizontalArrangement = Arrangement.spacedBy(metrics.verticalSpacing)
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(metrics.verticalSpacing)
     ) {
-        items(notes, key = { it.id }) { note ->
-            CustomNoteCard(
-                note = note,
-                onClick = { onNoteClick(note.id) },
-                colors = colors,
-                shapes = shapes,
-                metrics = metrics,
-                titleStyle = noteTitleStyle,
-                bodyStyle = noteBodyStyle,
-                chipTextStyle = chipTextStyle,
-                layoutMode = layoutMode,
-                onLongClick = { onNoteLongPress(note.id) }
-            )
-            Spacer(Modifier.height(metrics.verticalSpacing))
+        if (pinned.isNotEmpty()) {
+            item {
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(metrics.verticalSpacing),
+                    contentPadding = PaddingValues(horizontal = metrics.screenPadding)
+                ) {
+                    items(pinned, key = { it.id }) { note ->
+                        CustomNoteCard(
+                            note = note,
+                            isSelected = note.id in selectedIds,
+                            onClick = { onNoteClick(note.id) },
+                            onLongClick = { onNoteLongPress(note.id) },
+                            colors = colors,
+                            shapes = shapes,
+                            metrics = metrics,
+                            titleStyle = noteTitleStyle,
+                            bodyStyle = noteBodyStyle,
+                            chipTextStyle = chipTextStyle,
+                            layoutMode = layoutMode,
+                        )
+                        Spacer(Modifier.height(metrics.verticalSpacing))
+                    }
+                }
+            }
+            if (others.isNotEmpty()) {
+                item {
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = metrics.verticalSpacing),
+                        thickness = 1.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    )
+                }
+            }
+        }
+
+        item {
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = 160.dp),
+                contentPadding = PaddingValues(horizontal = metrics.screenPadding),
+                verticalArrangement = Arrangement.spacedBy(metrics.verticalSpacing),
+                horizontalArrangement = Arrangement.spacedBy(metrics.verticalSpacing),
+                modifier = Modifier.fillMaxHeight()
+            ) {
+                items(others, key = { it.id }) { note ->
+                    CustomNoteCard(
+                        note = note,
+                        isSelected = note.id in selectedIds,
+                        onClick = { onNoteClick(note.id) },
+                        onLongClick = { onNoteLongPress(note.id) },
+                        colors = colors,
+                        shapes = shapes,
+                        metrics = metrics,
+                        titleStyle = noteTitleStyle,
+                        bodyStyle = noteBodyStyle,
+                        chipTextStyle = chipTextStyle,
+                        layoutMode = layoutMode,
+                    )
+                    Spacer(Modifier.height(metrics.verticalSpacing))
+                }
+            }
         }
     }
 }

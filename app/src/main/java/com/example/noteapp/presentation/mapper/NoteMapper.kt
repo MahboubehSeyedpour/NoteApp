@@ -12,7 +12,8 @@ fun NoteEntity.toUI(zoneId: ZoneId = ZoneId.systemDefault()): Note = Note(
     categoryBadge = category,
     timeBadge = reminderAt?.let { formatReminderEpoch(it, zoneId) },
     reminderAt = reminderAt,
-    createdAt = createdAt
+    createdAt = createdAt,
+    pinned = pinned
 )
 
 fun Note.toDomain(): NoteEntity = NoteEntity(

@@ -1,6 +1,7 @@
 package com.example.noteapp.presentation.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,11 +10,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
@@ -30,7 +34,6 @@ import com.example.noteapp.presentation.screens.home.model.NotesHomeShapes
 @Composable
 fun CustomNoteCard(
     note: Note,
-    onClick: () -> Unit,
     colors: NotesHomeColors,
     shapes: NotesHomeShapes,
     metrics: NotesHomeMetrics,
@@ -38,8 +41,14 @@ fun CustomNoteCard(
     bodyStyle: TextStyle,
     chipTextStyle: TextStyle,
     layoutMode: LayoutMode,
+    onClick: () -> Unit,
     onLongClick: () -> Unit,
+    isSelected: Boolean,
 ) {
+
+    val highlight =
+        if (isSelected) MaterialTheme.colorScheme.primary else Transparent
+
     Surface(
         shape = shapes.cardShape,
         color = colors.cardContainer,
@@ -48,6 +57,8 @@ fun CustomNoteCard(
     ) {
         Column(
             modifier = Modifier
+                .border(2.dp, highlight, shapes.cardShape)
+                .clip(shapes.cardShape)
                 .combinedClickable(
                     onClick = onClick,
                     onLongClick = onLongClick

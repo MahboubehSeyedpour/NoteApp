@@ -10,5 +10,6 @@ data class Note(
     val categoryBadge: String?,
     val timeBadge: String?,
     val reminderAt: Long?,
-    val createdAt: Long
+    val createdAt: Long,
+    val pinned: Boolean
 )
