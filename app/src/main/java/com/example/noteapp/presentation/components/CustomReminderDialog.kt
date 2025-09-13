@@ -35,7 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.noteapp.core.constants.enums.RepeatOption
+import com.example.noteapp.core.enums.RepeatOption
 import java.time.Instant
 import java.time.LocalTime
 import java.time.ZoneId

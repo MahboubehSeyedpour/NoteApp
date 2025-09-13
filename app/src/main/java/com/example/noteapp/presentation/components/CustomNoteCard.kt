@@ -18,6 +18,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.noteapp.R
+import com.example.noteapp.core.enums.LayoutMode
 import com.example.noteapp.domain.model.Note
 import com.example.noteapp.presentation.screens.home.model.NotesHomeColors
 import com.example.noteapp.presentation.screens.home.model.NotesHomeMetrics
@@ -32,7 +33,8 @@ fun CustomNoteCard(
     metrics: NotesHomeMetrics,
     titleStyle: TextStyle,
     bodyStyle: TextStyle,
-    chipTextStyle: TextStyle
+    chipTextStyle: TextStyle,
+    layoutMode: LayoutMode,
 ) {
     Surface(
         onClick = onClick,
@@ -61,35 +63,71 @@ fun CustomNoteCard(
             )
             Spacer(Modifier.height(12.dp))
 
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                note.timeBadge?.let {
-                    CustomPillChip(
-                        text = it,
-                        containerColor = colors.chipContainerPrimary,
-                        contentColor = colors.chipContentPrimary,
-                        shape = shapes.chipShape,
-                        hPad = metrics.chipHorizontalPadding,
-                        vPad = metrics.chipVerticalPadding,
-                        textStyle = chipTextStyle,
-                        icon = ImageVector.vectorResource(R.drawable.ic_timer),
-                    )
+            when (layoutMode) {
+                LayoutMode.LIST -> {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Badges(
+                            note.timeBadge,
+                            note.categoryBadge,
+                            colors,
+                            shapes,
+                            metrics,
+                            chipTextStyle
+                        )
+                    }
                 }
-                note.categoryBadge?.let {
-                    CustomPillChip(
-                        text = it,
-                        containerColor = colors.chipContainerSecondary,
-                        contentColor = colors.chipContentSecondary,
-                        shape = shapes.chipShape,
-                        hPad = metrics.chipHorizontalPadding,
-                        vPad = metrics.chipVerticalPadding,
-                        textStyle = chipTextStyle,
-                        icon = null,
-                    )
+
+                LayoutMode.GRID -> {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Badges(
+                            note.timeBadge,
+                            note.categoryBadge,
+                            colors,
+                            shapes,
+                            metrics,
+                            chipTextStyle
+                        )
+                    }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun Badges(
+    timeBadge: String?, categoryBadge: String?, colors: NotesHomeColors,
+    shapes: NotesHomeShapes,
+    metrics: NotesHomeMetrics,
+    chipTextStyle: TextStyle,
+) {
+    timeBadge?.let {
+        CustomPillChip(
+            text = it,
+            containerColor = colors.chipContainerPrimary,
+            contentColor = colors.chipContentPrimary,
+            shape = shapes.chipShape,
+            hPad = metrics.chipHorizontalPadding,
+            vPad = metrics.chipVerticalPadding,
+            textStyle = chipTextStyle,
+            icon = ImageVector.vectorResource(R.drawable.ic_timer),
+        )
+    }
+    categoryBadge?.let {
+        CustomPillChip(
+            text = it,
+            containerColor = colors.chipContainerSecondary,
+            contentColor = colors.chipContentSecondary,
+            shape = shapes.chipShape,
+            hPad = metrics.chipHorizontalPadding,
+            vPad = metrics.chipVerticalPadding,
+            textStyle = chipTextStyle,
+            icon = null,
+        )
     }
 }

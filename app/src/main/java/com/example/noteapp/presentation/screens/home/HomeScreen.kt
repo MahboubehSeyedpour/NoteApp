@@ -4,11 +4,15 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
@@ -29,6 +33,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -36,6 +41,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.noteapp.R
+import com.example.noteapp.core.enums.LayoutMode
 import com.example.noteapp.domain.model.Note
 import com.example.noteapp.presentation.components.CustomBottomBar
 import com.example.noteapp.presentation.components.CustomNoteCard
@@ -54,6 +60,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val notes by viewModel.notes.collectAsState()
     val context = LocalContext.current
+    val layoutMode by viewModel.layoutMode.collectAsState()
 
     LaunchedEffect(viewModel.events) {
         lifecycle.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
@@ -84,14 +91,18 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                 avatar = painterResource(R.mipmap.user_avatar_foreground),
                 searchText = "",
                 onSearchChange = {},
-                onGridToggle = { /* TODO */ },
+                onGridToggle = {  viewModel.onGridToggleClicked() },
                 onMenuClick = { /* TODO */ },
-                gridToggleIcon = ImageVector.vectorResource(R.drawable.ic_grid),
+                gridToggleIcon = when (layoutMode) {
+                    LayoutMode.LIST -> ImageVector.vectorResource(R.drawable.ic_grid)
+                    LayoutMode.GRID -> ImageVector.vectorResource(R.drawable.ic_list)
+                },
                 menuIcon = Icons.Outlined.Menu,
                 placeholder = "Search your notes"
             ),
             titleText = "Recent All Note",
             notes = notes,
+            layoutMode = layoutMode,
             onNoteClick = { noteId -> viewModel.onNoteDetailsClicked(noteId) },
             onLabelsClick = {},
             onFabClick = { viewModel.onAddNoteClicked() },
@@ -105,6 +116,7 @@ fun Notes(
     topBarConfig: HomeTopBarConfig,
     titleText: String,
     notes: List<Note>,
+    layoutMode: LayoutMode,
     onNoteClick: (Long) -> Unit,
     onLabelsClick: () -> Unit,
     onFabClick: () -> Unit,
@@ -160,25 +172,99 @@ fun Notes(
             Spacer(Modifier.height(metrics.verticalSpacing))
             Spacer(Modifier.height(metrics.verticalSpacing))
 
-            LazyColumn(
-                modifier = Modifier
-                    .padding(horizontal = metrics.screenPadding),
-                verticalArrangement = Arrangement.spacedBy(metrics.verticalSpacing)
-            ) {
-                items(notes) { note ->
-                    CustomNoteCard(
-                        note = note,
-                        onClick = { onNoteClick(note.id) },
-                        colors = colors,
-                        shapes = shapes,
-                        metrics = metrics,
-                        titleStyle = noteTitleStyle,
-                        bodyStyle = noteBodyStyle,
-                        chipTextStyle = chipTextStyle
-                    )
-                    Spacer(Modifier.height(metrics.verticalSpacing))
-                }
+            when (layoutMode) {
+                LayoutMode.LIST -> NotesList(
+                    notes = notes,
+                    metrics = metrics,
+                    colors = colors,
+                    shapes = shapes,
+                    noteTitleStyle = noteTitleStyle,
+                    noteBodyStyle = noteBodyStyle,
+                    chipTextStyle = chipTextStyle,
+                    onNoteClick = onNoteClick,
+                    layoutMode = layoutMode
+                )
+                LayoutMode.GRID -> NotesGrid(
+                    notes = notes,
+                    metrics = metrics,
+                    colors = colors,
+                    shapes = shapes,
+                    noteTitleStyle = noteTitleStyle,
+                    noteBodyStyle = noteBodyStyle,
+                    chipTextStyle = chipTextStyle,
+                    onNoteClick = onNoteClick,
+                    layoutMode = layoutMode
+                )
             }
+        }
+    }
+}
+
+@Composable
+private fun NotesList(
+    notes: List<Note>,
+    metrics: NotesHomeMetrics,
+    colors: NotesHomeColors,
+    shapes: NotesHomeShapes,
+    noteTitleStyle: TextStyle,
+    noteBodyStyle: TextStyle,
+    chipTextStyle: TextStyle,
+    onNoteClick: (Long) -> Unit,
+    layoutMode: LayoutMode
+) {
+    LazyColumn(
+        modifier = Modifier.padding(horizontal = metrics.screenPadding),
+        verticalArrangement = Arrangement.spacedBy(metrics.verticalSpacing)
+    ) {
+        items(notes, key = { it.id }) { note ->
+            CustomNoteCard(
+                note = note,
+                colors = colors,
+                shapes = shapes,
+                metrics = metrics,
+                titleStyle = noteTitleStyle,
+                bodyStyle = noteBodyStyle,
+                chipTextStyle = chipTextStyle,
+                onClick = { onNoteClick(note.id) },
+                layoutMode = layoutMode
+            )
+        }
+    }
+}
+
+@Composable
+private fun NotesGrid(
+    notes: List<Note>,
+    metrics: NotesHomeMetrics,
+    colors: NotesHomeColors,
+    shapes: NotesHomeShapes,
+    noteTitleStyle: TextStyle,
+    noteBodyStyle: TextStyle,
+    chipTextStyle: TextStyle,
+    onNoteClick: (Long) -> Unit,
+    layoutMode: LayoutMode
+) {
+    val minCell = 160.dp
+
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(minSize = minCell),
+        contentPadding = PaddingValues(horizontal = metrics.screenPadding),
+        verticalArrangement = Arrangement.spacedBy(metrics.verticalSpacing),
+        horizontalArrangement = Arrangement.spacedBy(metrics.verticalSpacing)
+    ) {
+        items(notes, key = { it.id }) { note ->
+            CustomNoteCard(
+                note = note,
+                onClick = { onNoteClick(note.id) },
+                colors = colors,
+                shapes = shapes,
+                metrics = metrics,
+                titleStyle = noteTitleStyle,
+                bodyStyle = noteBodyStyle,
+                chipTextStyle = chipTextStyle,
+                layoutMode = layoutMode
+            )
+            Spacer(Modifier.height(metrics.verticalSpacing))
         }
     }
 }

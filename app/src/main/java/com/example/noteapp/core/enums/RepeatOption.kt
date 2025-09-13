@@ -1,4 +1,4 @@
-package com.example.noteapp.core.constants.enums
+package com.example.noteapp.core.enums
 
 enum class RepeatOption(val display: String) {
     NONE("Does not repeat"),
