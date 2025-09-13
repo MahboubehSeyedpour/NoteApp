@@ -1,24 +1,14 @@
 package com.example.noteapp.presentation.screens.add_note
 
 import android.widget.Toast
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -27,13 +17,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -41,7 +27,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import com.example.noteapp.R
-import com.example.noteapp.domain.model.Note
 import com.example.noteapp.presentation.components.CustomBottomBar
 import com.example.noteapp.presentation.components.CustomBottomSheet
 import com.example.noteapp.presentation.components.CustomReminderDialog
@@ -52,7 +37,6 @@ import com.example.noteapp.presentation.screens.home.model.NotesHomeColors
 import com.example.noteapp.presentation.screens.home.model.NotesHomeMetrics
 import com.example.noteapp.presentation.screens.note_details.NoteContent
 import com.example.noteapp.presentation.screens.note_details.NoteDetailEvents
-import com.example.noteapp.presentation.screens.note_details.components.BadgesRow
 import com.example.noteapp.presentation.theme.Background
 import kotlinx.coroutines.flow.collectLatest
 
@@ -86,26 +70,22 @@ fun AddNoteScreen(
         visible = showSheet,
         onDismiss = { showSheet = false },
         row1Icon = ImageVector.vectorResource(R.drawable.ic_clock),
-        row1Title = "Later Today",
-        row1Value = "6:30 PM",
-        onRow1Click = {
-            // viewModel.setReminder(dateMillis, 6, 30)
-        },
+        row1Title = context.getString(R.string.btm_sheet_later_today),
+        row1Value = context.getString(R.string.btm_sheet_6_pm),
+        onRow1Click = { },
 
         row2Icon = ImageVector.vectorResource(R.drawable.ic_clock),
-        row2Title = "Tomorrow Morning",
-        row2Value = "6:30 PM",
-        onRow2Click = {
-            // viewModel.setReminder(dateMillis, 6, 30)
-        },
+        row2Title = context.getString(R.string.btm_sheet_tomorrow_morning),
+        row2Value = context.getString(R.string.btm_sheet_6_pm),
+        onRow2Click = { },
 
         row3Icon = ImageVector.vectorResource(R.drawable.ic_home),
-        row3Title = "Home",
-        row3Value = "Tehran",
+        row3Title = context.getString(R.string.btm_sheet_home),
+        row3Value = context.getString(R.string.btm_sheet_Tehran),
         onRow3Click = { },
 
         row4Icon = ImageVector.vectorResource(R.drawable.ic_calendar),
-        row4Title = "Pick a date",
+        row4Title = context.getString(R.string.btm_sheet_pick_date),
         onRow4PlusClick = {
             showSheet = false
             showCustomDialog = true
@@ -175,79 +155,8 @@ fun AddNoteScreen(
                     .fillMaxSize()
                     .padding(inner), contentAlignment = Alignment.Center
             ) {
-                Text("can not initialize note")
+                Text(context.getString(R.string.note_init_failure))
             }
-        }
-    }
-}
-
-@Composable
-fun NoteContent(
-    note: Note,
-    onTitleChange: (String) -> Unit,
-    onDescriptionChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(horizontal = 20.dp),
-    maxContentWidth: Dp = 480.dp
-) {
-    val scroll = rememberScrollState()
-
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(scroll)
-            .padding(top = 8.dp)
-            .then(Modifier.padding(contentPadding)),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .widthIn(max = maxContentWidth),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-
-            BadgesRow(
-                categoryBadge = note.categoryBadge,
-                timeBadge = note.timeBadge,
-            )
-
-            OutlinedTextField(
-                value = note.title,
-                onValueChange = onTitleChange,
-                modifier = Modifier.fillMaxWidth(),
-                textStyle = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold),
-                placeholder = { Text("Title") },
-                singleLine = true,
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.Transparent,
-                    disabledContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
-                )
-            )
-
-            OutlinedTextField(
-                value = note.description.orEmpty(),
-                onValueChange = {
-                    it.ifBlank { null }?.let { value -> onDescriptionChange(value) }
-                },
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Write your note...") },
-                minLines = 4,
-                maxLines = 12,
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.Transparent,
-                    disabledContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
-                )
-            )
         }
     }
 }

@@ -83,26 +83,22 @@ fun NoteDetailsScreen(
         visible = showSheet,
         onDismiss = { showSheet = false },
         row1Icon = ImageVector.vectorResource(R.drawable.ic_clock),
-        row1Title = "Later Today",
-        row1Value = "6:30 PM",
-        onRow1Click = {
-            // viewModel.setReminder(dateMillis, 6, 30)
-        },
+        row1Title = context.getString(R.string.btm_sheet_later_today),
+        row1Value = context.getString(R.string.btm_sheet_6_pm),
+        onRow1Click = { },
 
         row2Icon = ImageVector.vectorResource(R.drawable.ic_clock),
-        row2Title = "Tomorrow Morning",
-        row2Value = "6:30 PM",
-        onRow2Click = {
-            // viewModel.setReminder(dateMillis, 6, 30)
-        },
+        row2Title = context.getString(R.string.btm_sheet_tomorrow_morning),
+        row2Value = context.getString(R.string.btm_sheet_6_pm),
+        onRow2Click = { },
 
         row3Icon = ImageVector.vectorResource(R.drawable.ic_home),
-        row3Title = "Home",
-        row3Value = "Tehran",
+        row3Title = context.getString(R.string.btm_sheet_home),
+        row3Value = context.getString(R.string.btm_sheet_Tehran),
         onRow3Click = { },
 
         row4Icon = ImageVector.vectorResource(R.drawable.ic_calendar),
-        row4Title = "Pick a date",
+        row4Title = context.getString(R.string.btm_sheet_pick_date),
         onRow4PlusClick = {
             showSheet = false
             showCustomDialog = true
@@ -172,7 +168,7 @@ fun NoteDetailsScreen(
                     .fillMaxSize()
                     .padding(inner), contentAlignment = Alignment.Center
             ) {
-                Text("Note not found")
+                Text(context.getString(R.string.note_load_failure))
             }
         }
     }
@@ -189,6 +185,7 @@ fun NoteContent(
     maxContentWidth: Dp = 480.dp
 ) {
     val scroll = rememberScrollState()
+    val context = LocalContext.current
 
     Column(
         modifier = modifier
@@ -216,7 +213,7 @@ fun NoteContent(
                 onValueChange = onTitleChange,
                 modifier = Modifier.fillMaxWidth(),
                 textStyle = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold),
-                placeholder = { Text("Title") },
+                placeholder = { Text(context.getString(R.string.note_load_failure)) },
                 singleLine = true,
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
@@ -234,7 +231,7 @@ fun NoteContent(
                     it.ifBlank { null }?.let { value -> onDescriptionChange(value) }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Write your note...") },
+                placeholder = { Text(context.getString(R.string.note_description)) },
                 minLines = 4,
                 maxLines = 12,
                 colors = TextFieldDefaults.colors(

@@ -1,3 +1,26 @@
 <resources>
     <string name="app_name">NoteApp</string>
+
+    <string name="dialog_delete_title">Delete note?</string>
+    <string name="dialog_delete_text">This action cannot be undone.</string>
+    <string name="dialog_delete_confirm_btn">Delete</string>
+    <string name="dialog_delete_dismiss_btn">Cancel</string>
+
+    <string name="search_placeholder">Search your notes</string>
+
+    <string name="note_list_header">Recent All Note</string>
+    <string name="pin">Pin</string>
+    <string name="delete">Delete</string>
+
+    <string name="btm_sheet_later_today">Later Today</string>
+    <string name="btm_sheet_tomorrow_morning">Tomorrow Morning</string>
+    <string name="btm_sheet_6_pm">6:30 PM</string>
+    <string name="btm_sheet_pick_date">Pick a date</string>
+    <string name="btm_sheet_home">Home</string>
+    <string name="btm_sheet_Tehran">Tehran</string>
+
+    <string name="note_load_failure">Note not found</string>
+    <string name="note_init_failure">Can not initialize note</string>
+    <string name="note_title">Title</string>
+    <string name="note_description">Write your note...</string>
 </resources>

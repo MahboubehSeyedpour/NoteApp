@@ -103,16 +103,18 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
     if (confirmDeleteId != null) {
         AlertDialog(
             onDismissRequest = { confirmDeleteId = null },
-            title = { Text("Delete note?") },
-            text = { Text("This action cannot be undone.") },
+            title = { Text(context.getString(R.string.dialog_delete_title)) },
+            text = { Text(context.getString(R.string.dialog_delete_text)) },
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.deleteSelected()
                     confirmDeleteId = null
-                }) { Text("Delete") }
+                }) { Text(context.getString(R.string.dialog_delete_confirm_btn)) }
             },
             dismissButton = {
-                TextButton(onClick = { confirmDeleteId = null }) { Text("Cancel") }
+                TextButton(onClick = { confirmDeleteId = null }) {
+                    Text(context.getString(R.string.dialog_delete_dismiss_btn))
+                }
             }
         )
     }
@@ -125,7 +127,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
         Content(
             topBarConfig = HomeTopBarConfig(
                 avatar = painterResource(R.mipmap.user_avatar_foreground),
-                searchText = query,                              // ← value
+                searchText = query,
                 onSearchChange = viewModel::onSearchChange,
                 onGridToggle = { viewModel.onGridToggleClicked() },
                 onMenuClick = { /* TODO */ },
@@ -134,9 +136,9 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                     LayoutMode.GRID -> ImageVector.vectorResource(R.drawable.ic_list)
                 },
                 menuIcon = Icons.Outlined.Menu,
-                placeholder = "Search your notes",
+                placeholder = context.getString(R.string.search_placeholder),
             ),
-            titleText = "Recent All Note",
+            titleText = context.getString(R.string.note_list_header),
             notes = notes,
             layoutMode = layoutMode,
             selectedIds = selected,
@@ -191,6 +193,7 @@ fun Content(
     fabIcon: ImageVector = Icons.Outlined.Add
 ) {
 
+    val context = LocalContext.current
     val inSelection = selectedIds.isNotEmpty()
 
     Scaffold(
@@ -225,8 +228,8 @@ fun Content(
             if (inSelection) {
                 BottomAppBar {
                     Spacer(Modifier.weight(1f))
-                    TextButton(onClick = onPinSelected) { Text("Pin") }
-                    TextButton(onClick = { onDeleteSelected(selectedIds.first()) }) { Text("Delete") }
+                    TextButton(onClick = onPinSelected) { Text(context.getString(R.string.pin)) }
+                    TextButton(onClick = { onDeleteSelected(selectedIds.first()) }) { Text(context.getString(R.string.delete)) }
                 }
             } else {
                 CustomBottomBar(
