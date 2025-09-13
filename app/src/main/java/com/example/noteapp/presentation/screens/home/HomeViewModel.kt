@@ -3,9 +3,9 @@ package com.example.noteapp.presentation.screens.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.noteapp.di.IoDispatcher
-import com.example.noteapp.domain.mapper.toUI
+import com.example.noteapp.domain.model.Note
 import com.example.noteapp.domain.repository.NoteRepository
-import com.example.noteapp.presentation.model.NoteUI
+import com.example.noteapp.presentation.mapper.toUI
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -26,7 +26,7 @@ class HomeViewModel @Inject constructor(
     private val _events = MutableSharedFlow<HomeEvents>()
     val events = _events.asSharedFlow()
 
-    val notes: StateFlow<List<NoteUI>> =
+    val notes: StateFlow<List<Note>> =
         noteRepository.getAllNotes()
             .map { list -> list.sortedByDescending { it.createdAt }.map { it.toUI() } }
             .stateIn(
@@ -40,4 +40,21 @@ class HomeViewModel @Inject constructor(
             HomeEvents.NavigateToNoteDetailsScreen(noteId)
         )
     }
+
+//    init {
+//        viewModelScope.launch(io) {
+//            noteRepository.addNote(
+//                NoteEntity(
+//                    id = 0,
+//                    title = "title",
+//                    description = "Lorem ipsum ...",
+//                    category = "work",
+//                    createdAt = System.currentTimeMillis(),
+//                    pinned = false,
+//                    reminderAt = 0L
+//                )
+//            )
+//        }
+//
+//    }
 }

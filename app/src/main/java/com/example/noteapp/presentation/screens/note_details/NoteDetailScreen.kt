@@ -22,10 +22,15 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -35,9 +40,13 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
+import com.example.noteapp.R
+import com.example.noteapp.domain.model.Note
 import com.example.noteapp.presentation.components.CustomBottomBar
+import com.example.noteapp.presentation.components.CustomBottomSheet
+import com.example.noteapp.presentation.components.CustomReminderDialog
 import com.example.noteapp.presentation.components.NoteDetailScreenTopBar
-import com.example.noteapp.presentation.model.NoteUI
+import com.example.noteapp.presentation.components.ReminderPickerDialog
 import com.example.noteapp.presentation.screens.home.model.NotesHomeColors
 import com.example.noteapp.presentation.screens.home.model.NotesHomeMetrics
 import com.example.noteapp.presentation.screens.note_details.components.BadgesRow
@@ -53,6 +62,9 @@ fun NoteDetailsScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val context = LocalContext.current
+    var showSheet by remember { mutableStateOf(false) }
+    var showCustomDialog by remember { mutableStateOf(false) }
+    var showPicker by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -66,13 +78,66 @@ fun NoteDetailsScreen(
         }
     }
 
+    CustomBottomSheet(
+        visible = showSheet,
+        onDismiss = { showSheet = false },
+        row1Icon = ImageVector.vectorResource(R.drawable.ic_clock),
+        row1Title = "Later Today",
+        row1Value = "6:30 PM",
+        onRow1Click = {
+            // viewModel.setReminder(dateMillis, 6, 30)
+        },
+
+        row2Icon = ImageVector.vectorResource(R.drawable.ic_clock),
+        row2Title = "Tomorrow Morning",
+        row2Value = "6:30 PM",
+        onRow2Click = {
+            // viewModel.setReminder(dateMillis, 6, 30)
+        },
+
+        row3Icon = ImageVector.vectorResource(R.drawable.ic_home),
+        row3Title = "Home",
+        row3Value = "Tehran",
+        onRow3Click = { },
+
+        row4Icon = ImageVector.vectorResource(R.drawable.ic_calendar),
+        row4Title = "Pick a date",
+        onRow4PlusClick = {
+            showSheet = false
+            showCustomDialog = true
+        }
+    )
+
+    ReminderEntryPoint(openPicker = { showPicker = true })
+
+    if (showPicker) {
+        ReminderPickerDialog(
+            onDismiss = { showPicker = false },
+            onConfirm = { dateMillis, hour, minute ->
+                viewModel.setReminder(dateMillis, hour, minute)
+                showPicker = false
+            }
+        )
+    }
+
+
+    CustomReminderDialog(
+        visible = showCustomDialog,
+        onDismiss = { showCustomDialog = false },
+        onConfirm = { dateMillis, hour, minute, repeat ->
+            viewModel.setReminder(dateMillis, hour, minute)
+            showSheet = false
+            showCustomDialog = false
+        },
+    )
+
     Scaffold(
         containerColor = Background,
         topBar = {
             NoteDetailScreenTopBar(
                 onBack = { viewModel.onBackClicked() },
-                onBellClick = {},
-                onDownloadClick = {}
+                onNotificationClick = { showSheet = true },
+                onArchiveClick = {}
             )
         },
         bottomBar = {
@@ -94,13 +159,11 @@ fun NoteDetailsScreen(
                 contentAlignment = Alignment.Center
             ) { CircularProgressIndicator() }
 
-            uiState.note != null -> NoteDetailsScreen(
+            uiState.note != null -> NoteContent(
                 note = uiState.note!!,
                 onTitleChange = viewModel::updateTitle,
                 onDescriptionChange = viewModel::updateDescription,
-                onCategoryChange = viewModel::updateCategory,
-                onTimeBadgeChange = viewModel::updateTimeBadge,
-                modifier = Modifier.padding(inner)
+                modifier = Modifier.padding(inner),
             )
 
             else -> Box(
@@ -116,12 +179,10 @@ fun NoteDetailsScreen(
 }
 
 @Composable
-fun NoteDetailsScreen(
-    note: NoteUI,
+fun NoteContent(
+    note: Note,
     onTitleChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
-    onCategoryChange: (String?) -> Unit,
-    onTimeBadgeChange: (String?) -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(horizontal = 20.dp),
     maxContentWidth: Dp = 480.dp
@@ -147,8 +208,6 @@ fun NoteDetailsScreen(
             BadgesRow(
                 categoryBadge = note.categoryBadge,
                 timeBadge = note.timeBadge,
-                onCategoryClick = { },
-                onTimeClick = { }
             )
 
             OutlinedTextField(
@@ -170,7 +229,9 @@ fun NoteDetailsScreen(
 
             OutlinedTextField(
                 value = note.description.orEmpty(),
-                onValueChange = { it.ifBlank { null }?.let { it1 -> onDescriptionChange(it1) } },
+                onValueChange = {
+                    it.ifBlank { null }?.let { value -> onDescriptionChange(value) }
+                },
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text("Write your note...") },
                 minLines = 4,

@@ -23,8 +23,6 @@ import com.example.noteapp.presentation.theme.White
 fun BadgesRow(
     categoryBadge: String?,
     timeBadge: String?,
-    onCategoryClick: () -> Unit,
-    onTimeClick: () -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -41,7 +39,6 @@ fun BadgesRow(
                 vPad = 6.dp,
                 textStyle = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium),
                 icon = null,
-                onClick = onCategoryClick
             )
         }
         if (!timeBadge.isNullOrBlank()) {
@@ -54,7 +51,6 @@ fun BadgesRow(
                 vPad = 6.dp,
                 textStyle = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium),
                 icon = ImageVector.vectorResource(R.drawable.ic_timer),
-                onClick = onTimeClick
             )
         }
     }

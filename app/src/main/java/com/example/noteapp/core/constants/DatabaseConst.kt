@@ -1,4 +1,4 @@
-package com.example.noteapp.constants
+package com.example.noteapp.core.constants
 
 object DatabaseConst {
     const val NOTES_DATABASE_VERSION = 1

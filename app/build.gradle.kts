@@ -98,4 +98,8 @@ dependencies {
 
     // Coil
     implementation(libs.coil.compose)
+
+    // Permission
+    implementation(libs.accompanist.permissions)
+
 }

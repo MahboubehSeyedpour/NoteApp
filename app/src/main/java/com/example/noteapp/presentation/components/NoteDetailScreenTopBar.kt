@@ -18,8 +18,8 @@ import com.example.noteapp.R
 @Composable
 fun NoteDetailScreenTopBar(
     onBack: () -> Unit,
-    onBellClick: () -> Unit,
-    onDownloadClick: () -> Unit
+    onNotificationClick: () -> Unit,
+    onArchiveClick: () -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(16.dp),
@@ -32,11 +32,11 @@ fun NoteDetailScreenTopBar(
         )
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             CircularIconButton(
-                onClick = onBellClick,
+                onClick = onNotificationClick,
                 icon = { Icon(ImageVector.vectorResource(R.drawable.ic_notif), contentDescription = "Notify") }
             )
             CircularIconButton(
-                onClick = onDownloadClick,
+                onClick = onArchiveClick,
                 icon = { Icon(ImageVector.vectorResource(R.drawable.ic_download), contentDescription = "Download") }
             )
         }

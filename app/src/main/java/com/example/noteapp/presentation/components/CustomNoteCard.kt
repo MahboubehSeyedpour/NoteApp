@@ -18,14 +18,14 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.noteapp.R
-import com.example.noteapp.presentation.model.NoteUI
+import com.example.noteapp.domain.model.Note
 import com.example.noteapp.presentation.screens.home.model.NotesHomeColors
 import com.example.noteapp.presentation.screens.home.model.NotesHomeMetrics
 import com.example.noteapp.presentation.screens.home.model.NotesHomeShapes
 
 @Composable
 fun CustomNoteCard(
-    note: NoteUI,
+    note: Note,
     onClick: () -> Unit,
     colors: NotesHomeColors,
     shapes: NotesHomeShapes,
@@ -75,7 +75,6 @@ fun CustomNoteCard(
                         vPad = metrics.chipVerticalPadding,
                         textStyle = chipTextStyle,
                         icon = ImageVector.vectorResource(R.drawable.ic_timer),
-                        onClick = {}
                     )
                 }
                 note.categoryBadge?.let {
@@ -88,7 +87,6 @@ fun CustomNoteCard(
                         vPad = metrics.chipVerticalPadding,
                         textStyle = chipTextStyle,
                         icon = null,
-                        onClick = {}
                     )
                 }
             }

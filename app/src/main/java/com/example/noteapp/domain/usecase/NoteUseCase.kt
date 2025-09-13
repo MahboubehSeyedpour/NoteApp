@@ -4,8 +4,8 @@ import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.example.noteapp.data.local.note.NoteEntity
 import com.example.noteapp.data.repository.NoteRepositoryImpl
-import com.example.noteapp.domain.model.Note
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +23,7 @@ class NoteUseCase @Inject constructor(
     @ApplicationContext private val context: Context,
     private val noteRepository: NoteRepositoryImpl,
 ) {
-    var notes: List<Note> by mutableStateOf(emptyList())
+    var notes: List<NoteEntity> by mutableStateOf(emptyList())
         private set
 
     private var observeKeysJob: Job? = null
@@ -40,19 +40,19 @@ class NoteUseCase @Inject constructor(
         }
     }
 
-    private fun getAllNotes(): Flow<List<Note>> {
+    private fun getAllNotes(): Flow<List<NoteEntity>> {
         return noteRepository.getAllNotes()
     }
 
-    private suspend fun addNote(note: Note) {
-        if (note.id == 0L) {
-            noteRepository.addNote(note)
+    private suspend fun addNote(noteEntity: NoteEntity) {
+        if (noteEntity.id == 0L) {
+            noteRepository.addNote(noteEntity)
         } else {
-            noteRepository.updateNote(note)
+            noteRepository.updateNote(noteEntity)
         }
     }
 
-    fun pinNote(note: Note) {
+    fun pinNote(note: NoteEntity) {
         coroutineScope.launch(NonCancellable + Dispatchers.IO) {
             addNote(note)
         }
@@ -65,7 +65,7 @@ class NoteUseCase @Inject constructor(
         }
     }
 
-    fun getNoteById(id: Int): Flow<Note>  {
+    fun getNoteById(id: Int): Flow<NoteEntity> {
         return noteRepository.getNoteById(id)
     }
 

@@ -36,10 +36,10 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.noteapp.R
+import com.example.noteapp.domain.model.Note
 import com.example.noteapp.presentation.components.CustomBottomBar
 import com.example.noteapp.presentation.components.CustomNoteCard
 import com.example.noteapp.presentation.components.NotesTopBar
-import com.example.noteapp.presentation.model.NoteUI
 import com.example.noteapp.presentation.navigation.Screens
 import com.example.noteapp.presentation.screens.home.model.HomeTopBarConfig
 import com.example.noteapp.presentation.screens.home.model.NotesHomeColors
@@ -104,7 +104,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
 fun Notes(
     topBarConfig: HomeTopBarConfig,
     titleText: String,
-    notes: List<NoteUI>,
+    notes: List<Note>,
     onNoteClick: (Long) -> Unit,
     onLabelsClick: () -> Unit,
     onFabClick: () -> Unit,
