@@ -21,7 +21,7 @@ fun Note.toDomain(): NoteEntity = NoteEntity(
     title = title,
     description = description,
     category = categoryBadge,
-    reminderAt = reminderAt,   // already combined & stored
+    reminderAt = reminderAt,
     pinned = false,
     createdAt = createdAt
 )

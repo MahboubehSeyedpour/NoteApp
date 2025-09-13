@@ -27,3 +27,15 @@ fun combineToEpochMillis(
     return ZonedDateTime.of(localDate, LocalTime.of(hour, minute), zoneId)
         .toInstant().toEpochMilli()
 }
+
+fun formatDate(millis: Long): String {
+    val zoned = Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).toLocalDate()
+    val formatter = DateTimeFormatter.ofPattern("MMM d, yyyy")
+    return zoned.format(formatter)
+}
+
+fun formatTime(h: Int, m: Int): String {
+    val dt = LocalTime.of(h, m)
+    val formatter = DateTimeFormatter.ofPattern("h:mm a")
+    return dt.format(formatter)
+}

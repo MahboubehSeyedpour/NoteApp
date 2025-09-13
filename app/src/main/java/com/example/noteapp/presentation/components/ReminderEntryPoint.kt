@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.net.toUri
+import com.example.noteapp.R
 import com.example.noteapp.core.extensions.canScheduleExactAlarms
 import com.example.noteapp.core.extensions.hasPostNotificationsPermission
 import com.example.noteapp.core.permissions.rememberPermissionLaunchers
@@ -22,7 +23,11 @@ fun ReminderEntryPoint(
     val notifLauncher = rememberPermissionLaunchers(
         onGranted = { openPicker() },
         onDenied = {
-            Toast.makeText(context, "Notification permission denied", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                context,
+                context.getString(R.string.permission_denied_notification),
+                Toast.LENGTH_SHORT
+            ).show()
         }
     )
 
@@ -46,6 +51,6 @@ fun ReminderEntryPoint(
             openPicker()
         }
     }) {
-        Text("Set reminder")
+        Text(context.getString(R.string.reminder_set))
     }
 }

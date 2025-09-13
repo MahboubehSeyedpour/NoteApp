@@ -4,7 +4,9 @@
     <string name="dialog_delete_title">Delete note?</string>
     <string name="dialog_delete_text">This action cannot be undone.</string>
     <string name="dialog_delete_confirm_btn">Delete</string>
-    <string name="dialog_delete_dismiss_btn">Cancel</string>
+    <string name="dialog_dismiss_btn">Cancel</string>
+    <string name="dialog_reminder_confirm_btn">Save</string>
+    <string name="dialog_time_picker_confirm_btn">OK</string>
 
     <string name="search_placeholder">Search your notes</string>
 
@@ -23,4 +25,7 @@
     <string name="note_init_failure">Can not initialize note</string>
     <string name="note_title">Title</string>
     <string name="note_description">Note…</string>
+
+    <string name="reminder_set">Set reminder</string>
+    <string name="permission_denied_notification">notification permission denied</string>
 </resources>

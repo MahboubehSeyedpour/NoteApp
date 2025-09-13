@@ -33,13 +33,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.noteapp.R
 import com.example.noteapp.core.enums.RepeatOption
-import java.time.Instant
+import com.example.noteapp.core.time.formatDate
+import com.example.noteapp.core.time.formatTime
 import java.time.LocalTime
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,6 +53,9 @@ fun CustomReminderDialog(
     initialRepeat: RepeatOption = RepeatOption.NONE,
     onConfirm: (dateMillis: Long, hour: Int, minute: Int, repeat: RepeatOption) -> Unit
 ) {
+
+    val context = LocalContext.current
+
     if (!visible) return
 
     var dateMillis by remember { mutableStateOf(initialDateMillis) }
@@ -101,10 +105,16 @@ fun CustomReminderDialog(
             TextButton(onClick = {
                 onConfirm(dateMillis, hour, minute, repeat)
                 onDismiss()
-            }) { Text("Save") }
+            }) {
+                Text(context.getString(R.string.dialog_reminder_confirm_btn))
+            }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
-        title = { Text("Add reminder") },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(context.getString(R.string.dialog_dismiss_btn))
+            }
+        },
+        title = { Text(context.getString(R.string.reminder_set)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 // Row 1: Date
@@ -180,16 +190,4 @@ fun CustomReminderDialog(
         },
         shape = RoundedCornerShape(24.dp)
     )
-}
-
-private fun formatDate(millis: Long): String {
-    val zoned = Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).toLocalDate()
-    val formatter = DateTimeFormatter.ofPattern("MMM d, yyyy")
-    return zoned.format(formatter)
-}
-
-private fun formatTime(h: Int, m: Int): String {
-    val dt = LocalTime.of(h, m)
-    val formatter = DateTimeFormatter.ofPattern("h:mm a")
-    return dt.format(formatter)
 }
