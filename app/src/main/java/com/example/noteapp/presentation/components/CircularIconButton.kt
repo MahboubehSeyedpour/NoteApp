@@ -28,7 +28,7 @@ fun CircularIconButton(
     ) {
         Box(
             modifier = Modifier
-                .size(44.dp)
+                .size(54.dp)
                 .padding(10.dp),
             contentAlignment = Alignment.Center
         ) {

@@ -33,7 +33,7 @@ fun NoteDetailScreenTopBar(
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             CircularIconButton(
                 onClick = onNotificationClick,
-                icon = { Icon(ImageVector.vectorResource(R.drawable.ic_notif), contentDescription = "Notify") }
+                icon = { Icon(ImageVector.vectorResource(R.drawable.ic_notif), contentDescription = "Notify") },
             )
             CircularIconButton(
                 onClick = onArchiveClick,
