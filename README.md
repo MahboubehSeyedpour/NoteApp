@@ -3,6 +3,16 @@
 An Android application for managing notes with support for search, pinning, and detail editing.  
 Built using **Clean Architecture**, **MVVM**, **Jetpack Compose**, and **Hilt** to ensure scalability, maintainability, and testability.
 
+
+<img src="screenshots/home_list_layout.jpg" width="200"/> | <img src="screenshots/home_grid_layout.jpg" width="200"/> | <img src="screenshots/pin_in_list_layout.jpg" width="200"/>  | <img src="screenshots/pin_in_grid_layout.jpg" width="200"/>
+|:---:|:---:|:---:|:---:|
+|Home Page(List layout)| Home Page(Grid layout) | Pin a note (List layout)| Pin a note (Grid layout)|
+
+<img src="screenshots/add_and_edit.jpg" width="200"/> | <img src="screenshots/pick_a_notification_date_and_time.jpg" width="200"/> | <img src="screenshots/pick_date_and_time.jpg" width="200"/>  | <img src="screenshots/search_note.jpg" width="200"/>
+|:---:|:---:|:---:|:---:|
+|Note Details | Set notification | Set notification | Search|
+
+
 ---
 
 ## 🚀 Features
