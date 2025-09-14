@@ -26,9 +26,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.noteapp.R
 import com.example.noteapp.core.enums.LayoutMode
-import com.example.noteapp.core.shapes.Shapes
 import com.example.noteapp.domain.model.Note
 import com.example.noteapp.presentation.theme.Black
+import com.example.noteapp.presentation.theme.LocalAppShapes
 import com.example.noteapp.presentation.theme.Primary
 import com.example.noteapp.presentation.theme.SecondaryBg
 import com.example.noteapp.presentation.theme.SecondaryContent
@@ -50,16 +50,18 @@ fun CustomNoteCard(
     val highlight =
         if (isSelected) MaterialTheme.colorScheme.primary else Transparent
 
+    val shapes = LocalAppShapes.current
+
     Surface(
-        shape = Shapes().cardShape,
+        shape = shapes.card,
         color = White,
         contentColor = Black,
         tonalElevation = dimensionResource(R.dimen.card_elevation)
     ) {
         Column(
             modifier = Modifier
-                .border(2.dp, highlight, Shapes().cardShape)
-                .clip(Shapes().cardShape)
+                .border(2.dp, highlight, shapes.card)
+                .clip(shapes.card)
                 .combinedClickable(
                     onClick = onClick,
                     onLongClick = onLongClick
@@ -116,12 +118,15 @@ fun CustomNoteCard(
 private fun Badges(
     timeBadge: String?, categoryBadge: String?, chipTextStyle: TextStyle,
 ) {
+
+    val shapes = LocalAppShapes.current
+
     timeBadge?.let {
         CustomPillChip(
             text = it,
             containerColor = Primary,
             contentColor = White,
-            shape = Shapes().chipShape,
+            shape = shapes.chip,
             hPad = dimensionResource(R.dimen.chip_horizontal_padding),
             vPad = dimensionResource(R.dimen.chip_vertical_padding),
             textStyle = chipTextStyle,
@@ -133,7 +138,7 @@ private fun Badges(
             text = it,
             containerColor = SecondaryBg,
             contentColor = SecondaryContent,
-            shape = Shapes().chipShape,
+            shape = shapes.chip,
             hPad = dimensionResource(R.dimen.chip_horizontal_padding),
             vPad = dimensionResource(R.dimen.chip_vertical_padding),
             textStyle = chipTextStyle,

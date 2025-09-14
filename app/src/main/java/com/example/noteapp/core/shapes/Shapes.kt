@@ -5,8 +5,8 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 
-@Immutable
-data class Shapes(
-    val cardShape: Shape = RoundedCornerShape(16.dp),
-    val chipShape: Shape = RoundedCornerShape(16.dp)
-)
+//@Immutable
+//data class AppShapes(
+//    val card: Shape = RoundedCornerShape(16.dp),
+//    val chip: Shape = RoundedCornerShape(16.dp)
+//)
