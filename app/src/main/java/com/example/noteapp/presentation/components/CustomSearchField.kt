@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -26,7 +27,7 @@ fun SearchField(
     TextField(
         value = value,
         onValueChange = onValueChange,
-        modifier = modifier.heightIn(min = 56.dp),
+        modifier = modifier.heightIn(min = 56.dp).testTag("search-field"),
         placeholder = {
             Text(placeholder, color = contentColor.copy(alpha = 0.6f))
         },

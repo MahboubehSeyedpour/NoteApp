@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kspRoom)
     alias(libs.plugins.compose.compiler)
     id("com.google.dagger.hilt.android")
+    id("kotlin-kapt")
 }
 
 android {
@@ -96,10 +97,18 @@ dependencies {
 
     implementation(libs.androidx.datastore.preferences)
 
-    // Coil
-    implementation(libs.coil.compose)
-
     // Permission
     implementation(libs.accompanist.permissions)
+
+    // Unit testing
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.turbine)
+    testImplementation(libs.mockk)
+    implementation(libs.androidx.junit.ktx)
+    implementation(libs.androidx.ui.test.junit4.android)
+    androidTestImplementation(libs.hilt.android.testing)
+    testImplementation(libs.hilt.android.testing)
+    kaptTest(libs.hilt.android.compiler)
 
 }

@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.DarkGray
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
@@ -67,6 +68,7 @@ fun CustomBottomBar(
                     }
                 }
                 FloatingActionButton(
+                    modifier = Modifier.testTag("fab-add-note"),
                     onClick = onFabClick,
                     containerColor = Primary,
                     contentColor = White,
