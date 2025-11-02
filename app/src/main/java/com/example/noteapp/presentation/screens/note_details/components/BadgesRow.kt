@@ -50,7 +50,7 @@ fun BadgesRow(
                 hPad = 10.dp,
                 vPad = 6.dp,
                 textStyle = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium),
-                icon = ImageVector.vectorResource(R.drawable.ic_timer),
+                icon = ImageVector.vectorResource(R.drawable.ic_clock),
             )
         }
     }

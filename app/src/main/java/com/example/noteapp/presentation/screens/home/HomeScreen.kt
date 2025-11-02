@@ -127,7 +127,10 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                             )
                         }
                         IconButton(onClick = { confirmDeleteId = selected.first() }) {
-                            Icon(Icons.Outlined.Delete, contentDescription = "Delete")
+                            Icon(
+                                ImageVector.vectorResource(R.drawable.ic_trash),
+                                contentDescription = "Delete"
+                            )
                         }
                     }
                 )
@@ -140,8 +143,8 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                         onGridToggle = { viewModel.onGridToggleClicked() },
                         onMenuClick = { /* TODO */ },
                         gridToggleIcon = when (layoutMode) {
-                            LayoutMode.LIST -> ImageVector.vectorResource(R.drawable.ic_grid)
-                            LayoutMode.GRID -> ImageVector.vectorResource(R.drawable.ic_list)
+                            LayoutMode.LIST -> ImageVector.vectorResource(R.drawable.ic_vertical_list)
+                            LayoutMode.GRID -> ImageVector.vectorResource(R.drawable.ic_grid_list)
                         },
                         menuIcon = Icons.Outlined.Menu,
                         placeholder = context.getString(R.string.search_placeholder),
@@ -189,7 +192,11 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
 
             NotesList(
                 notes = notes,
-                noteTitleStyle = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = Black),
+                noteTitleStyle = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 14.sp,
+                    color = Black
+                ),
                 noteBodyStyle = MaterialTheme.typography.bodyMedium.copy(
                     color = com.example.noteapp.presentation.theme.Black,
                     fontSize = 12.sp,

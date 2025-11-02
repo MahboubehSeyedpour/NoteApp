@@ -132,7 +132,7 @@ private fun Badges(
             hPad = dimensionResource(R.dimen.chip_horizontal_padding),
             vPad = dimensionResource(R.dimen.chip_vertical_padding),
             textStyle = chipTextStyle,
-            icon = ImageVector.vectorResource(R.drawable.ic_timer),
+            icon = ImageVector.vectorResource(R.drawable.ic_clock),
         )
     }
     categoryBadge?.let {

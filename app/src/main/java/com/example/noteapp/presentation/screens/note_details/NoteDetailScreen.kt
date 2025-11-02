@@ -81,7 +81,7 @@ fun NoteDetailsScreen(
                 onRowClicked = {}
             ),
             BottomSheetRowModel(
-                icon = R.drawable.ic_home,
+                icon = R.drawable.ic_location,
                 title = R.string.btm_sheet_home,
                 value = { Text(context.getString(R.string.btm_sheet_Tehran)) },
                 onRowClicked = {}

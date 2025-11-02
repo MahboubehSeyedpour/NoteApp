@@ -37,7 +37,7 @@ fun NoteDetailScreenTopBar(
             )
             CircularIconButton(
                 onClick = onArchiveClick,
-                icon = { Icon(ImageVector.vectorResource(R.drawable.ic_download), contentDescription = "Download") }
+                icon = { Icon(ImageVector.vectorResource(R.drawable.ic_send), contentDescription = "Download") }
             )
         }
     }
