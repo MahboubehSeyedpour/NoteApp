@@ -200,25 +200,16 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
             Spacer(Modifier.height(dimensionResource(R.dimen.screen_padding)))
 
             CustomSearchField(
-                value = "",
+                value = query,
                 modifier = Modifier.fillMaxWidth(),
                 contentColor = Black,
                 containerColor = White,
-                onValueChange = {},
+                onValueChange = viewModel::onSearchChange,
                 placeholder = "Search note",
                 shape = RectangleShape
             )
 
-            TagFlowList(labels = viewModel.tags.value, modifier = Modifier.padding(vertical = 16.dp))
-
-            if (!inSelection) {
-                Text(
-                    text = context.getString(R.string.note_list_header),
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                    color = DarkGray
-                )
-                Spacer(Modifier.height(dimensionResource(R.dimen.screen_padding) * 2))
-            }
+            TagFlowList(labels = viewModel.tags.collectAsState().value, modifier = Modifier.padding(vertical = 16.dp))
 
             NotesList(
                 notes = notes,
