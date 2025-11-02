@@ -1,13 +1,16 @@
 package com.example.noteapp.presentation.screens.home
 
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.noteapp.core.enums.LayoutMode
 import com.example.noteapp.di.IoDispatcher
 import com.example.noteapp.domain.model.Note
+import com.example.noteapp.domain.model.Tag
 import com.example.noteapp.domain.repository.NoteRepository
 import com.example.noteapp.presentation.mapper.toDomain
 import com.example.noteapp.presentation.mapper.toUI
+import com.example.noteapp.presentation.theme.Primary
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -41,6 +44,8 @@ class HomeViewModel @Inject constructor(
 
     private val _selected = MutableStateFlow<Set<Long>>(emptySet())
     val selected: StateFlow<Set<Long>> = _selected
+    private val _tags = MutableStateFlow<List<Tag>>(emptyList())
+    val tags: StateFlow<List<Tag>> = _tags
 
     private val allNotes: Flow<List<Note>> =
         noteRepository.getAllNotes()
@@ -60,6 +65,18 @@ class HomeViewModel @Inject constructor(
                     .thenByDescending { it.createdAt }
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+
+    init {
+        _tags.value = listOf(
+            Tag("All", Primary),
+            Tag("Urgent", Color(0xFFF44336)),
+            Tag("Work", Color(0xFF2196F3)),
+            Tag("Personal", Color(0xFF4CAF50)),
+            Tag("Ideas", Color(0xFFFFC107)),
+            Tag("Learning", Color(0xFF9C27B0))
+        )
+    }
 
     fun onSearchChange(newQuery: String) { _query.value = newQuery }
 

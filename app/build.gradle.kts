@@ -73,6 +73,8 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.room.runtime.android)
     implementation(libs.androidx.runtime.annotation.android)
+    implementation(libs.androidx.compose.foundation.layout)
+    implementation(libs.androidx.compose.runtime)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     debugImplementation(libs.androidx.ui.tooling)

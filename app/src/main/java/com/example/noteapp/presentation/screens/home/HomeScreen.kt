@@ -31,6 +31,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.DarkGray
 import androidx.compose.ui.graphics.RectangleShape
@@ -50,10 +51,12 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import com.example.noteapp.R
 import com.example.noteapp.core.enums.LayoutMode
+import com.example.noteapp.domain.model.Tag
 import com.example.noteapp.presentation.components.CustomSearchField
 import com.example.noteapp.presentation.components.HomeTopBarConfig
 import com.example.noteapp.presentation.components.NotesList
 import com.example.noteapp.presentation.components.NotesTopBar
+import com.example.noteapp.presentation.components.TagFlowList
 import com.example.noteapp.presentation.navigation.Screens
 import com.example.noteapp.presentation.theme.Background
 import com.example.noteapp.presentation.theme.Primary
@@ -205,6 +208,8 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                 placeholder = "Search note",
                 shape = RectangleShape
             )
+
+            TagFlowList(labels = viewModel.tags.value, modifier = Modifier.padding(vertical = 16.dp))
 
             if (!inSelection) {
                 Text(
