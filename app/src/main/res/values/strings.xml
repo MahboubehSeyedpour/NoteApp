@@ -8,7 +8,7 @@
     <string name="dialog_reminder_confirm_btn">Save</string>
     <string name="dialog_time_picker_confirm_btn">OK</string>
 
-    <string name="search_placeholder">Search your notes</string>
+    <string name="search_placeholder">Search note</string>
 
     <string name="note_list_header">Recent All Note</string>
     <string name="pin">Pin</string>
@@ -29,4 +29,7 @@
 
     <string name="reminder_set">Set reminder</string>
     <string name="permission_denied_notification">notification permission denied</string>
+
+    <string name="search_icon">Search</string>
+    <string name="avatar_icon">Avatar</string>
 </resources>

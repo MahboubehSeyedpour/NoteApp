@@ -17,10 +17,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.noteapp.R
 
 @Composable
 fun NotesTopBar(
@@ -30,8 +32,7 @@ fun NotesTopBar(
         modifier = Modifier
             .background(Color.Transparent)
             .fillMaxWidth()
-            .height(56.dp)
-            .padding(horizontal = 16.dp),
+            .height(56.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
@@ -57,15 +58,15 @@ fun NotesTopBar(
             if (config.avatar != null) {
                 Image(
                     painter = config.avatar,
-                    contentDescription = "Profile",
+                    contentDescription = stringResource( R.string.avatar_icon),
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(50.dp)
                         .clip(CircleShape)
                 )
             } else {
                 Box(
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(50.dp)
                         .clip(CircleShape)
                         .background(White.copy(alpha = 0.15f))
                 )
