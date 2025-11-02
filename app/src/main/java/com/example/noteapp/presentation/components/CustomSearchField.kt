@@ -30,6 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.noteapp.R
+import com.example.noteapp.presentation.theme.Black
 
 @Composable
 fun CustomSearchField(
@@ -45,7 +46,7 @@ fun CustomSearchField(
         modifier = modifier
             .border(
                 width = 1.dp,
-                color = Color.Gray.copy(alpha = 0.6f),
+                color = Black,
                 shape = RoundedCornerShape(8.dp)
             )
             .clip(RoundedCornerShape(8.dp))

@@ -230,7 +230,10 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
 
             TagFlowList(
                 labels = viewModel.tags.collectAsState().value,
-                modifier = Modifier.padding(vertical = 16.dp)
+                modifier = Modifier.padding(vertical = 16.dp),
+                cornerRadius = 18.dp,
+                horizontalGap = 18.dp,
+                verticalGap = 18.dp
             )
 
             NotesList(

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -17,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.noteapp.domain.model.Tag
 
 
@@ -38,22 +40,23 @@ fun TagFlowList(
             Box(
                 modifier = Modifier
                     .background(
-                        color = label.color.copy(alpha = 0.15f),
+                        color = label.color.copy(alpha = 0.05f),
                         shape = RoundedCornerShape(cornerRadius)
                     )
-                    .border(
-                        width = 1.dp,
-                        color = label.color,
-                        shape = RoundedCornerShape(cornerRadius)
-                    )
-                    .padding(horizontal = 12.dp, vertical = 6.dp),
+//                    .border(
+//                        width = 1.dp,
+//                        color = label.color,
+//                        shape = RoundedCornerShape(cornerRadius)
+//                    )
+                    .padding(horizontal = 16.dp, vertical = 6.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = label.name,
                     color = label.color,
                     style = MaterialTheme.typography.labelMedium.copy(
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 12.sp
                     )
                 )
             }
