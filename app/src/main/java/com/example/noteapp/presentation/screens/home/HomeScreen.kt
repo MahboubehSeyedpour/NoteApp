@@ -146,7 +146,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                             LayoutMode.LIST -> ImageVector.vectorResource(R.drawable.ic_vertical_list)
                             LayoutMode.GRID -> ImageVector.vectorResource(R.drawable.ic_grid_list)
                         },
-                        menuIcon = Icons.Outlined.Menu,
+                        menuIcon = ImageVector.vectorResource(R.drawable.ic_menu),
                         placeholder = context.getString(R.string.search_placeholder),
                     )
                 )
