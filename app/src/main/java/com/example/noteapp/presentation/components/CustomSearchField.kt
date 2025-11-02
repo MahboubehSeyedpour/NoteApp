@@ -46,9 +46,9 @@ fun CustomSearchField(
             .border(
                 width = 1.dp,
                 color = Color.Gray.copy(alpha = 0.6f),
-                shape = RoundedCornerShape(8.dp) // soft corners
+                shape = RoundedCornerShape(8.dp)
             )
-            .clip(RoundedCornerShape(8.dp)) // ensures content stays inside border
+            .clip(RoundedCornerShape(8.dp))
     ) {
         Row(
             modifier = Modifier.background(containerColor),

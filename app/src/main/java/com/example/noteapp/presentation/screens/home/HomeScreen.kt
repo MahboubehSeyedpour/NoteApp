@@ -3,6 +3,7 @@ package com.example.noteapp.presentation.screens.home
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,10 +31,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
-import androidx.compose.ui.graphics.Color.Companion.DarkGray
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -51,7 +51,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import com.example.noteapp.R
 import com.example.noteapp.core.enums.LayoutMode
-import com.example.noteapp.domain.model.Tag
 import com.example.noteapp.presentation.components.CustomSearchField
 import com.example.noteapp.presentation.components.HomeTopBarConfig
 import com.example.noteapp.presentation.components.NotesList
@@ -199,17 +198,40 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
         ) {
             Spacer(Modifier.height(dimensionResource(R.dimen.screen_padding)))
 
-            CustomSearchField(
-                value = query,
-                modifier = Modifier.fillMaxWidth(),
-                contentColor = Black,
-                containerColor = White,
-                onValueChange = viewModel::onSearchChange,
-                placeholder = "Search note",
-                shape = RectangleShape
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                CustomSearchField(
+                    value = query,
+                    onValueChange = viewModel::onSearchChange,
+                    placeholder = "Search note",
+                    containerColor = White,
+                    contentColor = Black,
+                    shape = RectangleShape,
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp)
+                )
 
-            TagFlowList(labels = viewModel.tags.collectAsState().value, modifier = Modifier.padding(vertical = 16.dp))
+                IconButton(
+                    onClick = { viewModel.onGridToggleClicked() },
+                    modifier = Modifier
+                        .padding(start = 12.dp)
+                        .size(40.dp)
+                ) {
+                    Icon(
+                        imageVector = when (layoutMode) {
+                            LayoutMode.LIST -> ImageVector.vectorResource(R.drawable.ic_vertical_list)
+                            LayoutMode.GRID -> ImageVector.vectorResource(R.drawable.ic_grid_list)
+                        },
+                        contentDescription = "Toggle layout"
+                    )
+                }
+            }
+
+
+            TagFlowList(
+                labels = viewModel.tags.collectAsState().value,
+                modifier = Modifier.padding(vertical = 16.dp)
+            )
 
             NotesList(
                 notes = notes,
