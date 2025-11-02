@@ -4,6 +4,7 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -12,6 +13,8 @@ import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,6 +37,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -45,12 +49,13 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import com.example.noteapp.R
 import com.example.noteapp.core.enums.LayoutMode
-import com.example.noteapp.presentation.components.CustomBottomBar
 import com.example.noteapp.presentation.components.HomeTopBarConfig
 import com.example.noteapp.presentation.components.NotesList
 import com.example.noteapp.presentation.components.NotesTopBar
 import com.example.noteapp.presentation.navigation.Screens
 import com.example.noteapp.presentation.theme.Background
+import com.example.noteapp.presentation.theme.Primary
+import com.example.noteapp.presentation.theme.White
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -164,12 +169,19 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                     }
                 }
             } else {
-                CustomBottomBar(
-                    label = "Labels",
-                    onLabelsClick = {},
-                    onFabClick = { viewModel.onAddNoteClicked() },
-                    fabIcon = Icons.Outlined.Add
-                )
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(dimensionResource(R.dimen.screen_padding)),
+                    colors = ButtonColors(
+                        containerColor = Primary,
+                        contentColor = White,
+                        disabledContainerColor = Primary,
+                        disabledContentColor = White
+                    ),
+                    onClick = { viewModel.onAddNoteClicked() }) {
+                    Text(text = stringResource(R.string.note_add))
+                }
             }
         }
     ) { inner ->

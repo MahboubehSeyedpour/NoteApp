@@ -25,6 +25,7 @@
     <string name="note_init_failure">Can not initialize note</string>
     <string name="note_title">Title</string>
     <string name="note_description">Note…</string>
+    <string name="note_add">Add new note</string>
 
     <string name="reminder_set">Set reminder</string>
     <string name="permission_denied_notification">notification permission denied</string>
