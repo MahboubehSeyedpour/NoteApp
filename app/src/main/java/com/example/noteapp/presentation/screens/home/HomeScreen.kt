@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -137,7 +135,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
             } else {
                 NotesTopBar(
                     config = HomeTopBarConfig(
-                        avatar = painterResource(R.mipmap.user_avatar_foreground),
+                        avatar = painterResource(R.mipmap.img_man_foreground),
                         searchText = query,
                         onSearchChange = viewModel::onSearchChange,
                         onGridToggle = { viewModel.onGridToggleClicked() },
