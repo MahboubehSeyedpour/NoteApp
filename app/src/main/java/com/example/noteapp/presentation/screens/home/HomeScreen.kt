@@ -113,10 +113,10 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
 
     Scaffold(
         modifier = Modifier
-            .background(White)
+            .background(Background)
             .fillMaxSize()
             .padding(horizontal = dimensionResource(R.dimen.screen_padding)),
-        containerColor = White,
+        containerColor = Background,
         topBar = {
             if (inSelection) {
                 TopAppBar(
