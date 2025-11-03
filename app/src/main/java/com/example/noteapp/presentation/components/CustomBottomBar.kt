@@ -41,7 +41,6 @@ fun CustomBottomBar(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp)
         ) {
 
             Spacer(Modifier.height(12.dp))
@@ -50,7 +49,6 @@ fun CustomBottomBar(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = dimensionResource(R.dimen.screen_padding))
                     .padding(bottom = 24.dp, top = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
