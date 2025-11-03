@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.noteapp.R
 import com.example.noteapp.domain.model.Note
-import com.example.noteapp.presentation.screens.note_details.components.BadgesRow
 import com.example.noteapp.presentation.theme.Black
 
 @Composable

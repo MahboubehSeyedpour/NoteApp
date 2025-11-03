@@ -22,9 +22,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.noteapp.presentation.navigation.Screens
-import com.example.noteapp.presentation.screens.add_note.AddNoteScreen
+import com.example.noteapp.presentation.screens.add_note.NoteDetailScreen
 import com.example.noteapp.presentation.screens.home.HomeScreen
-import com.example.noteapp.presentation.screens.note_details.NoteDetailsScreen
 import com.example.noteapp.presentation.theme.NoteAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -70,15 +69,14 @@ fun NoteApp(viewModel: MainViewModel, navController: NavHostController) {
         ) {
             composable(Screens.HomeScreen.route) { HomeScreen(navController) }
             composable(
-                route = "${Screens.NoteDetailsScreen.route}?id={id}",
+                route = "${Screens.NoteDetailScreen.route}?id={id}",
                 arguments = listOf(navArgument("id") {
                     type = NavType.LongType
                     defaultValue = 0L
                 })
             ) {
-                NoteDetailsScreen(navController)
+                NoteDetailScreen(navController)
             }
-            composable(Screens.AddNoteScreen.route) { AddNoteScreen(navController) }
         }
     }
 }

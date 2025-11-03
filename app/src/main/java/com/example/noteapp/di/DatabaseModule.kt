@@ -4,7 +4,8 @@ import android.content.Context
 import androidx.room.Room
 import com.example.noteapp.core.constants.DatabaseConst
 import com.example.noteapp.data.local.note.NoteDao
-import com.example.noteapp.data.local.database.NoteDatabase
+import com.example.noteapp.data.local.database.AppDatabase
+import com.example.noteapp.data.local.tag.TagDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,14 +21,16 @@ object DatabaseModule {
     @Singleton
     fun provideDatabase(
         @ApplicationContext context: Context
-    ): NoteDatabase =
+    ): AppDatabase =
         Room.databaseBuilder(
             context,
-            NoteDatabase::class.java,
+            AppDatabase::class.java,
             DatabaseConst.NOTES_DATABASE_NAME
         )
             .build()
 
     @Provides
-    fun provideNoteDao(db: NoteDatabase): NoteDao = db.noteDao()
+    fun provideNoteDao(database: AppDatabase): NoteDao = database.noteDao()
+    @Provides
+    fun provideTagDao(database: AppDatabase): TagDao = database.tagDao()
 }

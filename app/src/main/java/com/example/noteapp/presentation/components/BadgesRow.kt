@@ -1,4 +1,4 @@
-package com.example.noteapp.presentation.screens.note_details.components
+package com.example.noteapp.presentation.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -13,7 +13,6 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.noteapp.R
-import com.example.noteapp.presentation.components.CustomPillChip
 import com.example.noteapp.presentation.theme.Primary
 import com.example.noteapp.presentation.theme.SecondaryBg
 import com.example.noteapp.presentation.theme.SecondaryContent

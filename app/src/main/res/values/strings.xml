@@ -8,7 +8,7 @@
     <string name="dialog_reminder_confirm_btn">Save</string>
     <string name="dialog_time_picker_confirm_btn">OK</string>
 
-    <string name="search_placeholder">Search note</string>
+    <string name="search_note">Search note</string>
 
     <string name="note_list_header">Recent All Note</string>
     <string name="pin">Pin</string>
@@ -34,4 +34,13 @@
     <string name="avatar_icon">Avatar</string>
 
     <string name="choose_tag">Choose Tag</string>
+    <string name="add_tag">Add Tag</string>
+    <string name="tag_name">Tag name</string>
+    <string name="tags">Tags</string>
+    <string name="create_new">Create new</string>
+    <string name="add_reminder">Add reminder</string>
+
+    <!--    icon descriptions   -->
+    <string name="clear_selection">Clear selection</string>
+    <string name="toggle_layout">Toggle layout</string>
 </resources>

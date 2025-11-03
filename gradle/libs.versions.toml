@@ -41,6 +41,8 @@ uiTestJunit4Android = "1.9.1"
 foundationLayout = "1.9.4"
 runtime = "1.9.4"
 foundation = "1.9.4"
+material3 = "1.4.0"
+uiGraphics = "1.9.4"
 
 
 [libraries]
@@ -89,6 +91,8 @@ androidx-ui-test-junit4-android = { group = "androidx.compose.ui", name = "ui-te
 androidx-compose-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout", version.ref = "foundationLayout" }
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "runtime" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
+androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
+androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "uiGraphics" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

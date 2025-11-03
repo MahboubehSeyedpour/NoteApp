@@ -97,8 +97,8 @@ class HomeViewModelTest {
         vm.events.test {
             vm.onNoteDetailsClicked(42L)
             val ev = awaitItem()
-            assertTrue(ev is HomeEvents.NavigateToNoteDetailsScreen)
-            assertEquals(42L, (ev as HomeEvents.NavigateToNoteDetailsScreen).noteId)
+            assertTrue(ev is HomeEvents.NavigateToNoteDetailScreen)
+            assertEquals(42L, (ev as HomeEvents.NavigateToNoteDetailScreen).noteId)
             cancelAndConsumeRemainingEvents()
         }
     }

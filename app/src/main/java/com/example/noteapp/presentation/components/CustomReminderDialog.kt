@@ -9,9 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -33,7 +30,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.noteapp.R
@@ -129,7 +128,7 @@ fun CustomReminderDialog(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(formatDate(dateMillis))
-                    Icon(Icons.Default.ArrowDropDown, "date")
+                    Icon(ImageVector.vectorResource(R.drawable.ic_arrow_drop_down), "date")
                 }
 
                 // Row 2: Time
@@ -144,7 +143,7 @@ fun CustomReminderDialog(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(formatTime(hour, minute))
-                    Icon(Icons.Default.ArrowDropDown, "time")
+                    Icon(ImageVector.vectorResource(R.drawable.ic_arrow_drop_down), "time")
                 }
 
                 // Row 3: Repeat (dropdown)
@@ -166,7 +165,7 @@ fun CustomReminderDialog(
                                 modifier = Modifier.weight(1f),
                                 textAlign = TextAlign.Start
                             )
-                            Icon(Icons.Rounded.ArrowDropDown, contentDescription = null)
+                            Icon(ImageVector.vectorResource(R.drawable.ic_arrow_drop_down), contentDescription = null)
                         }
 
                         DropdownMenu(

@@ -6,16 +6,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -47,19 +42,19 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import com.example.noteapp.R
 import com.example.noteapp.core.enums.LayoutMode
 import com.example.noteapp.presentation.components.CustomSearchField
 import com.example.noteapp.presentation.components.HomeTopBarConfig
+import com.example.noteapp.presentation.components.NoteAppButton
 import com.example.noteapp.presentation.components.NotesList
 import com.example.noteapp.presentation.components.NotesTopBar
 import com.example.noteapp.presentation.components.TagFlowList
 import com.example.noteapp.presentation.navigation.Screens
 import com.example.noteapp.presentation.theme.Background
-import com.example.noteapp.presentation.theme.LocalAppShapes
-import com.example.noteapp.presentation.theme.Primary
 import com.example.noteapp.presentation.theme.White
 import kotlinx.coroutines.flow.collectLatest
 
@@ -68,7 +63,7 @@ import kotlinx.coroutines.flow.collectLatest
 fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltViewModel()) {
 
     val lifecycle = LocalLifecycleOwner.current.lifecycle
-    val notes by viewModel.notes.collectAsState()
+    val notes by viewModel.notes.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val layoutMode by viewModel.layoutMode.collectAsState()
     var confirmDeleteId by remember { mutableStateOf<Long?>(null) }
@@ -80,15 +75,12 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
         lifecycle.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
             viewModel.events.collectLatest { event ->
                 when (event) {
-                    is HomeEvents.NavigateToNoteDetailsScreen -> navController.navigate(
-                        route = "${Screens.NoteDetailsScreen.route}?id=${event.noteId}"
+                    is HomeEvents.NavigateToNoteDetailScreen -> navController.navigate(
+                        route = "${Screens.NoteDetailScreen.route}?id=${event.noteId}"
                     )
 
-                    HomeEvents.NavigateToAddNoteScreen -> navController.navigate(Screens.AddNoteScreen.route)
                     is HomeEvents.Error -> Toast.makeText(
-                        context,
-                        event.message,
-                        Toast.LENGTH_SHORT
+                        context, event.message, Toast.LENGTH_SHORT
                     ).show()
                 }
             }
@@ -110,8 +102,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                 TextButton(onClick = { confirmDeleteId = null }) {
                     Text(context.getString(R.string.dialog_dismiss_btn))
                 }
-            }
-        )
+            })
     }
 
     Scaffold(
@@ -122,29 +113,28 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
         containerColor = Background,
         topBar = {
             if (inSelection) {
-                TopAppBar(
-                    title = { Text("${selected.size} selected") },
-                    navigationIcon = {
-                        IconButton(onClick = { viewModel.clearSelection() }) {
-                            Icon(Icons.Outlined.Close, contentDescription = "Clear selection")
-                        }
-                    },
-                    actions = {
-                        IconButton(onClick = { viewModel.pinSelected() }) {
-                            Icon(
-                                ImageVector.vectorResource(R.drawable.ic_pin),
-                                modifier = Modifier.size(24.dp),
-                                contentDescription = "Pin"
-                            )
-                        }
-                        IconButton(onClick = { confirmDeleteId = selected.first() }) {
-                            Icon(
-                                ImageVector.vectorResource(R.drawable.ic_trash),
-                                contentDescription = "Delete"
-                            )
-                        }
+                TopAppBar(title = { Text("${selected.size} selected") }, navigationIcon = {
+                    IconButton(onClick = { viewModel.clearSelection() }) {
+                        Icon(
+                            ImageVector.vectorResource(R.drawable.ic_close),
+                            contentDescription = stringResource(R.string.clear_selection)
+                        )
                     }
-                )
+                }, actions = {
+                    IconButton(onClick = { viewModel.pinSelected() }) {
+                        Icon(
+                            ImageVector.vectorResource(R.drawable.ic_pin),
+                            modifier = Modifier.size(24.dp),
+                            contentDescription = stringResource(R.string.pin)
+                        )
+                    }
+                    IconButton(onClick = { confirmDeleteId = selected.first() }) {
+                        Icon(
+                            ImageVector.vectorResource(R.drawable.ic_trash),
+                            contentDescription = stringResource(R.string.delete)
+                        )
+                    }
+                })
             } else {
                 NotesTopBar(
                     config = HomeTopBarConfig(
@@ -158,7 +148,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                             LayoutMode.GRID -> ImageVector.vectorResource(R.drawable.ic_grid_list)
                         },
                         menuIcon = ImageVector.vectorResource(R.drawable.ic_menu),
-                        placeholder = context.getString(R.string.search_placeholder),
+                        placeholder = context.getString(R.string.search_note),
                     )
                 )
             }
@@ -177,27 +167,12 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                     }
                 }
             } else {
-                Button(
-                    modifier = Modifier
-                        .padding(vertical = dimensionResource(R.dimen.screen_padding))
-                        .fillMaxWidth()
-                        .height(58.dp),
-                    colors = ButtonColors(
-                        containerColor = Primary,
-                        contentColor = White,
-                        disabledContainerColor = Primary,
-                        disabledContentColor = White
-                    ),
-                    shape = LocalAppShapes.current.chip,
-                    onClick = { viewModel.onAddNoteClicked() }) {
-                    Text(text = stringResource(R.string.note_add))
-                }
+                NoteAppButton(
+                    text = R.string.note_add, onClick = { viewModel.onAddNoteClicked() })
             }
-        }
-    ) { inner ->
+        }) { inner ->
         Column(
-            modifier = Modifier
-                .padding(inner)
+            modifier = Modifier.padding(inner)
         ) {
             Spacer(Modifier.height(dimensionResource(R.dimen.screen_padding)))
 
@@ -205,7 +180,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                 CustomSearchField(
                     value = query,
                     onValueChange = viewModel::onSearchChange,
-                    placeholder = "Search note",
+                    placeholder = stringResource(R.string.search_note),
                     containerColor = White,
                     contentColor = Black,
                     shape = RectangleShape,
@@ -224,8 +199,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                         imageVector = when (layoutMode) {
                             LayoutMode.LIST -> ImageVector.vectorResource(R.drawable.ic_vertical_list)
                             LayoutMode.GRID -> ImageVector.vectorResource(R.drawable.ic_grid_list)
-                        },
-                        contentDescription = "Toggle layout"
+                        }, contentDescription = stringResource(R.string.toggle_layout)
                     )
                 }
             }
@@ -242,9 +216,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
             NotesList(
                 notes = notes,
                 noteTitleStyle = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 14.sp,
-                    color = Black
+                    fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = Black
                 ),
                 noteBodyStyle = MaterialTheme.typography.bodyMedium.copy(
                     color = com.example.noteapp.presentation.theme.Black,
