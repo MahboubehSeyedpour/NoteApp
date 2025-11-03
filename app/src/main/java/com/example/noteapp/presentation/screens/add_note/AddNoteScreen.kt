@@ -1,6 +1,7 @@
 package com.example.noteapp.presentation.screens.add_note
 
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.CircularProgressIndicator
@@ -28,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -36,7 +37,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import com.example.noteapp.R
-import com.example.noteapp.presentation.components.CustomBottomBar
 import com.example.noteapp.presentation.components.CustomBottomSheet
 import com.example.noteapp.presentation.components.CustomReminderDialog
 import com.example.noteapp.presentation.components.NoteContent
@@ -74,6 +74,14 @@ fun AddNoteScreen(
         }
     }
 
+    BackHandler(enabled = true) {
+        when {
+            showPicker -> showPicker = false
+            showCustomDialog -> showCustomDialog = false
+            showSheet -> showSheet = false
+            else -> viewModel.onBackClicked()
+        }
+    }
 
     CustomBottomSheet(
         visible = showSheet,
@@ -128,7 +136,6 @@ fun AddNoteScreen(
         )
     }
 
-
     CustomReminderDialog(
         visible = showCustomDialog,
         onDismiss = { showCustomDialog = false },
@@ -152,12 +159,25 @@ fun AddNoteScreen(
             }
         },
         bottomBar = {
-            CustomBottomBar(
-                label = "Labels",
-                onLabelsClick = {},
-                onFabClick = { viewModel.onDoneClicked() },
-                fabIcon = Icons.Default.Done
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp)
+                    .background(Background)
+            ) {
+                Column {
+                    Text(stringResource(R.string.choose_tag))
+                    TagFlowList(
+                        labels = viewModel.tags.collectAsState().value,
+                        cornerRadius = 18.dp,
+                        horizontalGap = 18.dp,
+                        verticalGap = 18.dp,
+                        onLabelClick = { tag -> /* viewModel.onTagSelected(tag) */ },
+                        trailingIcon = Icons.Outlined.Add,
+                        onTrailingClick = {}
+                    )
+                }
+            }
         }
     ) { inner ->
         Column(
@@ -190,27 +210,6 @@ fun AddNoteScreen(
                     ) {
                         Text(context.getString(R.string.note_init_failure))
                     }
-            }
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(150.dp)
-                    .background(Background)
-            ) {
-                Column {
-                    Text("Choose Tag")
-                    TagFlowList(
-                        labels = viewModel.tags.collectAsState().value,
-                        cornerRadius = 18.dp,
-                        horizontalGap = 18.dp,
-                        verticalGap = 18.dp,
-                        onLabelClick = { tag -> /* viewModel.onTagSelected(tag) */ },
-                        trailingIcon = Icons.Outlined.Add,
-                        onTrailingClick = {}
-                        // or: trailingContent = { MyFancyAddChip(onClick = onAddNewTag) }
-                    )
-                }
             }
         }
     }

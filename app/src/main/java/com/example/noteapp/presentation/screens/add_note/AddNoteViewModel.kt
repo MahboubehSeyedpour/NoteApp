@@ -13,7 +13,6 @@ import com.example.noteapp.domain.repository.NoteRepository
 import com.example.noteapp.presentation.mapper.toDomain
 import com.example.noteapp.presentation.screens.note_details.NoteDetailEvents
 import com.example.noteapp.presentation.screens.note_details.models.NoteDetailUIState
-import com.example.noteapp.presentation.theme.Primary
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -86,7 +85,7 @@ class AddNoteViewModel @Inject constructor(
         _uiState.update { it.copy(note = block(current)) }
     }
 
-    fun onDoneClicked() {
+    private fun saveNote() {
         if (_uiState.value.note?.title?.isBlank() == true ||
             _uiState.value.note?.title?.isEmpty() == true ||
             _uiState.value.note?.description?.isBlank() == true ||
@@ -114,6 +113,13 @@ class AddNoteViewModel @Inject constructor(
     }
 
     fun onBackClicked() {
-        viewModelScope.launch { _events.emit(NoteDetailEvents.NavigateToHomeScreen) }
+        if (_uiState.value.note?.title?.isNotBlank() == true ||
+            _uiState.value.note?.title?.isNotEmpty() == true ||
+            _uiState.value.note?.description?.isNotBlank() == true ||
+            _uiState.value.note?.description?.isNotEmpty() == true
+        ) {
+            saveNote()
+        } else
+            viewModelScope.launch { _events.emit(NoteDetailEvents.NavigateToHomeScreen) }
     }
 }

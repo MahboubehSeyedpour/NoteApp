@@ -32,4 +32,6 @@
 
     <string name="search_icon">Search</string>
     <string name="avatar_icon">Avatar</string>
+
+    <string name="choose_tag">Choose Tag</string>
 </resources>

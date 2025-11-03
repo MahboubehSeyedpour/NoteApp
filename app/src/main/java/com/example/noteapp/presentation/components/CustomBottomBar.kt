@@ -1,5 +1,6 @@
 package com.example.noteapp.presentation.components
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -50,21 +51,9 @@ fun CustomBottomBar(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 24.dp, top = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.End
             ) {
-                Spacer(Modifier.weight(1f))
-                TextButton(onClick = onLabelsClick) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.ic_tag),
-                            contentDescription = null,
-                            modifier = Modifier.size(dimensionResource(R.dimen.icon_size)),
-                            tint = Black
-                        )
-                        Spacer(Modifier.width(8.dp))
-                        Text(label, color = Black)
-                    }
-                }
                 FloatingActionButton(
                     modifier = Modifier.testTag("fab-add-note"),
                     onClick = onFabClick,
