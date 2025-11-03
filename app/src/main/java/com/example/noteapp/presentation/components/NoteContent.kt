@@ -2,11 +2,8 @@ package com.example.noteapp.presentation.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -19,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.noteapp.R
@@ -33,25 +29,19 @@ fun NoteContent(
     onTitleChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(horizontal = 20.dp),
-    maxContentWidth: Dp = 480.dp
 ) {
     val scroll = rememberScrollState()
     val context = LocalContext.current
 
     Column(
         modifier = modifier
-            .fillMaxSize()
             .verticalScroll(scroll)
-            .padding(top = 8.dp)
-            .then(Modifier.padding(contentPadding)),
+            .padding(top = 8.dp),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .widthIn(max = maxContentWidth),
+            modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
@@ -70,7 +60,7 @@ fun NoteContent(
                 ),
                 placeholder = {
                     Text(
-                        context.getString(R.string.note_title),
+                        text = context.getString(R.string.note_title),
                         color = Black,
                         style = MaterialTheme.typography.headlineSmall.copy(
                             fontWeight = FontWeight.Bold,

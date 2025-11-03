@@ -40,6 +40,7 @@ junitKtx = "1.3.0"
 uiTestJunit4Android = "1.9.1"
 foundationLayout = "1.9.4"
 runtime = "1.9.4"
+foundation = "1.9.4"
 
 
 [libraries]
@@ -87,6 +88,7 @@ androidx-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.
 androidx-ui-test-junit4-android = { group = "androidx.compose.ui", name = "ui-test-junit4-android", version.ref = "uiTestJunit4Android" }
 androidx-compose-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout", version.ref = "foundationLayout" }
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "runtime" }
+androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

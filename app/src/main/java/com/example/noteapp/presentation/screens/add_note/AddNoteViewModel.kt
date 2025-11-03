@@ -1,16 +1,19 @@
 package com.example.noteapp.presentation.screens.add_note
 
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.noteapp.core.time.combineToEpochMillis
 import com.example.noteapp.core.time.formatReminderEpoch
 import com.example.noteapp.di.IoDispatcher
 import com.example.noteapp.domain.model.Note
+import com.example.noteapp.domain.model.Tag
 import com.example.noteapp.domain.reminders.ReminderScheduler
 import com.example.noteapp.domain.repository.NoteRepository
 import com.example.noteapp.presentation.mapper.toDomain
 import com.example.noteapp.presentation.screens.note_details.NoteDetailEvents
 import com.example.noteapp.presentation.screens.note_details.models.NoteDetailUIState
+import com.example.noteapp.presentation.theme.Primary
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -29,6 +32,9 @@ class AddNoteViewModel @Inject constructor(
     @IoDispatcher private val io: CoroutineDispatcher
 ) : ViewModel() {
 
+    private val _tags = MutableStateFlow<List<Tag>>(emptyList())
+    val tags: StateFlow<List<Tag>> = _tags
+
     private val _uiState = MutableStateFlow(
         NoteDetailUIState(
             isLoading = false,
@@ -42,6 +48,16 @@ class AddNoteViewModel @Inject constructor(
 
     fun updateTitle(newTitle: String) = update { it.copy(title = newTitle) }
     fun updateDescription(newDesc: String) = update { it.copy(description = newDesc) }
+
+    init {
+        _tags.value = listOf(
+            Tag("Urgent", Color(0xFFF44336)),
+            Tag("Work", Color(0xFF2196F3)),
+            Tag("Personal", Color(0xFF4CAF50)),
+            Tag("Ideas", Color(0xFFFFC107)),
+            Tag("Learning", Color(0xFF9C27B0)),
+        )
+    }
 
     fun setReminder(
         dateMillis: Long,

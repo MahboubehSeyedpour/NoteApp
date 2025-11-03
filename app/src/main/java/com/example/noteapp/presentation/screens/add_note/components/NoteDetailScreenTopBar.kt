@@ -3,7 +3,6 @@ package com.example.noteapp.presentation.screens.add_note.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
@@ -23,7 +22,7 @@ fun NoteDetailScreenTopBar(
     onShareClick: () -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -34,11 +33,21 @@ fun NoteDetailScreenTopBar(
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             CircularIconButton(
                 onClick = onNotificationClick,
-                icon = { Icon(ImageVector.vectorResource(R.drawable.ic_notif), contentDescription = "Notify") },
+                icon = {
+                    Icon(
+                        ImageVector.vectorResource(R.drawable.ic_notif),
+                        contentDescription = "Notify"
+                    )
+                },
             )
             CircularIconButton(
                 onClick = onShareClick,
-                icon = { Icon(ImageVector.vectorResource(R.drawable.ic_send), contentDescription = "Download") }
+                icon = {
+                    Icon(
+                        ImageVector.vectorResource(R.drawable.ic_send),
+                        contentDescription = "Download"
+                    )
+                }
             )
         }
     }

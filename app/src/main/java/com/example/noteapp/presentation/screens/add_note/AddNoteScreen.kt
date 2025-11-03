@@ -1,12 +1,16 @@
 package com.example.noteapp.presentation.screens.add_note
 
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -16,6 +20,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -36,6 +42,7 @@ import com.example.noteapp.presentation.components.CustomReminderDialog
 import com.example.noteapp.presentation.components.NoteContent
 import com.example.noteapp.presentation.components.ReminderEntryPoint
 import com.example.noteapp.presentation.components.ReminderPickerDialog
+import com.example.noteapp.presentation.components.TagFlowList
 import com.example.noteapp.presentation.screens.BottomSheetRowModel
 import com.example.noteapp.presentation.screens.add_note.components.NoteDetailScreenTopBar
 import com.example.noteapp.presentation.screens.note_details.NoteDetailEvents
@@ -153,27 +160,57 @@ fun AddNoteScreen(
             )
         }
     ) { inner ->
-        when {
-            uiState.isLoading -> Box(
-                Modifier
-                    .fillMaxSize()
-                    .padding(inner),
-                contentAlignment = Alignment.Center
-            ) { CircularProgressIndicator() }
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(inner)
+        ) {
 
-            uiState.note != null -> NoteContent(
-                note = uiState.note!!,
-                onTitleChange = viewModel::updateTitle,
-                onDescriptionChange = viewModel::updateDescription,
-                modifier = Modifier.padding(inner),
-            )
+            when {
+                uiState.isLoading ->
+                    Box(
+                        Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) { CircularProgressIndicator() }
 
-            else -> Box(
-                Modifier
-                    .fillMaxSize()
-                    .padding(inner), contentAlignment = Alignment.Center
+                uiState.note != null ->
+                    NoteContent(
+                        note = uiState.note!!,
+                        onTitleChange = viewModel::updateTitle,
+                        onDescriptionChange = viewModel::updateDescription,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                    )
+
+                else ->
+                    Box(
+                        Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(context.getString(R.string.note_init_failure))
+                    }
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp)
+                    .background(Background)
             ) {
-                Text(context.getString(R.string.note_init_failure))
+                Column {
+                    Text("Choose Tag")
+                    TagFlowList(
+                        labels = viewModel.tags.collectAsState().value,
+                        cornerRadius = 18.dp,
+                        horizontalGap = 18.dp,
+                        verticalGap = 18.dp,
+                        onLabelClick = { tag -> /* viewModel.onTagSelected(tag) */ },
+                        trailingIcon = Icons.Outlined.Add,
+                        onTrailingClick = {}
+                        // or: trailingContent = { MyFancyAddChip(onClick = onAddNewTag) }
+                    )
+                }
             }
         }
     }
