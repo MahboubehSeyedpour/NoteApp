@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -22,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.noteapp.R
 import com.example.noteapp.domain.model.Note
 import com.example.noteapp.presentation.screens.note_details.components.BadgesRow
@@ -64,8 +64,20 @@ fun NoteContent(
                 value = note.title,
                 onValueChange = onTitleChange,
                 modifier = Modifier.fillMaxWidth(),
-                textStyle = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                placeholder = { Text(context.getString(R.string.note_title), color = Black) },
+                textStyle = MaterialTheme.typography.headlineSmall.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 32.sp
+                ),
+                placeholder = {
+                    Text(
+                        context.getString(R.string.note_title),
+                        color = Black,
+                        style = MaterialTheme.typography.headlineSmall.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 32.sp
+                        )
+                    )
+                },
                 singleLine = true,
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
@@ -77,14 +89,23 @@ fun NoteContent(
                 )
             )
 
-            HorizontalDivider()
-
             OutlinedTextField(
                 value = note.description.orEmpty(),
                 onValueChange = { value -> onDescriptionChange(value) },
                 modifier = Modifier.fillMaxWidth(),
-                textStyle = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Normal),
-                placeholder = { Text(context.getString(R.string.note_description), color = Black) },
+                textStyle = MaterialTheme.typography.headlineSmall.copy(
+                    fontWeight = FontWeight.Normal,
+                    fontSize = 16.sp
+                ),
+                placeholder = {
+                    Text(
+                        context.getString(R.string.note_description), color = Black,
+                        style = MaterialTheme.typography.headlineSmall.copy(
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 16.sp
+                        )
+                    )
+                },
                 minLines = 4,
                 maxLines = 12,
                 colors = TextFieldDefaults.colors(

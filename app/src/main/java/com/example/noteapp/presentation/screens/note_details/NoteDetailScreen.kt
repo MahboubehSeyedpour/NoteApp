@@ -2,12 +2,14 @@ package com.example.noteapp.presentation.screens.note_details
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -32,10 +34,10 @@ import com.example.noteapp.presentation.components.CustomBottomBar
 import com.example.noteapp.presentation.components.CustomBottomSheet
 import com.example.noteapp.presentation.components.CustomReminderDialog
 import com.example.noteapp.presentation.components.NoteContent
-import com.example.noteapp.presentation.components.NoteDetailScreenTopBar
 import com.example.noteapp.presentation.components.ReminderEntryPoint
 import com.example.noteapp.presentation.components.ReminderPickerDialog
 import com.example.noteapp.presentation.screens.BottomSheetRowModel
+import com.example.noteapp.presentation.screens.add_note.components.NoteDetailScreenTopBar
 import com.example.noteapp.presentation.theme.Background
 import kotlinx.coroutines.flow.collectLatest
 
@@ -130,11 +132,14 @@ fun NoteDetailsScreen(
     Scaffold(
         containerColor = Background,
         topBar = {
-            NoteDetailScreenTopBar(
-                onBack = { viewModel.onBackClicked() },
-                onNotificationClick = { showSheet = true },
-                onArchiveClick = {}
-            )
+            Column {
+                NoteDetailScreenTopBar(
+                    onBack = { viewModel.onBackClicked() },
+                    onNotificationClick = { showSheet = true },
+                    onShareClick = {}
+                )
+                HorizontalDivider()
+            }
         },
         bottomBar = {
             CustomBottomBar(

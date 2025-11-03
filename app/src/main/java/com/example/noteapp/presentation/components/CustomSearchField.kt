@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.noteapp.R
 import com.example.noteapp.presentation.theme.Black
+import com.example.noteapp.presentation.theme.LocalAppShapes
 
 @Composable
 fun CustomSearchField(
@@ -40,16 +41,16 @@ fun CustomSearchField(
     containerColor: Color,
     contentColor: Color,
     modifier: Modifier = Modifier,
-    shape: Shape = RoundedCornerShape(16.dp)
+    shape: Shape = LocalAppShapes.current.chip
 ) {
     Box(
         modifier = modifier
             .border(
                 width = 1.dp,
                 color = Black,
-                shape = RoundedCornerShape(8.dp)
+                shape = LocalAppShapes.current.chip
             )
-            .clip(RoundedCornerShape(8.dp))
+            .clip(LocalAppShapes.current.chip)
     ) {
         Row(
             modifier = Modifier.background(containerColor),

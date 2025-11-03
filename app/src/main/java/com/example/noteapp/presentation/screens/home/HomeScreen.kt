@@ -58,6 +58,7 @@ import com.example.noteapp.presentation.components.NotesTopBar
 import com.example.noteapp.presentation.components.TagFlowList
 import com.example.noteapp.presentation.navigation.Screens
 import com.example.noteapp.presentation.theme.Background
+import com.example.noteapp.presentation.theme.LocalAppShapes
 import com.example.noteapp.presentation.theme.Primary
 import com.example.noteapp.presentation.theme.White
 import kotlinx.coroutines.flow.collectLatest
@@ -178,14 +179,16 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
             } else {
                 Button(
                     modifier = Modifier
+                        .padding(vertical = dimensionResource(R.dimen.screen_padding))
                         .fillMaxWidth()
-                        .padding(dimensionResource(R.dimen.screen_padding)),
+                        .height(58.dp),
                     colors = ButtonColors(
                         containerColor = Primary,
                         contentColor = White,
                         disabledContainerColor = Primary,
                         disabledContentColor = White
                     ),
+                    shape = LocalAppShapes.current.chip,
                     onClick = { viewModel.onAddNoteClicked() }) {
                     Text(text = stringResource(R.string.note_add))
                 }

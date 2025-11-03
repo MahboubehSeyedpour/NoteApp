@@ -1,4 +1,4 @@
-package com.example.noteapp.presentation.components
+package com.example.noteapp.presentation.screens.add_note.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -14,12 +14,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.example.noteapp.R
+import com.example.noteapp.presentation.components.CircularIconButton
 
 @Composable
 fun NoteDetailScreenTopBar(
     onBack: () -> Unit,
     onNotificationClick: () -> Unit,
-    onArchiveClick: () -> Unit
+    onShareClick: () -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(16.dp),
@@ -36,7 +37,7 @@ fun NoteDetailScreenTopBar(
                 icon = { Icon(ImageVector.vectorResource(R.drawable.ic_notif), contentDescription = "Notify") },
             )
             CircularIconButton(
-                onClick = onArchiveClick,
+                onClick = onShareClick,
                 icon = { Icon(ImageVector.vectorResource(R.drawable.ic_send), contentDescription = "Download") }
             )
         }

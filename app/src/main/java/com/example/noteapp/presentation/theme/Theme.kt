@@ -41,8 +41,8 @@ private val LightColorScheme = lightColorScheme(
 
 @Immutable
 data class AppShapes(
-    val card: Shape = RoundedCornerShape(16.dp),
-    val chip: Shape = RoundedCornerShape(16.dp)
+    val card: Shape = RoundedCornerShape(12.dp),
+    val chip: Shape = RoundedCornerShape(12.dp)
 )
 
 val LocalAppShapes = staticCompositionLocalOf { AppShapes() }
