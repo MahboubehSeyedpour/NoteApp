@@ -7,9 +7,9 @@ data class Note(
     val id: Long,
     val title: String,
     val description: String?,
-    val categoryBadge: String?,
     val timeBadge: String?,
     val reminderAt: Long?,
     val createdAt: Long,
-    val pinned: Boolean
+    val pinned: Boolean,
+    val tag: Tag?,
 )

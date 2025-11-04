@@ -9,19 +9,11 @@ import javax.inject.Inject
 class TagRepositoryImpl @Inject constructor(
     private val tagDao: TagDao
 ) : TagRepository {
-    override fun getAllTags(): Flow<List<TagEntity>> {
-        return tagDao.getAllTags()
-    }
+    override fun getAllTags(): Flow<List<TagEntity>> = tagDao.getAllTags()
 
-    override suspend fun addTag(tagEntity: TagEntity) {
-        tagDao.addTag(tagEntity)
-    }
+    override suspend fun addTag(tagEntity: TagEntity) = tagDao.addTag(tagEntity)
 
-    override suspend fun deleteTag(tagEntity: TagEntity) {
-        tagDao.deleteTag(tagEntity)
-    }
+    override suspend fun deleteTag(tagEntity: TagEntity) = tagDao.deleteTag(tagEntity)
 
-    override fun getTagById(id: Long): Flow<TagEntity> {
-        return tagDao.getTagByName(id)
-    }
+    override fun getTagById(id: Long): Flow<TagEntity> = tagDao.getTagByName(id)
 }

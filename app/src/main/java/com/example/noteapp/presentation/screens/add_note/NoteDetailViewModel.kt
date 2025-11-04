@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -45,7 +46,16 @@ class NoteDetailViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(
         NoteDetailUIState(
-            isLoading = false, note = Note(0, "", "", null, null, null, 0L, false)
+            isLoading = false, note = Note(
+                id = 0,
+                title = "",
+                description = "",
+                timeBadge = null,
+                reminderAt = null,
+                createdAt = 0L,
+                pinned = false,
+                tag = null
+            )
         )
     )
     val uiState: StateFlow<NoteDetailUIState> = _uiState
@@ -56,7 +66,11 @@ class NoteDetailViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             if (noteId != null && noteId != 0L) {
-                noteUseCase.getNoteById(noteId).map { it.toUI() }.collect { ui ->
+                noteUseCase.getNoteById(noteId).map {
+                    if (it.tagId == null) it.toUI(null) else it.toUI(
+                        tagUseCase.getTag(it.tagId).first().toUI()
+                    )
+                }.collect { ui ->
                     _uiState.update { it.copy(isLoading = false, note = ui) }
                 }
             }
@@ -76,8 +90,8 @@ class NoteDetailViewModel @Inject constructor(
 
     fun updateTitle(newTitle: String) = update { it.copy(title = newTitle) }
     fun updateDescription(newDesc: String) = update { it.copy(description = newDesc) }
-    fun updateCategory(newCategory: String?) = update { it.copy(categoryBadge = newCategory) }
-    fun updateTimeBadge(newTime: String?) = update { it.copy(timeBadge = newTime) }
+//    fun updateCategory(newCategory: String?) = update { it.copy(categoryBadge = newCategory) }
+//    fun updateTimeBadge(newTime: String?) = update { it.copy(timeBadge = newTime) }
 
     fun setReminder(
         dateMillis: Long, hour: Int, minute: Int, zoneId: ZoneId = ZoneId.systemDefault()
@@ -146,16 +160,13 @@ class NoteDetailViewModel @Inject constructor(
         }
         val millis = target.toInstant().toEpochMilli()
         _uiState.update { it.copy(reminderAtMillis = millis) }
-        // if you persist immediately:
         setReminder(millis)
     }
 
-    /** Trigger opening system/date-time picker from UI via event */
     fun openReminderPicker() = viewModelScope.launch {
         _events.emit(NoteDetailEvents.OpenReminderPicker)
     }
 
-    /** Called from dialog/sheet confirm */
     fun setReminder(dateMillis: Long, hour: Int? = null, minute: Int? = null) {
         val finalMillis = if (hour != null && minute != null) {
             Instant.ofEpochMilli(dateMillis).atZone(ZoneId.systemDefault()).withHour(hour)
@@ -168,15 +179,13 @@ class NoteDetailViewModel @Inject constructor(
         // viewModelScope.launch(io) { repo.updateReminder(noteId, finalMillis) }
     }
 
-    /* ---------- Tag flows ---------- */
-
     fun onTagSelected(tag: Tag) {
         _uiState.update { it.copy(selectedTag = tag) }
-        _uiState.update { s -> s.copy(note = s.note?.copy(categoryBadge = tag.name)) }
+//        _uiState.update { s -> s.copy(note = s.note?.copy(categoryBadge = tag.name)) }
     }
 
     fun onAddTag(name: String, color: Color) {
-        val newTag = Tag(name.trim().lowercase(), color)
+        val newTag = Tag(id = 0L, name.trim().lowercase(), color)
         viewModelScope.launch(io) {
             tagUseCase.addTag(newTag.toDomain())
 //            _tags.update { current ->

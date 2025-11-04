@@ -1,6 +1,7 @@
 package com.example.noteapp.domain.repository
 
 import com.example.noteapp.data.local.note.NoteEntity
+import com.example.noteapp.data.local.note.NoteTagRelation
 import kotlinx.coroutines.flow.Flow
 
 interface NoteRepository {
@@ -10,4 +11,6 @@ interface NoteRepository {
     suspend fun deleteNote(noteEntity: NoteEntity)
     fun getNoteById(id: Long): Flow<NoteEntity>
     suspend fun getLastNoteId(): Long?
+    fun getNoteWithTagById(id: Long): Flow<NoteTagRelation>
+    fun getAllNotesWithTag(): Flow<List<NoteTagRelation>>
 }

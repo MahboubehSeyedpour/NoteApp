@@ -1,6 +1,7 @@
 package com.example.noteapp.presentation.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -48,8 +49,7 @@ fun CustomNoteCard(
     isSelected: Boolean,
 ) {
 
-    val highlight =
-        if (isSelected) MaterialTheme.colorScheme.primary else Transparent
+    val highlight = if (isSelected) MaterialTheme.colorScheme.primary else Transparent
 
     val shapes = LocalAppShapes.current
 
@@ -64,8 +64,7 @@ fun CustomNoteCard(
                 .border(2.dp, highlight, shapes.card)
                 .clip(shapes.card)
                 .combinedClickable(
-                    onClick = onClick,
-                    onLongClick = onLongClick
+                    onClick = onClick, onLongClick = onLongClick
                 )
                 .fillMaxWidth()
                 .padding(dimensionResource(R.dimen.card_padding))
@@ -92,11 +91,7 @@ fun CustomNoteCard(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Badges(
-                            note.timeBadge,
-                            note.categoryBadge,
-                            chipTextStyle
-                        )
+                        Badges(note.timeBadge, note.tag?.name, chipTextStyle)
                     }
                 }
 
@@ -104,11 +99,7 @@ fun CustomNoteCard(
                     Column(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Badges(
-                            note.timeBadge,
-                            note.categoryBadge,
-                            chipTextStyle
-                        )
+                        Badges(note.timeBadge, note.tag?.name, chipTextStyle)
                     }
                 }
             }

@@ -2,17 +2,32 @@ package com.example.noteapp.data.local.note
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.example.noteapp.data.local.tag.TagEntity
 
-@Entity(tableName = "notes-table")
+@Entity(
+    tableName = "notes",
+    foreignKeys = [
+        ForeignKey(
+            entity = TagEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["tag_id"],
+            onDelete = ForeignKey.SET_NULL,   // if tag is deleted, keep note but null the tag
+            onUpdate = ForeignKey.CASCADE
+        )
+    ],
+    indices = [Index("tag_id")]
+)
 data class NoteEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
 
     @ColumnInfo(name = "title") val title: String,
 
-    @ColumnInfo(name = "description") val description: String?,
+    @ColumnInfo(name = "tag_id") val tagId: Long?,
 
-    @ColumnInfo(name = "category") val category: String?,
+    @ColumnInfo(name = "description") val description: String?,
 
     @ColumnInfo(name = "reminder_at") val reminderAt: Long?,
 

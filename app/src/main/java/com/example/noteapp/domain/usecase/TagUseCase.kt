@@ -19,9 +19,9 @@ class TagUseCase(
     @IoDispatcher private val io: CoroutineDispatcher
 ) {
 
-    suspend fun getAllTags(): Flow<List<TagEntity>> {
-        return tagRepository.getAllTags()
-    }
+    fun getAllTags(): Flow<List<TagEntity>> = tagRepository.getAllTags()
+
+    fun getTag(id: Long): Flow<TagEntity> = tagRepository.getTagById(id)
 
     suspend fun addTag(tagEntity: TagEntity) {
         tagRepository.addTag(tagEntity)

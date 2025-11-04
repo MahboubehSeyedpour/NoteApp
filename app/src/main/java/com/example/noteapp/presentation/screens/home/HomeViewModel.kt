@@ -64,7 +64,10 @@ class HomeViewModel @Inject constructor(
     private fun observeNotes() {
         viewModelScope.launch(io) {
             noteUseCase.getAllNotes().collectLatest { allNotes ->
-                _notes.value = allNotes.sortedByDescending { it.createdAt }.map { it.toUI() }
+                _notes.value = allNotes.sortedByDescending { it.createdAt }.map {
+                    val tag = if (it.tagId == null) null else tagUseCase.getTag(it.tagId).first().toUI()
+                    it.toUI(tag)
+                }
             }
         }
     }

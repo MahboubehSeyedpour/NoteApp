@@ -13,12 +13,12 @@ interface TagDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun addTag(tagEntity: TagEntity)
 
-    @Query("SELECT * FROM `tags-table`")
+    @Query("SELECT * FROM `tags`")
     fun getAllTags(): Flow<List<TagEntity>>
 
     @Delete
     suspend fun deleteTag(tagEntity: TagEntity)
 
-    @Query("SELECT * FROM `tags-table` WHERE id=:id")
+    @Query("SELECT * FROM `tags` WHERE id=:id")
     fun getTagByName(id: Long): Flow<TagEntity>
 }

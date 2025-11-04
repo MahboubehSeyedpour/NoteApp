@@ -5,7 +5,8 @@ import androidx.compose.ui.graphics.toArgb
 import com.example.noteapp.data.local.tag.TagEntity
 import com.example.noteapp.domain.model.Tag
 
-fun TagEntity.toUI(): Tag = Tag(name = name, color = Color(colorArgb))
+fun TagEntity.toUI(): Tag =
+    Tag(id = id, name = name, color = Color(colorArgb))
 
-fun Tag.toDomain(existingId: Long = 0L): TagEntity =
-    TagEntity(id = existingId, name = name, colorArgb = color.toArgb())
+fun Tag.toDomain(): TagEntity =
+    TagEntity(id = id, name = name, colorArgb = color.toArgb())

@@ -2,26 +2,33 @@ package com.example.noteapp.presentation.mapper
 
 import com.example.noteapp.core.time.formatReminderEpoch
 import com.example.noteapp.data.local.note.NoteEntity
+import com.example.noteapp.data.local.note.NoteTagRelation
 import com.example.noteapp.domain.model.Note
+import com.example.noteapp.domain.model.Tag
 import java.time.ZoneId
 
-fun NoteEntity.toUI(zoneId: ZoneId = ZoneId.systemDefault()): Note = Note(
-    id = id,
-    title = title,
-    description = description,
-    categoryBadge = category,
-    timeBadge = reminderAt?.let { formatReminderEpoch(it, zoneId) },
-    reminderAt = reminderAt,
-    createdAt = createdAt,
-    pinned = pinned
-)
+fun NoteEntity.toUI(tag: Tag?, zoneId: ZoneId = ZoneId.systemDefault()): Note =
+    Note(
+        id = id,
+        title = title,
+        description = description,
+        tag = tag,
+        reminderAt = reminderAt,
+        pinned = pinned,
+        createdAt = createdAt,
+        timeBadge = reminderAt?.let { formatReminderEpoch(it, zoneId) }
+    )
 
-fun Note.toDomain(): NoteEntity = NoteEntity(
-    id = id,
-    title = title,
-    description = description,
-    category = categoryBadge,
-    reminderAt = reminderAt,
-    pinned = false,
-    createdAt = createdAt
-)
+//fun NoteTagRelation.toDomain(): Note =
+//    note.toUI(tag = tag?.toDomain())
+
+fun Note.toDomain(): NoteEntity =
+    NoteEntity(
+        id = id,
+        title = title,
+        description = description,
+        tagId = tag?.id,
+        reminderAt = reminderAt,
+        pinned = pinned,
+        createdAt = createdAt
+    )

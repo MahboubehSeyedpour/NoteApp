@@ -45,7 +45,7 @@ fun NoteContent(
         ) {
 
             BadgesRow(
-                categoryBadge = note.categoryBadge,
+                categoryBadge = note.tag?.name,
                 timeBadge = note.timeBadge,
             )
 

@@ -55,9 +55,8 @@ fun TagFlowList(
                     modifier = Modifier
                         .clip(chipShape)
                         .background(label.color.copy(alpha = 0.05f), chipShape)
-                        .border(1.dp, label.color.copy(alpha = 0.35f), chipShape)
-                        .padding(labelPadding)
-                        .testTag("tag-${label.name}"),
+                        .border(0.dp, label.color.copy(alpha = 0.35f), chipShape)
+                        .padding(labelPadding),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
