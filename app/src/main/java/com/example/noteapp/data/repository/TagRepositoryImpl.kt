@@ -1,7 +1,7 @@
 package com.example.noteapp.data.repository
 
-import com.example.noteapp.data.local.tag.TagDao
-import com.example.noteapp.data.local.tag.TagEntity
+import com.example.noteapp.data.local.dao.TagDao
+import com.example.noteapp.data.local.entity.TagEntity
 import com.example.noteapp.domain.repository.TagRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject

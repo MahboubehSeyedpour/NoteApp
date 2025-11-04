@@ -1,7 +1,7 @@
 package com.example.noteapp.di
 
 import android.content.Context
-import com.example.noteapp.data.local.tag.TagDao
+import com.example.noteapp.data.local.dao.TagDao
 import com.example.noteapp.data.repository.TagRepositoryImpl
 import com.example.noteapp.domain.repository.TagRepository
 import com.example.noteapp.domain.usecase.TagUseCase

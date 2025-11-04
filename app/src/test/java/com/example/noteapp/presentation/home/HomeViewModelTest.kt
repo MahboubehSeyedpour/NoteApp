@@ -2,7 +2,7 @@ package com.example.noteapp.presentation.home
 
 import app.cash.turbine.test
 import com.example.noteapp.core.enums.LayoutMode
-import com.example.noteapp.data.local.note.NoteEntity
+import com.example.noteapp.data.local.entity.NoteEntity
 import com.example.noteapp.fakes.FakeNoteRepository
 import com.example.noteapp.presentation.screens.home.HomeEvents
 import com.example.noteapp.presentation.screens.home.HomeViewModel

@@ -1,8 +1,8 @@
 package com.example.noteapp.data.repository
 
-import com.example.noteapp.data.local.note.NoteDao
-import com.example.noteapp.data.local.note.NoteEntity
-import com.example.noteapp.data.local.note.NoteTagRelation
+import com.example.noteapp.data.local.dao.NoteDao
+import com.example.noteapp.data.local.entity.NoteEntity
+import com.example.noteapp.data.local.relation.NoteTagRelation
 import com.example.noteapp.domain.repository.NoteRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject

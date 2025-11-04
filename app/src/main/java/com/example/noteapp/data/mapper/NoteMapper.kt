@@ -1,8 +1,7 @@
-package com.example.noteapp.presentation.mapper
+package com.example.noteapp.data.mapper
 
 import com.example.noteapp.core.time.formatReminderEpoch
-import com.example.noteapp.data.local.note.NoteEntity
-import com.example.noteapp.data.local.note.NoteTagRelation
+import com.example.noteapp.data.local.entity.NoteEntity
 import com.example.noteapp.domain.model.Note
 import com.example.noteapp.domain.model.Tag
 import java.time.ZoneId

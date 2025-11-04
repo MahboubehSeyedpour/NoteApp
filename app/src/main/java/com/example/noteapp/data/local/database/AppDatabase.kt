@@ -3,10 +3,10 @@ package com.example.noteapp.data.local.database
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.example.noteapp.core.constants.DatabaseConst
-import com.example.noteapp.data.local.note.NoteDao
-import com.example.noteapp.data.local.note.NoteEntity
-import com.example.noteapp.data.local.tag.TagDao
-import com.example.noteapp.data.local.tag.TagEntity
+import com.example.noteapp.data.local.dao.NoteDao
+import com.example.noteapp.data.local.entity.NoteEntity
+import com.example.noteapp.data.local.dao.TagDao
+import com.example.noteapp.data.local.entity.TagEntity
 
 @Database(
     entities = [NoteEntity::class, TagEntity::class],

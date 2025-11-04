@@ -1,11 +1,10 @@
-package com.example.noteapp.data.local.note
+package com.example.noteapp.data.local.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.example.noteapp.data.local.tag.TagEntity
 
 @Entity(
     tableName = "notes",

@@ -1,8 +1,8 @@
-package com.example.noteapp.presentation.mapper
+package com.example.noteapp.data.mapper
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import com.example.noteapp.data.local.tag.TagEntity
+import com.example.noteapp.data.local.entity.TagEntity
 import com.example.noteapp.domain.model.Tag
 
 fun TagEntity.toUI(): Tag =

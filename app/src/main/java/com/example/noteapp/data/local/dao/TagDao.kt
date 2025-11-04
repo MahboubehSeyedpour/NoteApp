@@ -1,10 +1,11 @@
-package com.example.noteapp.data.local.tag
+package com.example.noteapp.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.example.noteapp.data.local.entity.TagEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao

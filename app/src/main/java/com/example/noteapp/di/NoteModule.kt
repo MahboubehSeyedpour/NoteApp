@@ -1,7 +1,7 @@
 package com.example.noteapp.di
 
 import android.content.Context
-import com.example.noteapp.data.local.note.NoteDao
+import com.example.noteapp.data.local.dao.NoteDao
 import com.example.noteapp.data.repository.NoteRepositoryImpl
 import com.example.noteapp.domain.repository.NoteRepository
 import com.example.noteapp.domain.usecase.NoteUseCase

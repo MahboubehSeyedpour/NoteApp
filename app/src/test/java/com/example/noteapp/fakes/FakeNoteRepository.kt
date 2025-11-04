@@ -1,6 +1,6 @@
 package com.example.noteapp.fakes
 
-import com.example.noteapp.data.local.note.NoteEntity
+import com.example.noteapp.data.local.entity.NoteEntity
 import com.example.noteapp.domain.repository.NoteRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow

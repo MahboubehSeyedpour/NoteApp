@@ -1,6 +1,6 @@
 package com.example.noteapp.domain.repository
 
-import com.example.noteapp.data.local.tag.TagEntity
+import com.example.noteapp.data.local.entity.TagEntity
 import kotlinx.coroutines.flow.Flow
 
 interface TagRepository {

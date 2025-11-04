@@ -3,9 +3,9 @@ package com.example.noteapp.di
 import android.content.Context
 import androidx.room.Room
 import com.example.noteapp.core.constants.DatabaseConst
-import com.example.noteapp.data.local.note.NoteDao
+import com.example.noteapp.data.local.dao.NoteDao
 import com.example.noteapp.data.local.database.AppDatabase
-import com.example.noteapp.data.local.tag.TagDao
+import com.example.noteapp.data.local.dao.TagDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

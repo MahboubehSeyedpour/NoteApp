@@ -52,6 +52,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.noteapp.R
 import com.example.noteapp.domain.model.Tag
@@ -59,6 +60,7 @@ import com.example.noteapp.presentation.components.NoteAppButton
 import com.example.noteapp.presentation.components.NoteContent
 import com.example.noteapp.presentation.components.NoteDetailScreenTopBar
 import com.example.noteapp.presentation.components.TagFlowList
+import com.example.noteapp.presentation.components.showDateTimePicker
 import com.example.noteapp.presentation.theme.Background
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -90,7 +92,9 @@ fun NoteDetailScreen(
                         context, e.message, Toast.LENGTH_SHORT
                     ).show()
 
-                    NoteDetailEvents.OpenReminderPicker -> TODO()
+                    NoteDetailEvents.OpenReminderPicker -> showDateTimePicker(context) { dateMillis, hour, minute ->
+                        viewModel.setReminder(dateMillis, hour, minute)
+                    }
                 }
             }
         }
@@ -227,15 +231,11 @@ fun ReminderSheetContent(
             supportingContent = { Text("9:00 AM") },
             leadingContent = { Icon(ImageVector.vectorResource(R.drawable.ic_clock), null) },
             modifier = Modifier.clickable { onSelectQuick(QuickReminder.TOMORROW_MORNING) })
-        ListItem(headlineContent = { Text("Pick date & time") }, leadingContent = {
-            Icon(
-                ImageVector.vectorResource(R.drawable.ic_arrow_drop_down), null
-            )
-        }, trailingContent = {
-            Icon(
-                ImageVector.vectorResource(R.drawable.ic_arrow_drop_down), null
-            )
-        }, modifier = Modifier.clickable { onPickDateTime() })
+        ListItem(
+            headlineContent = { Text("Pick date & time") },
+            leadingContent = { Icon(ImageVector.vectorResource(R.drawable.ic_calendar), null) },
+            modifier = Modifier.clickable { onPickDateTime() }
+        )
         Spacer(Modifier.height(16.dp))
     }
 }
@@ -245,7 +245,6 @@ fun TagSheetContent(
     tags: List<Tag>, onSelect: (Tag) -> Unit, onAdd: (String, Color) -> Unit
 ) {
     var newName by remember { mutableStateOf("") }
-    // pick a color however you like; here, a basic preset
     val preset = listOf(
         Color(0xFF2196F3),
         Color(0xFF4CAF50),

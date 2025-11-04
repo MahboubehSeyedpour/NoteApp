@@ -1,4 +1,4 @@
-package com.example.noteapp.data.local.note
+package com.example.noteapp.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -7,6 +7,8 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
+import com.example.noteapp.data.local.entity.NoteEntity
+import com.example.noteapp.data.local.relation.NoteTagRelation
 import kotlinx.coroutines.flow.Flow
 
 @Dao

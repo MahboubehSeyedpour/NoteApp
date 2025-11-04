@@ -1,5 +1,6 @@
 package com.example.noteapp.data.reminder
 
+import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
@@ -12,32 +13,38 @@ class AlarmReminderScheduler @Inject constructor(
     @ApplicationContext private val context: Context
 ) : ReminderScheduler {
 
-    private val alarm = context.getSystemService(AlarmManager::class.java)
+    private val alarmManager = context.getSystemService(AlarmManager::class.java)
 
-    override fun schedule(noteId: Long, triggerAtMillis: Long, title: String, body: String?) {
+    @SuppressLint("ScheduleExactAlarm")
+    override fun schedule(noteId: Long, timeMillis: Long, title: String, description: String?) {
         val intent = Intent(context, ReminderReceiver::class.java).apply {
             putExtra("noteId", noteId)
             putExtra("title", title)
-            putExtra("body", body)
+            putExtra("description", description)
         }
-        val pi = PendingIntent.getBroadcast(
+
+        val pending = PendingIntent.getBroadcast(
             context,
             noteId.toInt(),
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
-        alarm.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pi)
+
+        alarmManager?.setExactAndAllowWhileIdle(
+            AlarmManager.RTC_WAKEUP,
+            timeMillis,
+            pending
+        )
     }
 
     override fun cancel(noteId: Long) {
-        val pi = PendingIntent.getBroadcast(
+        val intent = Intent(context, ReminderReceiver::class.java)
+        val pending = PendingIntent.getBroadcast(
             context,
             noteId.toInt(),
-            Intent(context, ReminderReceiver::class.java),
-            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
-        ) ?: return
-        alarm.cancel(pi)
-        pi.cancel()
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        alarmManager?.cancel(pending)
     }
 }
-

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
@@ -35,13 +36,15 @@ class MainActivity : ComponentActivity(), NavController.OnDestinationChangedList
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        val noteIdFromNotif = intent.getLongExtra("noteId", 0L)
         setContent {
             val navController = rememberNavController()
             navController.addOnDestinationChangedListener(this)
 
             NoteAppTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    NoteApp(viewModel = viewModel, navController)
+                    NoteApp(viewModel = viewModel, navController,  initialNoteId = noteIdFromNotif)
                 }
             }
         }
@@ -56,7 +59,7 @@ class MainActivity : ComponentActivity(), NavController.OnDestinationChangedList
 }
 
 @Composable
-fun NoteApp(viewModel: MainViewModel, navController: NavHostController) {
+fun NoteApp(viewModel: MainViewModel, navController: NavHostController, initialNoteId: Long = 0L) {
 
     Scaffold(containerColor = androidx.compose.ui.graphics.Color.White)
     { innerPadding ->
@@ -76,6 +79,16 @@ fun NoteApp(viewModel: MainViewModel, navController: NavHostController) {
                 })
             ) {
                 NoteDetailScreen(navController)
+            }
+        }
+    }
+
+    LaunchedEffect(initialNoteId) {
+        if (initialNoteId != 0L) {
+            navController.navigate("${Screens.NoteDetailScreen.route}?id=$initialNoteId") {
+                launchSingleTop = true
+                restoreState = true
+                popUpTo(Screens.HomeScreen.route) { saveState = true }
             }
         }
     }

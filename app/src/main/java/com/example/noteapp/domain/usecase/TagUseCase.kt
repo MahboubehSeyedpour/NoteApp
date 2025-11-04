@@ -1,12 +1,9 @@
 package com.example.noteapp.domain.usecase
 
 import android.content.Context
-import com.example.noteapp.data.local.tag.TagEntity
+import com.example.noteapp.data.local.entity.TagEntity
 import com.example.noteapp.di.IoDispatcher
 import com.example.noteapp.domain.repository.TagRepository
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow

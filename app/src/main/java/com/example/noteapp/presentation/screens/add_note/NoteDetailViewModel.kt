@@ -12,8 +12,8 @@ import com.example.noteapp.domain.model.Tag
 import com.example.noteapp.domain.reminders.ReminderScheduler
 import com.example.noteapp.domain.usecase.NoteUseCase
 import com.example.noteapp.domain.usecase.TagUseCase
-import com.example.noteapp.presentation.mapper.toDomain
-import com.example.noteapp.presentation.mapper.toUI
+import com.example.noteapp.data.mapper.toDomain
+import com.example.noteapp.data.mapper.toUI
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
