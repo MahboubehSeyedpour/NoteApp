@@ -50,35 +50,48 @@ class HomeViewModel @Inject constructor(
     private val _tags = MutableStateFlow<List<Tag>>(emptyList())
     val tags: StateFlow<List<Tag>> = _tags
 
+    private val _selectedTagId = MutableStateFlow<Long>(ALL_TAG_ID)
+    val selectedTagId: StateFlow<Long> = _selectedTagId
+
     private val _notes = MutableStateFlow<List<Note>>(emptyList())
-    val notes: StateFlow<List<Note>> = combine(_notes, _query) { list, q ->
-        val term = q.trim().lowercase()
+    val notes: StateFlow<List<Note>> =
+        combine(_notes, _query, _selectedTagId) { list, q, tagId ->
+            val term = q.trim().lowercase()
+            val byQuery = if (term.isBlank()) list else list.filter { n ->
+                n.title.lowercase().contains(term) ||
+                        (n.description ?: "").lowercase().contains(term)
+            }
+            val byTag = if (tagId == ALL_TAG_ID) byQuery
+            else byQuery.filter { it.tag?.id == tagId }
 
-        val filtered = if (term.isBlank()) list else list.filter { n ->
-            n.title.lowercase().contains(term) || (n.description ?: "").lowercase().contains(term)
-        }
-
-        filtered.sortedWith(compareByDescending<Note> { it.pinned }.thenByDescending { it.createdAt })
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+            byTag.sortedWith(
+                compareByDescending<Note> { it.pinned }
+                    .thenByDescending { it.createdAt }
+            )
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
 
     private fun observeNotes() {
         viewModelScope.launch(io) {
             noteUseCase.getAllNotes().collectLatest { allNotes ->
-                _notes.value = allNotes.sortedByDescending { it.createdAt }.map {
-                    val tag = if (it.tagId == null) null else tagUseCase.getTag(it.tagId).first().toUI()
-                    it.toUI(tag)
-                }
+                _notes.value = allNotes
+                    .sortedByDescending { it.createdAt }
+                    .map {
+                        val tag = it.tagId?.let { id -> tagUseCase.getTag(id).first().toUI() }
+                        it.toUI(tag)
+                    }
             }
         }
     }
 
     private fun observeTags() {
         viewModelScope.launch(io) {
-            tagUseCase.getAllTags().map { list -> list.map { it.toUI() } }
+            tagUseCase.getAllTags()
+                .map { list -> list.map { it.toUI() } }
                 .collectLatest { allTagsUi ->
-                    val withoutAll =
-                        allTagsUi.filterNot { it.id == ALL_TAG_ID || it.name.equals("all", true) }
+                    val withoutAll = allTagsUi.filterNot {
+                        it.id == ALL_TAG_ID || it.name.equals("all", true)
+                    }
                     _tags.value = listOf(ALL_TAG) + withoutAll
                 }
         }
@@ -158,6 +171,10 @@ class HomeViewModel @Inject constructor(
 
     fun toggleSelection(noteId: Long) {
         _selected.update { cur -> if (noteId in cur) cur - noteId else cur + noteId }
+    }
+
+    fun onTagFilterSelected(tag: Tag) {
+        _selectedTagId.value = tag.id
     }
 }
 
