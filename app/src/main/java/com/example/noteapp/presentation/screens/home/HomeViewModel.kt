@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -74,9 +75,12 @@ class HomeViewModel @Inject constructor(
 
     private fun observeTags() {
         viewModelScope.launch(io) {
-            tagUseCase.getAllTags().collectLatest { allTags ->
-                _tags.value = allTags.map { it.toUI() }
-            }
+            tagUseCase.getAllTags().map { list -> list.map { it.toUI() } }
+                .collectLatest { allTagsUi ->
+                    val withoutAll =
+                        allTagsUi.filterNot { it.id == ALL_TAG_ID || it.name.equals("all", true) }
+                    _tags.value = listOf(ALL_TAG) + withoutAll
+                }
         }
     }
 
@@ -156,3 +160,8 @@ class HomeViewModel @Inject constructor(
         _selected.update { cur -> if (noteId in cur) cur - noteId else cur + noteId }
     }
 }
+
+const val ALL_TAG_ID: Long = -1L
+val ALL_TAG = Tag(
+    id = ALL_TAG_ID, name = "All", color = Color(Primary.value)
+)

@@ -187,13 +187,12 @@ class NoteDetailViewModel @Inject constructor(
 
     fun onAddTag(name: String, color: Color) {
         val newTag = Tag(id = 0L, name.trim().lowercase(), color)
+        if (newTag.name.equals("all", ignoreCase = true)) {
+            viewModelScope.launch { _events.emit(NoteDetailEvents.Error("Tag name 'All' is reserved")) }
+            return
+        }
         viewModelScope.launch(io) {
             tagUseCase.addTag(newTag.toDomain())
-//            _tags.update { current ->
-//                if (current.any { it.name.equals(newTag.name, ignoreCase = true) }) current
-//                else current + newTag
-//            }
         }
-
     }
 }
