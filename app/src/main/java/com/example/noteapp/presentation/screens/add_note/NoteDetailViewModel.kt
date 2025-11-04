@@ -181,6 +181,7 @@ class NoteDetailViewModel @Inject constructor(
 
     fun onTagSelected(tag: Tag) {
         _uiState.update { it.copy(selectedTag = tag) }
+        update { it.copy(tag = tag) }
 //        _uiState.update { s -> s.copy(note = s.note?.copy(categoryBadge = tag.name)) }
     }
 

@@ -124,7 +124,6 @@ fun NoteDetailScreen(
             HorizontalDivider()
         }
     }, bottomBar = {
-        // tag picker entry from bottom bar
         Box(
             Modifier
                 .fillMaxWidth()
@@ -138,7 +137,7 @@ fun NoteDetailScreen(
                     cornerRadius = 18.dp,
                     horizontalGap = 18.dp,
                     verticalGap = 18.dp,
-                    onLabelClick = { tag -> /* viewModel.onTagSelected(tag) */ },
+                    onLabelClick = { tag -> viewModel.onTagSelected(tag) },
                     trailingIcon = ImageVector.vectorResource(R.drawable.ic_add),
                     onTrailingClick = { showTagSheet = true })
             }
