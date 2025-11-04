@@ -91,7 +91,11 @@ fun CustomNoteCard(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Badges(note.timeBadge, note.tag?.name, chipTextStyle)
+                        TagFlowList(
+                            labels = if(note.tag != null) listOf(note.tag) else emptyList(),
+                            onLabelClick = {},
+                            trailingIcon = null
+                        )
                     }
                 }
 
@@ -99,43 +103,14 @@ fun CustomNoteCard(
                     Column(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Badges(note.timeBadge, note.tag?.name, chipTextStyle)
+                        TagFlowList(
+                            labels = if(note.tag != null) listOf(note.tag) else emptyList(),
+                            onLabelClick = {},
+                            trailingIcon = null
+                        )
                     }
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun Badges(
-    timeBadge: String?, categoryBadge: String?, chipTextStyle: TextStyle,
-) {
-
-    val shapes = LocalAppShapes.current
-
-    timeBadge?.let {
-        CustomPillChip(
-            text = it,
-            containerColor = Primary,
-            contentColor = White,
-            shape = shapes.chip,
-            hPad = dimensionResource(R.dimen.chip_horizontal_padding),
-            vPad = dimensionResource(R.dimen.chip_vertical_padding),
-            textStyle = chipTextStyle,
-            icon = ImageVector.vectorResource(R.drawable.ic_clock),
-        )
-    }
-    categoryBadge?.let {
-        CustomPillChip(
-            text = it,
-            containerColor = SecondaryBg,
-            contentColor = SecondaryContent,
-            shape = shapes.chip,
-            hPad = dimensionResource(R.dimen.chip_horizontal_padding),
-            vPad = dimensionResource(R.dimen.chip_vertical_padding),
-            textStyle = chipTextStyle,
-            icon = null,
-        )
     }
 }

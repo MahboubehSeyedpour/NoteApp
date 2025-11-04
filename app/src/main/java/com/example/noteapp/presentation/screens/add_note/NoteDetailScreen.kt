@@ -130,6 +130,7 @@ fun NoteDetailScreen(
                 .height(150.dp)
                 .background(Background)
         ) {
+            HorizontalDivider()
             Column(Modifier.padding(16.dp)) {
                 Text(stringResource(R.string.choose_tag))
                 TagFlowList(

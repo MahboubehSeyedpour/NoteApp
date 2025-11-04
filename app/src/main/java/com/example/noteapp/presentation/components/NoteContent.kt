@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.noteapp.R
 import com.example.noteapp.domain.model.Note
+import com.example.noteapp.domain.model.Tag
 import com.example.noteapp.presentation.theme.Black
 
 @Composable
@@ -44,9 +45,10 @@ fun NoteContent(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
-            BadgesRow(
-                categoryBadge = note.tag?.name,
-                timeBadge = note.timeBadge,
+            TagFlowList(
+                labels = if(note.tag != null) listOf(note.tag) else emptyList(),
+                onLabelClick = {},
+                trailingIcon = null
             )
 
             OutlinedTextField(
