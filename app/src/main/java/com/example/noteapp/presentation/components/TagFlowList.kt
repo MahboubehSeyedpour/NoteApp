@@ -42,6 +42,8 @@ fun TagFlowList(
     trailingIcon: ImageVector? = null,
     onTrailingClick: (() -> Unit)? = null,
     trailingContent: (@Composable (() -> Unit))? = null,
+    selectedTagId: Long? = null,
+    selectedBorderWidth: Dp = 4.dp,
 ) {
     FlowRow(
         modifier = modifier.fillMaxWidth(),
@@ -50,12 +52,17 @@ fun TagFlowList(
     ) {
         labels.forEach { label ->
             val chipShape = RoundedCornerShape(cornerRadius)
+            val isSelected = (selectedTagId != null && (label.id == selectedTagId))
+            val borderWidth = if (isSelected) selectedBorderWidth else 1.dp
+            val bgAlpha = if (isSelected) 0.12f else 0.05f
+            val borderColor = label.color.copy(alpha = if (isSelected) 0.8f else 0.35f)
+
             val chip = @Composable {
                 Box(
                     modifier = Modifier
                         .clip(chipShape)
-                        .background(label.color.copy(alpha = 0.05f), chipShape)
-                        .border(0.dp, label.color.copy(alpha = 0.35f), chipShape)
+                        .background(label.color.copy(alpha = bgAlpha), chipShape)
+                        .border(borderWidth, borderColor, chipShape)
                         .padding(labelPadding),
                     contentAlignment = Alignment.Center
                 ) {

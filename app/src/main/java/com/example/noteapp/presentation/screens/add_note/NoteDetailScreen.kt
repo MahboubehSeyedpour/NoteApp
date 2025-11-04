@@ -140,7 +140,9 @@ fun NoteDetailScreen(
                     verticalGap = 18.dp,
                     onLabelClick = { tag -> viewModel.onTagSelected(tag) },
                     trailingIcon = ImageVector.vectorResource(R.drawable.ic_add),
-                    onTrailingClick = { showTagSheet = true })
+                    onTrailingClick = { showTagSheet = true },
+                    selectedTagId = uiState.note?.tag?.id
+                )
             }
         }
     }) { inner ->
