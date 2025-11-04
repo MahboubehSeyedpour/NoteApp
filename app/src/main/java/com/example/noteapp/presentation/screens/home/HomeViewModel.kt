@@ -4,24 +4,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.noteapp.core.enums.LayoutMode
+import com.example.noteapp.data.mapper.toDomain
+import com.example.noteapp.data.mapper.toUI
 import com.example.noteapp.di.IoDispatcher
 import com.example.noteapp.domain.model.Note
 import com.example.noteapp.domain.model.Tag
 import com.example.noteapp.domain.usecase.NoteUseCase
 import com.example.noteapp.domain.usecase.TagUseCase
-import com.example.noteapp.data.mapper.toDomain
-import com.example.noteapp.data.mapper.toUI
 import com.example.noteapp.presentation.theme.Primary
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -48,60 +49,33 @@ class HomeViewModel @Inject constructor(
     val selected: StateFlow<Set<Long>> = _selected
 
     private val _tags = MutableStateFlow<List<Tag>>(emptyList())
-    val tags: StateFlow<List<Tag>> = _tags
+    val tags: StateFlow<List<Tag>> =
+        tagUseCase.getAllTags().map { list -> list.map { it.toUI() } }.map { ui ->
+                val withoutAll = ui.filterNot { it.id == ALL_TAG_ID || it.name.equals("all", true) }
+                listOf(ALL_TAG) + withoutAll
+            }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), listOf(ALL_TAG))
+
 
     private val _selectedTagId = MutableStateFlow<Long>(ALL_TAG_ID)
     val selectedTagId: StateFlow<Long> = _selectedTagId
 
-    private val _notes = MutableStateFlow<List<Note>>(emptyList())
-    val notes: StateFlow<List<Note>> =
-        combine(_notes, _query, _selectedTagId) { list, q, tagId ->
-            val term = q.trim().lowercase()
-            val byQuery = if (term.isBlank()) list else list.filter { n ->
-                n.title.lowercase().contains(term) ||
-                        (n.description ?: "").lowercase().contains(term)
-            }
-            val byTag = if (tagId == ALL_TAG_ID) byQuery
-            else byQuery.filter { it.tag?.id == tagId }
-
-            byTag.sortedWith(
-                compareByDescending<Note> { it.pinned }
-                    .thenByDescending { it.createdAt }
-            )
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
-
-
-    private fun observeNotes() {
-        viewModelScope.launch(io) {
-            noteUseCase.getAllNotes().collectLatest { allNotes ->
-                _notes.value = allNotes
-                    .sortedByDescending { it.createdAt }
-                    .map {
-                        val tag = it.tagId?.let { id -> tagUseCase.getTag(id).first().toUI() }
-                        it.toUI(tag)
-                    }
+    private val _notes: Flow<List<Note>> = noteUseCase.getAllNotes().map { all ->
+            all.sortedByDescending { it.createdAt }.map { entity ->
+                val tagUi =
+                    entity.tagId?.let { tid -> tagUseCase.getTag(tid).firstOrNull()?.toUI() }
+                entity.toUI(tagUi)
             }
         }
-    }
-
-    private fun observeTags() {
-        viewModelScope.launch(io) {
-            tagUseCase.getAllTags()
-                .map { list -> list.map { it.toUI() } }
-                .collectLatest { allTagsUi ->
-                    val withoutAll = allTagsUi.filterNot {
-                        it.id == ALL_TAG_ID || it.name.equals("all", true)
-                    }
-                    _tags.value = listOf(ALL_TAG) + withoutAll
-                }
+    val notes: StateFlow<List<Note>> = combine(_notes, _query, _selectedTagId) { list, q, tagId ->
+        val term = q.trim().lowercase()
+        val byQuery = if (term.isBlank()) list else list.filter { n ->
+            n.title.lowercase().contains(term) || (n.description ?: "").lowercase().contains(term)
         }
-    }
+        val byTag = if (tagId == ALL_TAG_ID) byQuery
+        else byQuery.filter { it.tag?.id == tagId }
 
-
-    init {
-        observeNotes()
-        observeTags()
-    }
+        byTag.sortedWith(compareByDescending<Note> { it.pinned }.thenByDescending { it.createdAt })
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     fun onSearchChange(newQuery: String) {
         _query.value = newQuery
@@ -129,8 +103,10 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch(io) {
             runCatching {
                 ids.forEach { id ->
-                    val note = noteUseCase.getNoteById(id).first()
-                    noteUseCase.deleteById(note.id)
+                    val note = noteUseCase.getNoteById(id).firstOrNull()
+                    note?.let {
+                        noteUseCase.deleteById(note.id)
+                    }
                 }
             }.onSuccess {
                 clearSelection()
@@ -146,17 +122,21 @@ class HomeViewModel @Inject constructor(
             viewModelScope.launch { _events.emit(HomeEvents.Error("Select exactly one note to pin")) }
             return
         }
-        val targetId = ids.first()
+        val targetId = ids.firstOrNull()
         viewModelScope.launch(io) {
             runCatching {
-                val current = notes.first()
-                val currentlyPinned = current.firstOrNull { it.pinned }
+                val current = notes.firstOrNull()
+                val currentlyPinned = current?.firstOrNull { it.pinned }
                 if (currentlyPinned != null && currentlyPinned.id != targetId) {
                     noteUseCase.update(currentlyPinned.copy(pinned = false).toDomain())
                 }
 
-                val target = noteUseCase.getNoteById(targetId).first()
-                noteUseCase.update(target.copy(pinned = true))
+                targetId?.let {
+                    val target = noteUseCase.getNoteById(targetId).first()
+                    target?.let {
+                        noteUseCase.update(target.copy(pinned = true))
+                    }
+                }
 
                 if (currentlyPinned != null && currentlyPinned.id == targetId) {
                     noteUseCase.update(currentlyPinned.copy(pinned = false).toDomain())

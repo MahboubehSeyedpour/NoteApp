@@ -9,7 +9,7 @@ interface NoteRepository {
     suspend fun addNote(noteEntity: NoteEntity)
     suspend fun updateNote(noteEntity: NoteEntity)
     suspend fun deleteNote(noteEntity: NoteEntity)
-    fun getNoteById(id: Long): Flow<NoteEntity>
+    fun getNoteById(id: Long): Flow<NoteEntity?>
     suspend fun getLastNoteId(): Long?
     fun getNoteWithTagById(id: Long): Flow<NoteTagRelation>
     fun getAllNotesWithTag(): Flow<List<NoteTagRelation>>

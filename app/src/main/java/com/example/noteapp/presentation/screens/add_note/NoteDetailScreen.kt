@@ -29,6 +29,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -52,7 +53,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.noteapp.R
 import com.example.noteapp.domain.model.Tag
@@ -83,6 +83,8 @@ fun NoteDetailScreen(
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val context = LocalContext.current
 
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.events.collectLatest { e ->
@@ -95,6 +97,7 @@ fun NoteDetailScreen(
                     NoteDetailEvents.OpenReminderPicker -> showDateTimePicker(context) { dateMillis, hour, minute ->
                         viewModel.setReminder(dateMillis, hour, minute)
                     }
+                    NoteDetailEvents.RequestDeleteConfirm -> showDeleteDialog = true
                 }
             }
         }
@@ -124,7 +127,9 @@ fun NoteDetailScreen(
             NoteDetailScreenTopBar(
                 onBack = { viewModel.onBackClicked() },
                 onNotificationClick = { showReminderSheet = true },
-                onShareClick = {})
+                onShareClick = {},
+                onDeleteClicked = { viewModel.onDeleteClicked() }
+            )
             HorizontalDivider()
         }
     }, bottomBar = {
@@ -207,6 +212,23 @@ fun NoteDetailScreen(
             })
         }
     }
+
+    if (showDeleteDialog) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Delete note?") },
+            text = { Text("Are you sure you want to delete this note?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDeleteDialog = false
+                    viewModel.onConfirmDelete()
+                }) { Text("Delete") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel") }
+            }
+        )
+    }
 }
 
 @Composable
@@ -234,8 +256,7 @@ fun ReminderSheetContent(
         ListItem(
             headlineContent = { Text("Pick date & time") },
             leadingContent = { Icon(ImageVector.vectorResource(R.drawable.ic_calendar), null) },
-            modifier = Modifier.clickable { onPickDateTime() }
-        )
+            modifier = Modifier.clickable { onPickDateTime() })
         Spacer(Modifier.height(16.dp))
     }
 }

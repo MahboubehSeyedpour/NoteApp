@@ -27,7 +27,7 @@ interface NoteDao {
     suspend fun deleteNote(noteEntity: NoteEntity)
 
     @Query("SELECT * FROM `notes` WHERE id=:id")
-    fun getNoteById(id: Long): Flow<NoteEntity>
+    fun getNoteById(id: Long): Flow<NoteEntity?>
 
     @Query("SELECT id FROM `notes` ORDER BY id DESC LIMIT 1")
     fun getLastNoteId(): Long?

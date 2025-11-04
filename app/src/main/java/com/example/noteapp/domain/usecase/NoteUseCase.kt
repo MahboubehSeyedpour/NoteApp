@@ -7,7 +7,7 @@ import com.example.noteapp.domain.repository.NoteRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -31,11 +31,13 @@ class NoteUseCase @Inject constructor(
     }
 
     suspend fun deleteById(id: Long) = withContext(io) {
-        val note = noteRepository.getNoteById(id).first()
-        noteRepository.deleteNote(note)
+        val note = noteRepository.getNoteById(id).firstOrNull()
+        note?.let {
+            noteRepository.deleteNote(note)
+        }
     }
 
-    fun getNoteById(id: Long): Flow<NoteEntity> = noteRepository.getNoteById(id)
+    fun getNoteById(id: Long): Flow<NoteEntity?> = noteRepository.getNoteById(id)
 
     suspend fun getLastNoteId(): Long? = noteRepository.getLastNoteId()
 }

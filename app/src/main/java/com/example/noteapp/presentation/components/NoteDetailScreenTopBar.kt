@@ -16,7 +16,8 @@ import com.example.noteapp.R
 fun NoteDetailScreenTopBar(
     onBack: () -> Unit,
     onNotificationClick: () -> Unit,
-    onShareClick: () -> Unit
+    onShareClick: () -> Unit,
+    onDeleteClicked: () -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -28,6 +29,15 @@ fun NoteDetailScreenTopBar(
             icon = { Icon(ImageVector.vectorResource(R.drawable.ic_arrow_left), contentDescription = "Back") }
         )
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            CircularIconButton(
+                onClick = onDeleteClicked,
+                icon = {
+                    Icon(
+                        ImageVector.vectorResource(R.drawable.ic_trash),
+                        contentDescription = "Delete"
+                    )
+                }
+            )
             CircularIconButton(
                 onClick = onNotificationClick,
                 icon = {

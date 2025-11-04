@@ -6,14 +6,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.noteapp.core.time.combineToEpochMillis
 import com.example.noteapp.core.time.formatReminderEpoch
+import com.example.noteapp.data.mapper.toDomain
+import com.example.noteapp.data.mapper.toUI
 import com.example.noteapp.di.IoDispatcher
 import com.example.noteapp.domain.model.Note
 import com.example.noteapp.domain.model.Tag
 import com.example.noteapp.domain.reminders.ReminderScheduler
 import com.example.noteapp.domain.usecase.NoteUseCase
 import com.example.noteapp.domain.usecase.TagUseCase
-import com.example.noteapp.data.mapper.toDomain
-import com.example.noteapp.data.mapper.toUI
+import com.example.noteapp.presentation.screens.home.HomeEvents
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -22,6 +23,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -67,7 +69,7 @@ class NoteDetailViewModel @Inject constructor(
         viewModelScope.launch {
             if (noteId != null && noteId != 0L) {
                 noteUseCase.getNoteById(noteId).map {
-                    if (it.tagId == null) it.toUI(null) else it.toUI(
+                    if (it?.tagId == null) it?.toUI(null) else it.toUI(
                         tagUseCase.getTag(it.tagId).first().toUI()
                     )
                 }.collect { ui ->
@@ -150,6 +152,29 @@ class NoteDetailViewModel @Inject constructor(
         } else viewModelScope.launch { _events.emit(NoteDetailEvents.NavigateToHomeScreen) }
     }
 
+    fun onDeleteClicked() {
+        viewModelScope.launch { _events.emit(NoteDetailEvents.RequestDeleteConfirm) }
+    }
+    fun onConfirmDelete() {
+        val id = noteId
+        if (id == null) {
+            viewModelScope.launch { _events.emit(NoteDetailEvents.Error("Invalid note id")) }
+            return
+        }
+        viewModelScope.launch(io) {
+            runCatching {
+                val note = noteUseCase.getNoteById(id).firstOrNull()
+                note?.let {
+                    noteUseCase.deleteById(note.id)
+                }
+            }.onSuccess {
+                _events.emit(NoteDetailEvents.NavigateToHomeScreen)
+            }.onFailure { e ->
+                _events.emit(NoteDetailEvents.Error("Failed to delete: ${e.message}"))
+            }
+        }
+    }
+
     fun applyQuickReminder(option: QuickReminder) {
         val now = ZonedDateTime.now()
         val target = when (option) {
@@ -182,7 +207,6 @@ class NoteDetailViewModel @Inject constructor(
     fun onTagSelected(tag: Tag) {
         _uiState.update { it.copy(selectedTag = tag) }
         update { it.copy(tag = tag) }
-//        _uiState.update { s -> s.copy(note = s.note?.copy(categoryBadge = tag.name)) }
     }
 
     fun onAddTag(name: String, color: Color) {
