@@ -97,6 +97,7 @@ fun NoteDetailScreen(
                     NoteDetailEvents.OpenReminderPicker -> showDateTimePicker(context) { dateMillis, hour, minute ->
                         viewModel.setReminder(dateMillis, hour, minute)
                     }
+
                     NoteDetailEvents.RequestDeleteConfirm -> showDeleteDialog = true
                 }
             }
@@ -128,8 +129,7 @@ fun NoteDetailScreen(
                 onBack = { viewModel.onBackClicked() },
                 onNotificationClick = { showReminderSheet = true },
                 onShareClick = {},
-                onDeleteClicked = { viewModel.onDeleteClicked() }
-            )
+                onDeleteClicked = { viewModel.onDeleteClicked() })
             HorizontalDivider()
         }
     }, bottomBar = {
@@ -188,13 +188,11 @@ fun NoteDetailScreen(
             onDismissRequest = { showReminderSheet = false },
             sheetState = reminderSheetState,
             dragHandle = { BottomSheetDefaults.DragHandle() }) {
-            ReminderSheetContent(onSelectQuick = { option ->
-                viewModel.applyQuickReminder(option)
-                showReminderSheet = false
-            }, onPickDateTime = {
-                showReminderSheet = false
-                viewModel.openReminderPicker()
-            })
+            ReminderSheetContent(
+                onPickDateTime = {
+                    showReminderSheet = false
+                    viewModel.openReminderPicker()
+                })
         }
     }
 
@@ -226,15 +224,12 @@ fun NoteDetailScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel") }
-            }
-        )
+            })
     }
 }
 
 @Composable
-fun ReminderSheetContent(
-    onSelectQuick: (QuickReminder) -> Unit, onPickDateTime: () -> Unit
-) {
+fun ReminderSheetContent(onPickDateTime: () -> Unit) {
     Column(
         Modifier
             .navigationBarsPadding()
@@ -244,19 +239,14 @@ fun ReminderSheetContent(
         Text(stringResource(R.string.add_reminder), style = MaterialTheme.typography.titleMedium)
         Spacer(Modifier.height(12.dp))
         ListItem(
-            headlineContent = { Text("Later today") },
-            supportingContent = { Text("6:00 PM") },
-            leadingContent = { Icon(ImageVector.vectorResource(R.drawable.ic_calendar), null) },
-            modifier = Modifier.clickable { onSelectQuick(QuickReminder.LATER_TODAY) })
-        ListItem(
-            headlineContent = { Text("Tomorrow morning") },
-            supportingContent = { Text("9:00 AM") },
-            leadingContent = { Icon(ImageVector.vectorResource(R.drawable.ic_clock), null) },
-            modifier = Modifier.clickable { onSelectQuick(QuickReminder.TOMORROW_MORNING) })
-        ListItem(
             headlineContent = { Text("Pick date & time") },
             leadingContent = { Icon(ImageVector.vectorResource(R.drawable.ic_calendar), null) },
             modifier = Modifier.clickable { onPickDateTime() })
+        //        ListItem(
+//            headlineContent = { Text("Later today") },
+//            supportingContent = { Text("6:00 PM") },
+//            leadingContent = { Icon(ImageVector.vectorResource(R.drawable.ic_calendar), null) },
+//            modifier = Modifier.clickable { onSelectQuick(QuickReminder.LATER_TODAY) })
         Spacer(Modifier.height(16.dp))
     }
 }
@@ -315,6 +305,3 @@ fun TagSheetContent(
         Spacer(Modifier.height(12.dp))
     }
 }
-
-enum class QuickReminder { LATER_TODAY, TOMORROW_MORNING }
-

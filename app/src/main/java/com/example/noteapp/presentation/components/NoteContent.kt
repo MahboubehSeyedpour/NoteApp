@@ -81,7 +81,10 @@ fun NoteContent(
         ) {
 
             TagFlowList(
-                labels = if (note.tag != null) listOf(note.tag) else emptyList(),
+                labels = buildList {
+                    note.tag?.let { add(it) }
+                    note.reminderTag?.let { add(it) }
+                },
                 onLabelClick = {},
                 trailingIcon = null
             )

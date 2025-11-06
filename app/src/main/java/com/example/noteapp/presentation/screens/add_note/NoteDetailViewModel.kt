@@ -14,7 +14,7 @@ import com.example.noteapp.domain.model.Tag
 import com.example.noteapp.domain.reminders.ReminderScheduler
 import com.example.noteapp.domain.usecase.NoteUseCase
 import com.example.noteapp.domain.usecase.TagUseCase
-import com.example.noteapp.presentation.screens.home.HomeEvents
+import com.example.noteapp.presentation.theme.Primary
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -27,9 +27,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.Instant
 import java.time.ZoneId
-import java.time.ZonedDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -41,24 +39,13 @@ class NoteDetailViewModel @Inject constructor(
     @IoDispatcher private val io: CoroutineDispatcher
 ) : ViewModel() {
 
-    private val noteId: Long? = savedStateHandle.get<Long?>("id")
+    private val noteId: Long? = savedStateHandle.get("id")
 
     private val _tags = MutableStateFlow<List<Tag>>(emptyList())
     val tags: StateFlow<List<Tag>> = _tags
 
     private val _uiState = MutableStateFlow(
-        NoteDetailUIState(
-            isLoading = false, note = Note(
-                id = 0,
-                title = "",
-                description = "",
-                timeBadge = null,
-                reminderAt = null,
-                createdAt = 0L,
-                pinned = false,
-                tag = null
-            )
-        )
+        NoteDetailUIState(isLoading = false, note = Note())
     )
     val uiState: StateFlow<NoteDetailUIState> = _uiState
 
@@ -76,7 +63,6 @@ class NoteDetailViewModel @Inject constructor(
                     _uiState.update { it.copy(isLoading = false, note = ui) }
                 }
             }
-
         }
         observeTags()
     }
@@ -89,24 +75,30 @@ class NoteDetailViewModel @Inject constructor(
         }
     }
 
-
     fun updateTitle(newTitle: String) = update { it.copy(title = newTitle) }
     fun updateDescription(newDesc: String) = update { it.copy(description = newDesc) }
-//    fun updateCategory(newCategory: String?) = update { it.copy(categoryBadge = newCategory) }
-//    fun updateTimeBadge(newTime: String?) = update { it.copy(timeBadge = newTime) }
 
     fun setReminder(
         dateMillis: Long, hour: Int, minute: Int, zoneId: ZoneId = ZoneId.systemDefault()
     ) {
         val epoch = combineToEpochMillis(dateMillis, hour, minute, zoneId)
+        val formatted = formatReminderEpoch(epoch, zoneId)
+
+        val reminderTag = Tag(
+            id = -100L, name = formatted, color = Color(Primary.value)
+        )
+
         mutate { cur ->
             cur.copy(
-                reminderAt = epoch, timeBadge = formatReminderEpoch(epoch, zoneId)
+                reminderAt = epoch,
+                timeBadge = formatReminderEpoch(epoch, zoneId),
+                reminderTag = reminderTag
             )
         }
     }
 
-    fun clearReminder() = mutate { it.copy(reminderAt = null, timeBadge = null) }
+    fun clearReminder() =
+        mutate { it.copy(reminderAt = null, timeBadge = null, reminderTag = null) }
 
     private inline fun mutate(block: (Note) -> Note) {
         val cur = _uiState.value.note ?: return
@@ -155,6 +147,7 @@ class NoteDetailViewModel @Inject constructor(
     fun onDeleteClicked() {
         viewModelScope.launch { _events.emit(NoteDetailEvents.RequestDeleteConfirm) }
     }
+
     fun onConfirmDelete() {
         val id = noteId
         if (id == null) {
@@ -175,33 +168,8 @@ class NoteDetailViewModel @Inject constructor(
         }
     }
 
-    fun applyQuickReminder(option: QuickReminder) {
-        val now = ZonedDateTime.now()
-        val target = when (option) {
-            QuickReminder.LATER_TODAY -> now.withHour(18).withMinute(0).withSecond(0)
-                .withNano(0)  // 6 PM today
-            QuickReminder.TOMORROW_MORNING -> now.plusDays(1).withHour(9).withMinute(0)
-                .withSecond(0).withNano(0) // 9 AM tomorrow
-        }
-        val millis = target.toInstant().toEpochMilli()
-        _uiState.update { it.copy(reminderAtMillis = millis) }
-        setReminder(millis)
-    }
-
     fun openReminderPicker() = viewModelScope.launch {
         _events.emit(NoteDetailEvents.OpenReminderPicker)
-    }
-
-    fun setReminder(dateMillis: Long, hour: Int? = null, minute: Int? = null) {
-        val finalMillis = if (hour != null && minute != null) {
-            Instant.ofEpochMilli(dateMillis).atZone(ZoneId.systemDefault()).withHour(hour)
-                .withMinute(minute).withSecond(0).withNano(0).toInstant().toEpochMilli()
-        } else dateMillis
-
-        _uiState.update { it.copy(reminderAtMillis = finalMillis) }
-
-        // TODO: persist reminder with the note, schedule alarm/WorkManager if needed
-        // viewModelScope.launch(io) { repo.updateReminder(noteId, finalMillis) }
     }
 
     fun onTagSelected(tag: Tag) {

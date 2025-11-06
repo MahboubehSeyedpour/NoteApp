@@ -1,7 +1,6 @@
 package com.example.noteapp.presentation.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,10 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color.Companion.Transparent
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -31,9 +28,6 @@ import com.example.noteapp.core.enums.LayoutMode
 import com.example.noteapp.domain.model.Note
 import com.example.noteapp.presentation.theme.Black
 import com.example.noteapp.presentation.theme.LocalAppShapes
-import com.example.noteapp.presentation.theme.Primary
-import com.example.noteapp.presentation.theme.SecondaryBg
-import com.example.noteapp.presentation.theme.SecondaryContent
 import com.example.noteapp.presentation.theme.White
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -92,9 +86,10 @@ fun CustomNoteCard(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         TagFlowList(
-                            labels = if(note.tag != null) listOf(note.tag) else emptyList(),
-                            onLabelClick = {},
-                            trailingIcon = null
+                            labels = buildList {
+                            note.tag?.let { add(it) }
+                            note.reminderTag?.let { add(it) }
+                        }, onLabelClick = {}, trailingIcon = null
                         )
                     }
                 }
@@ -104,9 +99,10 @@ fun CustomNoteCard(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         TagFlowList(
-                            labels = if(note.tag != null) listOf(note.tag) else emptyList(),
-                            onLabelClick = {},
-                            trailingIcon = null
+                            labels = buildList {
+                            note.tag?.let { add(it) }
+                            note.reminderTag?.let { add(it) }
+                        }, onLabelClick = {}, trailingIcon = null
                         )
                     }
                 }

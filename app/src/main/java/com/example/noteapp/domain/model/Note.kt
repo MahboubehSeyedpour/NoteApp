@@ -4,12 +4,13 @@ import androidx.compose.runtime.Immutable
 
 @Immutable
 data class Note(
-    val id: Long,
-    val title: String,
-    val description: String?,
-    val timeBadge: String?,
-    val reminderAt: Long?,
-    val createdAt: Long,
-    val pinned: Boolean,
-    val tag: Tag?,
+    val id: Long = 0,
+    val title: String = "",
+    val description: String? = "",
+    val timeBadge: String? = null,
+    val reminderAt: Long? = null,
+    val createdAt: Long = 0L,
+    val pinned: Boolean = false,
+    val tag: Tag? = null,
+    val reminderTag: Tag? = null
 )
