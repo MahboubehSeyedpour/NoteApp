@@ -23,6 +23,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -45,6 +46,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
@@ -189,6 +191,8 @@ fun NoteDetailScreen(
             sheetState = reminderSheetState,
             dragHandle = { BottomSheetDefaults.DragHandle() }) {
             ReminderSheetContent(
+                reminderText = uiState.note?.reminderTag?.name,
+                onClearReminder = { viewModel.onClearReminder() },
                 onPickDateTime = {
                     showReminderSheet = false
                     viewModel.openReminderPicker()
@@ -229,7 +233,11 @@ fun NoteDetailScreen(
 }
 
 @Composable
-fun ReminderSheetContent(onPickDateTime: () -> Unit) {
+fun ReminderSheetContent(
+    reminderText: String?,
+    onPickDateTime: () -> Unit,
+    onClearReminder: () -> Unit
+) {
     Column(
         Modifier
             .navigationBarsPadding()
@@ -238,18 +246,38 @@ fun ReminderSheetContent(onPickDateTime: () -> Unit) {
     ) {
         Text(stringResource(R.string.add_reminder), style = MaterialTheme.typography.titleMedium)
         Spacer(Modifier.height(12.dp))
+
+        // Pick date & time
         ListItem(
-            headlineContent = { Text("Pick date & time") },
+            headlineContent = { Text(stringResource(R.string.pick_date_time)) },
             leadingContent = { Icon(ImageVector.vectorResource(R.drawable.ic_calendar), null) },
-            modifier = Modifier.clickable { onPickDateTime() })
-        //        ListItem(
-//            headlineContent = { Text("Later today") },
-//            supportingContent = { Text("6:00 PM") },
-//            leadingContent = { Icon(ImageVector.vectorResource(R.drawable.ic_calendar), null) },
-//            modifier = Modifier.clickable { onSelectQuick(QuickReminder.LATER_TODAY) })
+            modifier = Modifier.clickable { onPickDateTime() }
+        )
+
+        HorizontalDivider()
+
+        // Existing reminder (if any)
+        if (!reminderText.isNullOrBlank()) {
+            ListItem(
+                headlineContent = { Text(reminderText) },
+                supportingContent = { Text(stringResource(R.string.tap_to_change)) },
+                leadingContent = { Icon(ImageVector.vectorResource(R.drawable.ic_clock), null) },
+                trailingContent = {
+                    IconButton(
+                        onClick = onClearReminder,
+                        modifier = Modifier.testTag("clear-reminder")
+                    ) {
+                        Icon(ImageVector.vectorResource(R.drawable.ic_close), contentDescription = stringResource(R.string.clear_reminder))
+                    }
+                },
+                modifier = Modifier.clickable { onPickDateTime() } // tap row to edit time
+            )
+        }
+
         Spacer(Modifier.height(16.dp))
     }
 }
+
 
 @Composable
 fun TagSheetContent(

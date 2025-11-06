@@ -97,7 +97,7 @@ class NoteDetailViewModel @Inject constructor(
         }
     }
 
-    fun clearReminder() =
+    fun onClearReminder() =
         mutate { it.copy(reminderAt = null, timeBadge = null, reminderTag = null) }
 
     private inline fun mutate(block: (Note) -> Note) {

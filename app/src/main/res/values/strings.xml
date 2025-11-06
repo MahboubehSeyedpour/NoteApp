@@ -39,6 +39,10 @@
     <string name="tags">Tags</string>
     <string name="create_new">Create new</string>
     <string name="add_reminder">Add reminder</string>
+    <string name="pick_date_time">Pick date &amp; time</string>
+    <string name="clear_reminder">Clear reminder</string>
+    <string name="tap_to_change">Tap to change</string>
+    <string name="no_reminder_set">No reminder set</string>
 
     <!--    icon descriptions   -->
     <string name="clear_selection">Clear selection</string>
