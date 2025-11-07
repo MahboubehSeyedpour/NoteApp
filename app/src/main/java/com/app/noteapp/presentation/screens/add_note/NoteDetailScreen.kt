@@ -5,6 +5,7 @@ import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -22,6 +23,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -46,6 +48,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -60,6 +63,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
+import com.app.noteapp.R
 import com.app.noteapp.core.permissions.PermissionRequest
 import com.app.noteapp.core.permissions.PermissionResult
 import com.app.noteapp.core.permissions.awaitPermission
@@ -71,7 +75,6 @@ import com.app.noteapp.presentation.components.NoteDetailScreenTopBar
 import com.app.noteapp.presentation.components.TagFlowList
 import com.app.noteapp.presentation.components.showDateTimePicker
 import com.app.noteapp.presentation.theme.Background
-import com.app.noteapp.R
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -97,6 +100,9 @@ fun NoteDetailScreen(
 
     val requester = rememberPermissionRequester()
     var permissionError by remember { mutableStateOf<String?>(null) }
+
+    var editMode by remember { mutableStateOf(false) }
+    var tagToDelete by remember { mutableStateOf<Tag?>(null) }
 
     suspend fun ensureReminderPermissions(
         requester: (PermissionRequest, (PermissionResult) -> Unit) -> Unit
@@ -188,9 +194,24 @@ fun NoteDetailScreen(
             Column(
                 Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(stringResource(R.string.choose_tag))
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text(stringResource(R.string.choose_tag))
+
+                    Image(
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_edit),
+                        contentDescription = stringResource(R.string.edit),
+                        modifier = Modifier
+                            .padding(start = 12.dp)
+                            .size(24.dp)
+                            .clip(CircleShape)
+                            .alpha(0.3F)
+                            .clickable { editMode = !editMode }, // <— toggle edit mode
+                    )
+                }
+
                 TagFlowList(
                     labels = viewModel.tags.collectAsState().value,
                     cornerRadius = 18.dp,
@@ -199,8 +220,27 @@ fun NoteDetailScreen(
                     onLabelClick = { tag -> viewModel.onTagSelected(tag) },
                     trailingIcon = ImageVector.vectorResource(R.drawable.ic_add),
                     onTrailingClick = { showTagSheet = true },
-                    selectedTagId = uiState.note?.tag?.id
+                    selectedTagId = uiState.note?.tag?.id,
+                    editMode = editMode,
+                    onDeleteClick = { tag -> tagToDelete = tag }
                 )
+
+                if (tagToDelete != null) {
+                    AlertDialog(
+                        onDismissRequest = { tagToDelete = null },
+                        title = { Text("Delete tag?") },
+                        text = { Text("Are you sure you want to delete tag \"${tagToDelete!!.name}\"?") },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                viewModel.onDeleteTag(tagToDelete!!.id) // VM call
+                                tagToDelete = null
+                            }) { Text("Delete") }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { tagToDelete = null }) { Text("Cancel") }
+                        }
+                    )
+                }
             }
         }
 

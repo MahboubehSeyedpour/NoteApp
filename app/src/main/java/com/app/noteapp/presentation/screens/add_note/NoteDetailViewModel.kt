@@ -187,4 +187,21 @@ class NoteDetailViewModel @Inject constructor(
             tagUseCase.addTag(newTag.toDomain())
         }
     }
+
+    fun onDeleteTag(tagId: Long) {
+        viewModelScope.launch(io) {
+            runCatching {
+                tagUseCase.deleteTagById(tagId)
+            }.onSuccess {
+                val cur = _uiState.value.note
+                if (cur?.tag?.id == tagId) {
+                    _uiState.update { it.copy(note = cur.copy(tag = null, timeBadge = cur.timeBadge)) }
+                }
+            }.onFailure { e ->
+                viewModelScope.launch {
+                    _events.emit(NoteDetailEvents.Error("Failed to delete tag: ${e.message}"))
+                }
+            }
+        }
+    }
 }

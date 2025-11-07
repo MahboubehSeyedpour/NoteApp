@@ -3,14 +3,17 @@ package com.app.noteapp.presentation.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -22,10 +25,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.app.noteapp.R
 import com.app.noteapp.domain.model.Tag
 
 
@@ -44,6 +49,8 @@ fun TagFlowList(
     trailingContent: (@Composable (() -> Unit))? = null,
     selectedTagId: Long? = null,
     selectedBorderWidth: Dp = 4.dp,
+    editMode: Boolean = false,
+    onDeleteClick: ((Tag) -> Unit)? = null,
 ) {
     FlowRow(
         modifier = modifier.fillMaxWidth(),
@@ -57,30 +64,43 @@ fun TagFlowList(
             val bgAlpha = if (isSelected) 0.12f else 0.05f
             val borderColor = label.color.copy(alpha = if (isSelected) 0.8f else 0.35f)
 
-            val chip = @Composable {
-                Box(
-                    modifier = Modifier
-                        .clip(chipShape)
-                        .background(label.color.copy(alpha = bgAlpha), chipShape)
-                        .border(borderWidth, borderColor, chipShape)
-                        .padding(labelPadding),
-                    contentAlignment = Alignment.Center
+            Box(
+                modifier = Modifier
+                    .clip(chipShape)
+                    .background(label.color.copy(alpha = bgAlpha), chipShape)
+                    .border(borderWidth, borderColor, chipShape)
+                    .then(if (onLabelClick != null) Modifier.clickable { onLabelClick(label) }
+                    else Modifier)
+                    .padding(labelPadding), contentAlignment = Alignment.Center) {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
+
                     Text(
                         text = label.name,
                         color = label.color,
                         style = MaterialTheme.typography.labelMedium.copy(
-                            fontWeight = FontWeight.Medium,
-                            fontSize = 12.sp
+                            fontWeight = FontWeight.Medium, fontSize = 12.sp
                         )
                     )
-                }
-            }
 
-            if (onLabelClick != null) {
-                Box(Modifier.clickable { onLabelClick(label) }) { chip() }
-            } else {
-                chip()
+                    if (editMode && onDeleteClick != null) {
+                        Box(
+                            modifier = Modifier.padding(start = 6.dp)
+                        ) {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(R.drawable.ic_close),
+                                contentDescription = "Delete ${label.name}",
+                                modifier = Modifier
+                                    .size(14.dp)
+                                    .clip(CircleShape)
+                                    .clickable { onDeleteClick(label) },
+                                tint = label.color.copy(alpha = 0.8f)
+                            )
+                        }
+                    }
+                }
             }
         }
 
@@ -93,9 +113,7 @@ fun TagFlowList(
                         .size(36.dp)
                         .clip(RoundedCornerShape(cornerRadius))
                         .testTag("tag-add")
-                ) {
-                    Icon(trailingIcon, contentDescription = "Add tag")
-                }
+                ) { Icon(trailingIcon, contentDescription = "Add tag") }
             }
         }
     }
