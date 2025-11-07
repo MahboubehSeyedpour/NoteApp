@@ -4,6 +4,7 @@ import android.Manifest
 import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -156,13 +158,12 @@ fun NoteDetailScreen(
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { permissionError = null },
             title = { Text("Permission required") },
-            text  = { Text(permissionError!!) },
+            text = { Text(permissionError!!) },
             confirmButton = {
                 TextButton(onClick = { permissionError = null }) {
                     Text("OK")
                 }
-            }
-        )
+            })
     }
 
     Scaffold(containerColor = Background, topBar = {
@@ -183,7 +184,12 @@ fun NoteDetailScreen(
                 .background(Background)
         ) {
             HorizontalDivider()
-            Column(Modifier.padding(16.dp)) {
+
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
                 Text(stringResource(R.string.choose_tag))
                 TagFlowList(
                     labels = viewModel.tags.collectAsState().value,
@@ -197,6 +203,7 @@ fun NoteDetailScreen(
                 )
             }
         }
+
     }) { inner ->
         Column(
             Modifier
@@ -238,7 +245,8 @@ fun NoteDetailScreen(
                     scope.launch {
                         val ok = ensureReminderPermissions(requester)
                         if (!ok) {
-                            permissionError = "We can’t schedule the reminder because required permissions were not granted."
+                            permissionError =
+                                "We can’t schedule the reminder because required permissions were not granted."
                             return@launch
                         }
                         showReminderSheet = false
