@@ -1,5 +1,7 @@
 package com.example.noteapp.presentation.screens.add_note
 
+import android.Manifest
+import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -57,6 +59,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import com.example.noteapp.R
+import com.example.noteapp.core.permissions.PermissionRequest
+import com.example.noteapp.core.permissions.PermissionResult
+import com.example.noteapp.core.permissions.awaitPermission
+import com.example.noteapp.core.permissions.rememberPermissionRequester
 import com.example.noteapp.domain.model.Tag
 import com.example.noteapp.presentation.components.NoteAppButton
 import com.example.noteapp.presentation.components.NoteContent
@@ -86,6 +92,27 @@ fun NoteDetailScreen(
     val context = LocalContext.current
 
     var showDeleteDialog by remember { mutableStateOf(false) }
+
+    val requester = rememberPermissionRequester()
+    var permissionError by remember { mutableStateOf<String?>(null) }
+
+    suspend fun ensureReminderPermissions(
+        requester: (PermissionRequest, (PermissionResult) -> Unit) -> Unit
+    ): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val notif = awaitPermission(
+                requester, PermissionRequest.Runtime(Manifest.permission.POST_NOTIFICATIONS)
+            )
+            if (notif != PermissionResult.GRANTED) return false
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val exact = awaitPermission(
+                requester, PermissionRequest.Special.ScheduleExactAlarms
+            )
+            if (exact != PermissionResult.GRANTED) return false
+        }
+        return true
+    }
 
     LaunchedEffect(Unit) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -123,6 +150,19 @@ fun NoteDetailScreen(
                 else -> viewModel.onBackClicked()
             }
         }
+    }
+
+    if (permissionError != null) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { permissionError = null },
+            title = { Text("Permission required") },
+            text  = { Text(permissionError!!) },
+            confirmButton = {
+                TextButton(onClick = { permissionError = null }) {
+                    Text("OK")
+                }
+            }
+        )
     }
 
     Scaffold(containerColor = Background, topBar = {
@@ -194,8 +234,15 @@ fun NoteDetailScreen(
                 reminderText = uiState.note?.reminderTag?.name,
                 onClearReminder = { viewModel.onClearReminder() },
                 onPickDateTime = {
-                    showReminderSheet = false
-                    viewModel.openReminderPicker()
+                    scope.launch {
+                        val ok = ensureReminderPermissions(requester)
+                        if (!ok) {
+                            permissionError = "We can’t schedule the reminder because required permissions were not granted."
+                            return@launch
+                        }
+                        showReminderSheet = false
+                        viewModel.openReminderPicker()
+                    }
                 })
         }
     }
@@ -234,9 +281,7 @@ fun NoteDetailScreen(
 
 @Composable
 fun ReminderSheetContent(
-    reminderText: String?,
-    onPickDateTime: () -> Unit,
-    onClearReminder: () -> Unit
+    reminderText: String?, onPickDateTime: () -> Unit, onClearReminder: () -> Unit
 ) {
     Column(
         Modifier
@@ -251,8 +296,7 @@ fun ReminderSheetContent(
         ListItem(
             headlineContent = { Text(stringResource(R.string.pick_date_time)) },
             leadingContent = { Icon(ImageVector.vectorResource(R.drawable.ic_calendar), null) },
-            modifier = Modifier.clickable { onPickDateTime() }
-        )
+            modifier = Modifier.clickable { onPickDateTime() })
 
         HorizontalDivider()
 
@@ -264,10 +308,12 @@ fun ReminderSheetContent(
                 leadingContent = { Icon(ImageVector.vectorResource(R.drawable.ic_clock), null) },
                 trailingContent = {
                     IconButton(
-                        onClick = onClearReminder,
-                        modifier = Modifier.testTag("clear-reminder")
+                        onClick = onClearReminder, modifier = Modifier.testTag("clear-reminder")
                     ) {
-                        Icon(ImageVector.vectorResource(R.drawable.ic_close), contentDescription = stringResource(R.string.clear_reminder))
+                        Icon(
+                            ImageVector.vectorResource(R.drawable.ic_close),
+                            contentDescription = stringResource(R.string.clear_reminder)
+                        )
                     }
                 },
                 modifier = Modifier.clickable { onPickDateTime() } // tap row to edit time

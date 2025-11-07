@@ -109,15 +109,16 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
         modifier = Modifier
             .background(Background)
             .fillMaxSize()
-            .padding(horizontal = dimensionResource(R.dimen.screen_padding)),
+            .padding(dimensionResource(R.dimen.screen_padding)),
         containerColor = Background,
         topBar = {
             if (inSelection) {
                 TopAppBar(title = { Text("${selected.size} selected") }, navigationIcon = {
                     IconButton(onClick = { viewModel.clearSelection() }) {
                         Icon(
-                            ImageVector.vectorResource(R.drawable.ic_close),
-                            contentDescription = stringResource(R.string.clear_selection)
+                            ImageVector.vectorResource(
+                                R.drawable.ic_close
+                            ), contentDescription = stringResource(R.string.clear_selection)
                         )
                     }
                 }, actions = {
@@ -174,9 +175,10 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
         Column(
             modifier = Modifier.padding(inner)
         ) {
-            Spacer(Modifier.height(dimensionResource(R.dimen.screen_padding)))
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(bottom = dimensionResource(R.dimen.screen_padding))
+            ) {
                 CustomSearchField(
                     value = query,
                     onValueChange = viewModel::onSearchChange,
@@ -204,16 +206,14 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                 }
             }
 
-
             TagFlowList(
                 labels = viewModel.tags.collectAsState().value,
                 selectedTagId = viewModel.selectedTagId.collectAsState().value,
-                modifier = Modifier.padding(vertical = 16.dp),
+                modifier = Modifier.padding(vertical = dimensionResource(R.dimen.screen_padding)),
                 cornerRadius = 18.dp,
                 horizontalGap = 18.dp,
                 verticalGap = 18.dp,
-                onLabelClick = { tag -> viewModel.onTagFilterSelected(tag) }
-            )
+                onLabelClick = { tag -> viewModel.onTagFilterSelected(tag) })
 
             NotesList(
                 notes = notes,
