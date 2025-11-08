@@ -11,7 +11,7 @@ import com.app.noteapp.domain.model.Note
 import com.app.noteapp.domain.model.Tag
 import com.app.noteapp.domain.usecase.NoteUseCase
 import com.app.noteapp.domain.usecase.TagUseCase
-import com.app.noteapp.presentation.theme.Primary
+import com.app.noteapp.presentation.theme.ReminderTagColor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -51,21 +51,20 @@ class HomeViewModel @Inject constructor(
     private val _tags = MutableStateFlow<List<Tag>>(emptyList())
     val tags: StateFlow<List<Tag>> =
         tagUseCase.getAllTags().map { list -> list.map { it.toUI() } }.map { ui ->
-                val withoutAll = ui.filterNot { it.id == ALL_TAG_ID || it.name.equals("all", true) }
-                listOf(ALL_TAG) + withoutAll
-            }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), listOf(ALL_TAG))
+            val withoutAll = ui.filterNot { it.id == ALL_TAG_ID || it.name.equals("all", true) }
+            listOf(ALL_TAG) + withoutAll
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), listOf(ALL_TAG))
 
 
     private val _selectedTagId = MutableStateFlow<Long>(ALL_TAG_ID)
     val selectedTagId: StateFlow<Long> = _selectedTagId
 
     private val _notes: Flow<List<Note>> = noteUseCase.getAllNotes().map { all ->
-            all.sortedByDescending { it.createdAt }.map { entity ->
-                val tagUi =
-                    entity.tagId?.let { tid -> tagUseCase.getTag(tid).firstOrNull()?.toUI() }
-                entity.toUI(tagUi)
-            }
+        all.sortedByDescending { it.createdAt }.map { entity ->
+            val tagUi = entity.tagId?.let { tid -> tagUseCase.getTag(tid).firstOrNull()?.toUI() }
+            entity.toUI(tagUi)
         }
+    }
     val notes: StateFlow<List<Note>> = combine(_notes, _query, _selectedTagId) { list, q, tagId ->
         val term = q.trim().lowercase()
         val byQuery = if (term.isBlank()) list else list.filter { n ->
@@ -160,5 +159,5 @@ class HomeViewModel @Inject constructor(
 
 const val ALL_TAG_ID: Long = -1L
 val ALL_TAG = Tag(
-    id = ALL_TAG_ID, name = "All", color = Color(Primary.value)
+    id = ALL_TAG_ID, name = "All", color = Color(ReminderTagColor.value)
 )

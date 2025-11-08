@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -29,7 +30,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.app.noteapp.R
-import com.app.noteapp.presentation.theme.Black
 import com.app.noteapp.presentation.theme.LocalAppShapes
 
 @Composable
@@ -46,7 +46,7 @@ fun CustomSearchField(
         modifier = modifier
             .border(
                 width = 1.dp,
-                color = Black,
+                color = MaterialTheme.colorScheme.outline,
                 shape = LocalAppShapes.current.chip
             )
             .clip(LocalAppShapes.current.chip)
@@ -76,7 +76,7 @@ fun CustomSearchField(
                         modifier = Modifier.weight(1f),
                         text = placeholder,
                         style = TextStyle.Default.copy(fontSize = 18.sp),
-                        color = contentColor.copy(alpha = 0.3f)
+                        color = contentColor.copy(alpha = 0.38f)
                     )
                 },
                 singleLine = true,
@@ -88,7 +88,7 @@ fun CustomSearchField(
                     focusedIndicatorColor = Color.Transparent,
                     cursorColor = contentColor,
                     focusedTextColor = contentColor,
-                    unfocusedTextColor = contentColor
+                    unfocusedTextColor = contentColor,
                 ),
                 textStyle = TextStyle(
                     textAlign = TextAlign.Start,

@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -42,7 +43,10 @@ class MainActivity : ComponentActivity(), NavController.OnDestinationChangedList
             val navController = rememberNavController()
             navController.addOnDestinationChangedListener(this)
 
-            NoteAppTheme {
+            NoteAppTheme (
+                darkTheme = isSystemInDarkTheme(),
+                dynamicColor = false
+            ){
                 Surface(modifier = Modifier.fillMaxSize()) {
                     NoteApp(viewModel = viewModel, navController,  initialNoteId = noteIdFromNotif)
                 }

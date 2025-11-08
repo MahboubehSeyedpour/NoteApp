@@ -5,8 +5,9 @@ import com.app.noteapp.core.time.formatReminderEpoch
 import com.app.noteapp.data.local.entity.NoteEntity
 import com.app.noteapp.domain.model.Note
 import com.app.noteapp.domain.model.Tag
-import com.app.noteapp.presentation.theme.Primary
+import com.app.noteapp.presentation.theme.ReminderTagColor
 import java.time.ZoneId
+
 
 fun NoteEntity.toUI(tag: Tag?, zoneId: ZoneId = ZoneId.systemDefault()): Note = Note(
     id = id,
@@ -19,7 +20,7 @@ fun NoteEntity.toUI(tag: Tag?, zoneId: ZoneId = ZoneId.systemDefault()): Note = 
     timeBadge = reminderAt?.let { formatReminderEpoch(it, zoneId) },
     reminderTag = reminderAt?.let {
         Tag(
-            id = -100L, name = formatReminderEpoch(reminderAt, zoneId), color = Color(Primary.value)
+            id = -100L, name = formatReminderEpoch(reminderAt, zoneId), color = Color(ReminderTagColor.value)
         )
     })
 

@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.app.noteapp.R
 import com.app.noteapp.domain.model.Note
-import com.app.noteapp.presentation.theme.Black
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -82,11 +81,9 @@ fun NoteContent(
 
             TagFlowList(
                 labels = buildList {
-                    note.tag?.let { add(it) }
-                    note.reminderTag?.let { add(it) }
-                },
-                onLabelClick = {},
-                trailingIcon = null
+                note.tag?.let { add(it) }
+                note.reminderTag?.let { add(it) }
+            }, onLabelClick = {}, trailingIcon = null
             )
 
             OutlinedTextField(
@@ -99,7 +96,7 @@ fun NoteContent(
                 placeholder = {
                     Text(
                         text = context.getString(R.string.note_title),
-                        color = Black,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.headlineSmall.copy(
                             fontWeight = FontWeight.Bold, fontSize = 32.sp
                         )
@@ -151,7 +148,7 @@ fun NoteContent(
                 placeholder = {
                     Text(
                         context.getString(R.string.note_description),
-                        color = Black,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.headlineSmall.copy(
                             fontWeight = FontWeight.Normal, fontSize = 16.sp
                         )

@@ -26,9 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.app.noteapp.R
 import com.app.noteapp.core.enums.LayoutMode
 import com.app.noteapp.domain.model.Note
-import com.app.noteapp.presentation.theme.Black
 import com.app.noteapp.presentation.theme.LocalAppShapes
-import com.app.noteapp.presentation.theme.White
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -42,20 +40,21 @@ fun CustomNoteCard(
     onLongClick: () -> Unit,
     isSelected: Boolean,
 ) {
-
-    val highlight = if (isSelected) MaterialTheme.colorScheme.primary else Transparent
-
     val shapes = LocalAppShapes.current
 
     Surface(
         shape = shapes.card,
-        color = White,
-        contentColor = Black,
+        color = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         tonalElevation = dimensionResource(R.dimen.card_elevation)
     ) {
         Column(
             modifier = Modifier
-                .border(2.dp, highlight, shapes.card)
+                .border(
+                    width = 2.dp,
+                    color = if (isSelected) MaterialTheme.colorScheme.primary else Transparent,
+                    shape = shapes.card
+                )
                 .clip(shapes.card)
                 .combinedClickable(
                     onClick = onClick, onLongClick = onLongClick

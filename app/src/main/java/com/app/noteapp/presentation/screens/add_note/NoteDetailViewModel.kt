@@ -14,7 +14,7 @@ import com.app.noteapp.domain.model.Tag
 import com.app.noteapp.domain.reminders.ReminderScheduler
 import com.app.noteapp.domain.usecase.NoteUseCase
 import com.app.noteapp.domain.usecase.TagUseCase
-import com.app.noteapp.presentation.theme.Primary
+import com.app.noteapp.presentation.theme.ReminderTagColor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -85,7 +85,7 @@ class NoteDetailViewModel @Inject constructor(
         val formatted = formatReminderEpoch(epoch, zoneId)
 
         val reminderTag = Tag(
-            id = -100L, name = formatted, color = Color(Primary.value)
+            id = -100L, name = formatted, color = Color(ReminderTagColor.value)
         )
 
         mutate { cur ->

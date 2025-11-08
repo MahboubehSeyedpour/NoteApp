@@ -54,8 +54,6 @@ import com.app.noteapp.presentation.components.NotesList
 import com.app.noteapp.presentation.components.NotesTopBar
 import com.app.noteapp.presentation.components.TagFlowList
 import com.app.noteapp.presentation.navigation.Screens
-import com.app.noteapp.presentation.theme.Background
-import com.app.noteapp.presentation.theme.White
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -107,10 +105,10 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
 
     Scaffold(
         modifier = Modifier
-            .background(Background)
+            .background(MaterialTheme.colorScheme.background)
             .fillMaxSize()
             .padding(dimensionResource(R.dimen.screen_padding)),
-        containerColor = Background,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             if (inSelection) {
                 TopAppBar(title = { Text("${selected.size} selected") }, navigationIcon = {
@@ -183,8 +181,8 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                     value = query,
                     onValueChange = viewModel::onSearchChange,
                     placeholder = stringResource(R.string.search_note),
-                    containerColor = White,
-                    contentColor = Black,
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onSurface,
                     shape = RectangleShape,
                     modifier = Modifier
                         .weight(1f)
@@ -218,11 +216,10 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
             NotesList(
                 notes = notes,
                 noteTitleStyle = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = Black
+                    fontWeight = FontWeight.SemiBold, fontSize = 14.sp
                 ),
                 noteBodyStyle = MaterialTheme.typography.bodyMedium.copy(
-                    color = com.app.noteapp.presentation.theme.Black,
-                    fontSize = 12.sp,
+                    fontSize = 12.sp
                 ),
                 chipTextStyle = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium),
                 layoutMode = layoutMode,

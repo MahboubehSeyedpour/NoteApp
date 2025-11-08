@@ -5,7 +5,6 @@ import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -48,12 +47,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
@@ -69,12 +68,13 @@ import com.app.noteapp.core.permissions.PermissionResult
 import com.app.noteapp.core.permissions.awaitPermission
 import com.app.noteapp.core.permissions.rememberPermissionRequester
 import com.app.noteapp.domain.model.Tag
+import com.app.noteapp.presentation.components.CircularIconButton
 import com.app.noteapp.presentation.components.NoteAppButton
 import com.app.noteapp.presentation.components.NoteContent
 import com.app.noteapp.presentation.components.NoteDetailScreenTopBar
 import com.app.noteapp.presentation.components.TagFlowList
 import com.app.noteapp.presentation.components.showDateTimePicker
-import com.app.noteapp.presentation.theme.Background
+import com.app.noteapp.presentation.theme.AppTheme
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -83,6 +83,9 @@ import kotlinx.coroutines.launch
 fun NoteDetailScreen(
     navController: NavController, viewModel: NoteDetailViewModel = hiltViewModel()
 ) {
+
+    val ext = AppTheme.extended
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
 
@@ -161,7 +164,7 @@ fun NoteDetailScreen(
     }
 
     if (permissionError != null) {
-        androidx.compose.material3.AlertDialog(
+        AlertDialog(
             onDismissRequest = { permissionError = null },
             title = { Text("Permission required") },
             text = { Text(permissionError!!) },
@@ -172,79 +175,91 @@ fun NoteDetailScreen(
             })
     }
 
-    Scaffold(containerColor = Background, topBar = {
-        Column {
-            NoteDetailScreenTopBar(
-                onBack = { viewModel.onBackClicked() },
-                onNotificationClick = { showReminderSheet = true },
-                onShareClick = {},
-                onDeleteClicked = { viewModel.onDeleteClicked() })
-            HorizontalDivider()
-        }
-    }, bottomBar = {
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .heightIn(min = 150.dp)
-                .animateContentSize()
-                .background(Background)
-        ) {
-            HorizontalDivider()
-
-            Column(
+    Scaffold(
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.background)
+            .fillMaxSize()
+            .padding(dimensionResource(R.dimen.screen_padding)),
+        containerColor = MaterialTheme.colorScheme.background,
+        topBar = {
+            Column {
+                NoteDetailScreenTopBar(
+                    onBack = { viewModel.onBackClicked() },
+                    onNotificationClick = { showReminderSheet = true },
+                    onShareClick = {},
+                    onDeleteClicked = { viewModel.onDeleteClicked() })
+                HorizontalDivider(
+                    modifier = Modifier
+                        .padding(top = dimensionResource(R.dimen.screen_padding)),
+                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f)
+                )
+            }
+        },
+        bottomBar = {
+            Box(
                 Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.SpaceBetween
+                    .heightIn(min = 150.dp)
+                    .animateContentSize()
+                    .background(MaterialTheme.colorScheme.background)
             ) {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text(stringResource(R.string.choose_tag))
-
-                    Image(
-                        imageVector = ImageVector.vectorResource(R.drawable.ic_edit),
-                        contentDescription = stringResource(R.string.edit),
-                        modifier = Modifier
-                            .padding(start = 12.dp)
-                            .size(24.dp)
-                            .clip(CircleShape)
-                            .alpha(0.3F)
-                            .clickable { editMode = !editMode }, // <— toggle edit mode
-                    )
-                }
-
-                TagFlowList(
-                    labels = viewModel.tags.collectAsState().value,
-                    cornerRadius = 18.dp,
-                    horizontalGap = 18.dp,
-                    verticalGap = 18.dp,
-                    onLabelClick = { tag -> viewModel.onTagSelected(tag) },
-                    trailingIcon = ImageVector.vectorResource(R.drawable.ic_add),
-                    onTrailingClick = { showTagSheet = true },
-                    selectedTagId = uiState.note?.tag?.id,
-                    editMode = editMode,
-                    onDeleteClick = { tag -> tagToDelete = tag }
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f)
                 )
 
-                if (tagToDelete != null) {
-                    AlertDialog(
-                        onDismissRequest = { tagToDelete = null },
-                        title = { Text("Delete tag?") },
-                        text = { Text("Are you sure you want to delete tag \"${tagToDelete!!.name}\"?") },
-                        confirmButton = {
-                            TextButton(onClick = {
-                                viewModel.onDeleteTag(tagToDelete!!.id) // VM call
-                                tagToDelete = null
-                            }) { Text("Delete") }
-                        },
-                        dismissButton = {
-                            TextButton(onClick = { tagToDelete = null }) { Text("Cancel") }
-                        }
-                    )
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = dimensionResource(R.dimen.screen_padding)),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(stringResource(R.string.choose_tag), color = MaterialTheme.colorScheme.onPrimary)
+
+                        CircularIconButton(onClick = { editMode = !editMode }, icon = {
+                            Icon(
+                                ImageVector.vectorResource(R.drawable.ic_edit),
+                                contentDescription = "Edit"
+                            )
+                        })
+                    }
+
+                    TagFlowList(
+                        labels = viewModel.tags.collectAsState().value,
+                        cornerRadius = 18.dp,
+                        horizontalGap = 18.dp,
+                        verticalGap = 18.dp,
+                        onLabelClick = { tag -> viewModel.onTagSelected(tag) },
+                        trailingIcon = ImageVector.vectorResource(R.drawable.ic_add),
+                        onTrailingClick = { showTagSheet = true },
+                        selectedTagId = uiState.note?.tag?.id,
+                        editMode = editMode,
+                        onDeleteClick = { tag -> tagToDelete = tag })
+
+                    if (tagToDelete != null) {
+                        AlertDialog(
+                            onDismissRequest = { tagToDelete = null },
+                            title = { Text("Delete tag?") },
+                            text = { Text("Are you sure you want to delete tag \"${tagToDelete!!.name}\"?") },
+                            confirmButton = {
+                                TextButton(onClick = {
+                                    viewModel.onDeleteTag(tagToDelete!!.id)
+                                    tagToDelete = null
+                                }) { Text("Delete") }
+                            },
+                            dismissButton = {
+                                TextButton(onClick = { tagToDelete = null }) { Text("Cancel") }
+                            })
+                    }
                 }
             }
-        }
 
-    }) { inner ->
+        }) { inner ->
         Column(
             Modifier
                 .fillMaxSize()
@@ -312,7 +327,7 @@ fun NoteDetailScreen(
     }
 
     if (showDeleteDialog) {
-        androidx.compose.material3.AlertDialog(
+        AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
             title = { Text("Delete note?") },
             text = { Text("Are you sure you want to delete this note?") },
@@ -347,7 +362,13 @@ fun ReminderSheetContent(
             leadingContent = { Icon(ImageVector.vectorResource(R.drawable.ic_calendar), null) },
             modifier = Modifier.clickable { onPickDateTime() })
 
-        HorizontalDivider()
+        HorizontalDivider(
+            modifier = Modifier.background(
+                MaterialTheme.colorScheme.surfaceVariant.copy(
+                    alpha = 0.35f
+                )
+            )
+        )
 
         // Existing reminder (if any)
         if (!reminderText.isNullOrBlank()) {
@@ -407,7 +428,7 @@ fun TagSheetContent(
             onValueChange = { newName = it },
             placeholder = { Text(stringResource(R.string.tag_name)) },
             singleLine = true,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f))
         )
         Spacer(Modifier.height(8.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
