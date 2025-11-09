@@ -27,7 +27,7 @@ val LuxEmerald     = Color(0xFF5C8374) // primary
 val LuxEmeraldDark = Color(0xFF1B4242) // primary dark
 
 // Light surfaces
-val LuxIvory       = Color(0xFF9EC8B9) // surface light
+val LuxIvory       = Color(0xFFEFF0F4) // surface light
 val LuxBone        = Color(0xFFA9D3C4) // slight tweak of 9EC8B9 (optional); or reuse 9EC8B9
 
 // Dark surfaces

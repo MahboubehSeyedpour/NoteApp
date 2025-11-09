@@ -219,7 +219,7 @@ fun NoteDetailScreen(
                             .padding(bottom = dimensionResource(R.dimen.screen_padding)),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(stringResource(R.string.choose_tag), color = MaterialTheme.colorScheme.onPrimary)
+                        Text(stringResource(R.string.choose_tag), color = MaterialTheme.colorScheme.onSurfaceVariant)
 
                         CircularIconButton(onClick = { editMode = !editMode }, icon = {
                             Icon(
