@@ -2,6 +2,7 @@ package com.app.noteapp.presentation.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -61,6 +62,7 @@ fun NotesTopBar(
                     modifier = Modifier
                         .size(50.dp)
                         .clip(CircleShape)
+                        .clickable(onClick = config.onAvatarClick)
                 )
             } else {
                 Box(
@@ -68,6 +70,7 @@ fun NotesTopBar(
                         .size(50.dp)
                         .clip(CircleShape)
                         .background(White.copy(alpha = 0.15f))
+                        .clickable(onClick = config.onAvatarClick)
                 )
             }
         }

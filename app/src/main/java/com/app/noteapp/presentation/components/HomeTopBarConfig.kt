@@ -13,5 +13,6 @@ data class HomeTopBarConfig(
     val onMenuClick: () -> Unit,
     val gridToggleIcon: ImageVector,
     val menuIcon: ImageVector,
-    val placeholder: String
+    val placeholder: String,
+    val onAvatarClick: () -> Unit,
 )
