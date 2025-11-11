@@ -11,6 +11,7 @@ import com.app.noteapp.domain.model.Note
 import com.app.noteapp.domain.model.Tag
 import com.app.noteapp.domain.usecase.NoteUseCase
 import com.app.noteapp.domain.usecase.TagUseCase
+import com.app.noteapp.presentation.model.AvatarType
 import com.app.noteapp.presentation.theme.ReminderTagColor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -48,6 +49,9 @@ class HomeViewModel @Inject constructor(
     private val _selected = MutableStateFlow<Set<Long>>(emptySet())
     val selected: StateFlow<Set<Long>> = _selected
 
+    private val _avatar = MutableStateFlow(AvatarType.MALE)
+    val avatar: StateFlow<AvatarType> = _avatar
+
     private val _tags = MutableStateFlow<List<Tag>>(emptyList())
     val tags: StateFlow<List<Tag>> =
         tagUseCase.getAllTags().map { list -> list.map { it.toUI() } }.map { ui ->
@@ -75,6 +79,10 @@ class HomeViewModel @Inject constructor(
 
         byTag.sortedWith(compareByDescending<Note> { it.pinned }.thenByDescending { it.createdAt })
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    fun onAvatarSelected(type: AvatarType) {
+        _avatar.value = type
+    }
 
     fun onSearchChange(newQuery: String) {
         _query.value = newQuery

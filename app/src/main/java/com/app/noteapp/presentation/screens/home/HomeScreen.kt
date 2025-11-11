@@ -16,9 +16,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -58,6 +56,7 @@ import com.app.noteapp.presentation.components.NoteAppButton
 import com.app.noteapp.presentation.components.NotesList
 import com.app.noteapp.presentation.components.NotesTopBar
 import com.app.noteapp.presentation.components.TagFlowList
+import com.app.noteapp.presentation.model.iconRes
 import com.app.noteapp.presentation.navigation.Screens
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -76,6 +75,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
     val inSelection = selected.isNotEmpty()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val avatar by viewModel.avatar.collectAsState()
 
     LaunchedEffect(viewModel.events) {
         lifecycle.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
@@ -113,22 +113,10 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
 
     ModalNavigationDrawer(
         drawerState = drawerState, drawerContent = {
-            ModalDrawerSheet {
-                // TODO: drawer header/content
-                Text(
-                    "Profile",
-                    modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.titleMedium
-                )
-                NavigationDrawerItem(
-                    label = { Text("Settings") },
-                    selected = false,
-                    onClick = { /* navigate */ })
-                NavigationDrawerItem(
-                    label = { Text("About") },
-                    selected = false,
-                    onClick = { /* navigate */ })
-            }
+            DrawerContent(currentAvatar = avatar, onAvatarSelected = { type ->
+                viewModel.onAvatarSelected(type)
+                scope.launch { drawerState.close() }
+            })
         }) {
         Scaffold(
             modifier = Modifier
@@ -164,7 +152,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                 } else {
                     NotesTopBar(
                         config = HomeTopBarConfig(
-                            avatar = painterResource(R.mipmap.img_man_foreground),
+                            avatar = painterResource(avatar.iconRes()),
                             searchText = query,
                             onSearchChange = viewModel::onSearchChange,
                             onGridToggle = { viewModel.onGridToggleClicked() },
