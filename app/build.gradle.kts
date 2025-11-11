@@ -100,6 +100,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.core)
 
+    // datastore
     implementation(libs.androidx.datastore.preferences)
 
     // Permission

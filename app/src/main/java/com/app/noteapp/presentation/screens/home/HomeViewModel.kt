@@ -9,6 +9,7 @@ import com.app.noteapp.data.mapper.toUI
 import com.app.noteapp.di.IoDispatcher
 import com.app.noteapp.domain.model.Note
 import com.app.noteapp.domain.model.Tag
+import com.app.noteapp.domain.usecase.AvatarTypeUseCase
 import com.app.noteapp.domain.usecase.NoteUseCase
 import com.app.noteapp.domain.usecase.TagUseCase
 import com.app.noteapp.presentation.model.AvatarType
@@ -34,6 +35,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val noteUseCase: NoteUseCase,
     private val tagUseCase: TagUseCase,
+    private val avatarUseCase: AvatarTypeUseCase,
     @IoDispatcher private val io: CoroutineDispatcher
 ) : ViewModel() {
 
@@ -49,9 +51,13 @@ class HomeViewModel @Inject constructor(
     private val _selected = MutableStateFlow<Set<Long>>(emptySet())
     val selected: StateFlow<Set<Long>> = _selected
 
-    private val _avatar = MutableStateFlow(AvatarType.MALE)
-    val avatar: StateFlow<AvatarType> = _avatar
-
+    val avatar: StateFlow<AvatarType> =
+        avatarUseCase()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = AvatarType.MALE
+            )
     private val _tags = MutableStateFlow<List<Tag>>(emptyList())
     val tags: StateFlow<List<Tag>> =
         tagUseCase.getAllTags().map { list -> list.map { it.toUI() } }.map { ui ->
@@ -81,7 +87,9 @@ class HomeViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     fun onAvatarSelected(type: AvatarType) {
-        _avatar.value = type
+        viewModelScope.launch(io) {
+            avatarUseCase(type)
+        }
     }
 
     fun onSearchChange(newQuery: String) {
