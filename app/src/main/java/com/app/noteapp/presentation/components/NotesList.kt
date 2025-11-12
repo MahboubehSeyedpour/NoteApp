@@ -55,7 +55,7 @@ fun NotesList(
             HorizontalDivider(
                 modifier = Modifier.padding(vertical = dimensionResource(R.dimen.screen_padding)),
                 thickness = 1.dp,
-                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.38f)
             )
         }
 
