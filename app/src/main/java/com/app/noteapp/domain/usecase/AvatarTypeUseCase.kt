@@ -1,7 +1,7 @@
 package com.app.noteapp.domain.usecase
 
+import com.app.noteapp.domain.model.AvatarType
 import com.app.noteapp.domain.repository.UserPreferencesRepository
-import com.app.noteapp.presentation.model.AvatarType
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 

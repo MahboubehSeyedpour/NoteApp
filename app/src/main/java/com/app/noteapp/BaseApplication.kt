@@ -10,8 +10,8 @@ import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
 @HiltAndroidApp
-class BaseApplication @Inject constructor(): Application() {
-    @RequiresApi(Build.VERSION_CODES.O)
+class BaseApplication : Application() {
+
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
@@ -38,9 +38,5 @@ class BaseApplication @Inject constructor(): Application() {
                 getSystemService(NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
-    }
-
-    override fun onTerminate() {
-        super.onTerminate()
     }
 }

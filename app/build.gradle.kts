@@ -1,22 +1,21 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
-    alias(libs.plugins.kspRoom)
+    alias(libs.plugins.kotlinAndroidKsp)
+    alias(libs.plugins.hiltAndroid)
     alias(libs.plugins.compose.compiler)
-    id("com.google.dagger.hilt.android")
-    id("kotlin-kapt")
 }
 
 android {
     namespace = "com.app.noteapp"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.noteapp"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 23
-        versionName = "1.1.0"
+        versionName = "0.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -50,14 +49,17 @@ android {
     buildFeatures {
         compose = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.13"
-    }
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-    }
+//    composeOptions {
+//        kotlinCompilerExtensionVersion = "1.5.13"
+//    }
+//    packaging {
+//        resources {
+//            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+//        }
+//    }
+//    configurations.all {
+//        exclude(group = "com.intellij", module = "annotations")
+//    }
 }
 
 dependencies {
@@ -71,7 +73,6 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.appcompat)
-    implementation(libs.androidx.room.runtime.android)
     implementation(libs.androidx.runtime.annotation.android)
     implementation(libs.androidx.compose.foundation.layout)
     implementation(libs.androidx.compose.runtime)
@@ -113,8 +114,5 @@ dependencies {
     testImplementation(libs.mockk)
     implementation(libs.androidx.junit.ktx)
     implementation(libs.androidx.ui.test.junit4.android)
-    androidTestImplementation(libs.hilt.android.testing)
-    testImplementation(libs.hilt.android.testing)
-    kaptTest(libs.hilt.android.compiler)
 
 }

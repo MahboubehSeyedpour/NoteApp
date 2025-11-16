@@ -42,7 +42,7 @@ fun NotesTopBar(
             contentAlignment = Alignment.CenterStart
         ) {
             Text(
-                text = "My Notes",
+                text = stringResource(R.string.my_notes),
                 style = TextStyle.Default.copy(fontSize = 28.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Visible

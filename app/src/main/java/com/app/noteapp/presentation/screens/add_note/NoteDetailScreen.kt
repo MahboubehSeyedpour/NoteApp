@@ -329,16 +329,16 @@ fun NoteDetailScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Delete note?") },
-            text = { Text("Are you sure you want to delete this note?") },
+            title = { Text(stringResource(R.string.delete_note)) },
+            text = { Text(stringResource(R.string.delete_note_question)) },
             confirmButton = {
                 TextButton(onClick = {
                     showDeleteDialog = false
                     viewModel.onConfirmDelete()
-                }) { Text("Delete") }
+                }) { Text(stringResource(R.string.delete)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel") }
+                TextButton(onClick = { showDeleteDialog = false }) { Text(stringResource(R.string.dialog_dismiss_btn)) }
             })
     }
 }
@@ -421,8 +421,6 @@ fun TagSheetContent(
             labels = tags, onLabelClick = onSelect, trailingIcon = null
         )
         Spacer(Modifier.height(16.dp))
-        Text(stringResource(R.string.create_new), style = MaterialTheme.typography.labelLarge)
-        Spacer(Modifier.height(8.dp))
         OutlinedTextField(
             value = newName,
             onValueChange = { newName = it },

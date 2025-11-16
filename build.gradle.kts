@@ -3,11 +3,8 @@ plugins {
     alias(libs.plugins.androidApplication) apply false
     alias(libs.plugins.jetbrainsKotlinAndroid) apply false
 
-    // Room
-    alias(libs.plugins.kspRoom) apply false
-
-    // Hilt
-    id("com.google.dagger.hilt.android") version "2.50" apply false
+    alias(libs.plugins.hiltAndroid) apply false
+    alias(libs.plugins.kotlinAndroidKsp) apply false
 
     alias(libs.plugins.compose.compiler) apply false
 }

@@ -1,6 +1,7 @@
 package com.app.noteapp.presentation.screens.home
 
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,6 +43,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.os.LocaleListCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -50,6 +52,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import com.app.noteapp.R
 import com.app.noteapp.core.enums.LayoutMode
+import com.app.noteapp.domain.model.AppLanguage
 import com.app.noteapp.presentation.components.CustomSearchField
 import com.app.noteapp.presentation.components.HomeTopBarConfig
 import com.app.noteapp.presentation.components.NoteAppButton
@@ -76,6 +79,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val avatar by viewModel.avatar.collectAsState()
+    val lang by viewModel.language.collectAsStateWithLifecycle()
 
     LaunchedEffect(viewModel.events) {
         lifecycle.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
@@ -91,6 +95,14 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                 }
             }
         }
+    }
+
+    LaunchedEffect(lang) {
+        val locales = when (lang) {
+            AppLanguage.FA -> LocaleListCompat.forLanguageTags("fa")
+            AppLanguage.EN -> LocaleListCompat.forLanguageTags("en")
+        }
+        AppCompatDelegate.setApplicationLocales(locales)
     }
 
     if (confirmDeleteId != null) {
@@ -115,6 +127,9 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
         drawerState = drawerState, drawerContent = {
             DrawerContent(currentAvatar = avatar, onAvatarSelected = { type ->
                 viewModel.onAvatarSelected(type)
+                scope.launch { drawerState.close() }
+            }, currentLanguage = lang, onLanguageSelected = { newLang ->
+                viewModel.onLanguageSelected(newLang)
                 scope.launch { drawerState.close() }
             })
         }) {

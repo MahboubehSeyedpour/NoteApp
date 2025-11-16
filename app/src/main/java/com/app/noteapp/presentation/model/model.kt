@@ -2,8 +2,7 @@ package com.app.noteapp.presentation.model
 
 import androidx.annotation.DrawableRes
 import com.app.noteapp.R
-
-enum class AvatarType { FEMALE, MALE }
+import com.app.noteapp.domain.model.AvatarType
 
 @DrawableRes
 fun AvatarType.iconRes(): Int = when (this) {

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.RadioButton
@@ -22,18 +23,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.app.noteapp.presentation.model.AvatarType
+import com.app.noteapp.R
+import com.app.noteapp.domain.model.AppLanguage
+import com.app.noteapp.domain.model.AvatarType
 import com.app.noteapp.presentation.model.iconRes
 
 @Composable
 fun DrawerContent(
     currentAvatar: AvatarType,
     onAvatarSelected: (AvatarType) -> Unit,
+    currentLanguage: AppLanguage,
+    onLanguageSelected: (AppLanguage) -> Unit,
 ) {
     ModalDrawerSheet {
         AvatarPickerSection(
             selected = currentAvatar, onSelect = onAvatarSelected
+        )
+        HorizontalDivider()
+        LanguagePickerSection(
+            selected = currentLanguage, onSelect = onLanguageSelected
         )
     }
 }
@@ -131,3 +141,53 @@ private fun AvatarRadio(
         Text(text = label, style = MaterialTheme.typography.bodyMedium)
     }
 }
+
+@Composable
+fun LanguagePickerSection(
+    selected: AppLanguage, onSelect: (AppLanguage) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.choose_language), // add to strings
+            style = MaterialTheme.typography.titleMedium
+        )
+        Spacer(Modifier.height(12.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            LanguageRadio(
+                label = stringResource(R.string.lang_fa),
+                checked = selected == AppLanguage.FA,
+                onChecked = { onSelect(AppLanguage.FA) },
+                modifier = Modifier.weight(1f)
+            )
+            LanguageRadio(
+                label = stringResource(R.string.lang_en),
+                checked = selected == AppLanguage.EN,
+                onChecked = { onSelect(AppLanguage.EN) },
+                modifier = Modifier.weight(1f)
+            )
+        }
+    }
+}
+
+@Composable
+private fun LanguageRadio(
+    label: String, checked: Boolean, onChecked: () -> Unit, modifier: Modifier = Modifier
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .clip(RoundedCornerShape(999.dp))
+            .clickable { onChecked() }
+            .padding(horizontal = 8.dp, vertical = 4.dp)) {
+        RadioButton(selected = checked, onClick = onChecked)
+        Text(text = label, style = MaterialTheme.typography.bodyMedium)
+    }
+}
+
