@@ -114,9 +114,10 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                 confirmDeleteId?.let { id -> viewModel.deleteNote(id) }
                 confirmDeleteId = null
             },
-            confirmBtnText = { Text(context.getString(R.string.dialog_delete_confirm_btn)) },
+            confirmBtnText = R.string.dialog_delete_confirm_btn,
             onDismissButtonClick = { confirmDeleteId = null },
-            dismissBtnText = { Text(context.getString(R.string.dialog_dismiss_btn)) })
+            dismissBtnText = R.string.dialog_dismiss_btn
+        )
     }
 
 

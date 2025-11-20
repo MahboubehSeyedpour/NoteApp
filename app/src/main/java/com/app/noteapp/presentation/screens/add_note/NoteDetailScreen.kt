@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -35,7 +34,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -69,6 +67,7 @@ import com.app.noteapp.core.permissions.awaitPermission
 import com.app.noteapp.core.permissions.rememberPermissionRequester
 import com.app.noteapp.domain.model.Tag
 import com.app.noteapp.presentation.components.CircularIconButton
+import com.app.noteapp.presentation.components.CustomAlertDialog
 import com.app.noteapp.presentation.components.NoteAppButton
 import com.app.noteapp.presentation.components.NoteContent
 import com.app.noteapp.presentation.components.NoteDetailScreenTopBar
@@ -84,7 +83,7 @@ fun NoteDetailScreen(
     navController: NavController, viewModel: NoteDetailViewModel = hiltViewModel()
 ) {
 
-    val ext = AppTheme.extended
+    AppTheme.extended
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
@@ -164,15 +163,14 @@ fun NoteDetailScreen(
     }
 
     if (permissionError != null) {
-        AlertDialog(
+        CustomAlertDialog(
             onDismissRequest = { permissionError = null },
             title = { Text("Permission required") },
             text = { Text(permissionError!!) },
-            confirmButton = {
-                TextButton(onClick = { permissionError = null }) {
-                    Text("OK")
-                }
-            })
+            onConfirmBtnClick = { permissionError = null },
+            confirmBtnText = R.string.ok,
+            dismissBtnText = R.string.no,
+            onDismissButtonClick = {})
     }
 
     Scaffold(
@@ -189,9 +187,8 @@ fun NoteDetailScreen(
                     onShareClick = {},
                     onDeleteClicked = { viewModel.onDeleteClicked() })
                 HorizontalDivider(
-                    modifier = Modifier
-                        .padding(top = dimensionResource(R.dimen.screen_padding)),
-                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f)
+                    modifier = Modifier.padding(top = dimensionResource(R.dimen.screen_padding)),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f)
                 )
             }
         },
@@ -219,7 +216,10 @@ fun NoteDetailScreen(
                             .padding(bottom = dimensionResource(R.dimen.screen_padding)),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(stringResource(R.string.choose_tag), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(
+                            stringResource(R.string.choose_tag),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
 
                         CircularIconButton(onClick = { editMode = !editMode }, icon = {
                             Icon(
@@ -242,19 +242,18 @@ fun NoteDetailScreen(
                         onDeleteClick = { tag -> tagToDelete = tag })
 
                     if (tagToDelete != null) {
-                        AlertDialog(
+                        CustomAlertDialog(
                             onDismissRequest = { tagToDelete = null },
-                            title = { Text("Delete tag?") },
-                            text = { Text("Are you sure you want to delete tag \"${tagToDelete!!.name}\"?") },
-                            confirmButton = {
-                                TextButton(onClick = {
-                                    viewModel.onDeleteTag(tagToDelete!!.id)
-                                    tagToDelete = null
-                                }) { Text("Delete") }
+                            title = { Text(stringResource(R.string.delete_tag)) },
+                            text = { Text(stringResource(R.string.delete_tag_confirm) + "\"${tagToDelete!!.name}\"?") },
+                            onConfirmBtnClick = {
+                                viewModel.onDeleteTag(tagToDelete!!.id)
+                                tagToDelete = null
                             },
-                            dismissButton = {
-                                TextButton(onClick = { tagToDelete = null }) { Text("Cancel") }
-                            })
+                            confirmBtnText = R.string.delete,
+                            onDismissButtonClick = { tagToDelete = null },
+                            dismissBtnText = R.string.no
+                        )
                     }
                 }
             }
@@ -327,19 +326,18 @@ fun NoteDetailScreen(
     }
 
     if (showDeleteDialog) {
-        AlertDialog(
+        CustomAlertDialog(
             onDismissRequest = { showDeleteDialog = false },
             title = { Text(stringResource(R.string.delete_note)) },
             text = { Text(stringResource(R.string.delete_note_question)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    showDeleteDialog = false
-                    viewModel.onConfirmDelete()
-                }) { Text(stringResource(R.string.delete)) }
+            onConfirmBtnClick = {
+                showDeleteDialog = false
+                viewModel.onConfirmDelete()
             },
-            dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) { Text(stringResource(R.string.dialog_dismiss_btn)) }
-            })
+            confirmBtnText = R.string.delete,
+            onDismissButtonClick = { showDeleteDialog = false },
+            dismissBtnText = R.string.dialog_dismiss_btn
+        )
     }
 }
 
@@ -426,7 +424,9 @@ fun TagSheetContent(
             onValueChange = { newName = it },
             placeholder = { Text(stringResource(R.string.tag_name)) },
             singleLine = true,
-            modifier = Modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f))
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(1.dp, MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f))
         )
         Spacer(Modifier.height(8.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

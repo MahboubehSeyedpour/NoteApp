@@ -46,6 +46,8 @@
     <string name="tap_to_change">Tap to change</string>
     <string name="no_reminder_set">No reminder set</string>
     <string name="edit">edit</string>
+    <string name="delete_tag">Delete tag?</string>
+    <string name="delete_tag_confirm">Are you sure you want to delete tag</string>
 
     <!--    icon descriptions   -->
     <string name="clear_selection">Clear selection</string>
@@ -55,4 +57,6 @@
     <string name="lang_fa">فارسی</string>
     <string name="lang_en">English</string>
     <string name="more_options">more options</string>
+    <string name="ok">OK</string>
+    <string name="no">No</string>
 </resources>
