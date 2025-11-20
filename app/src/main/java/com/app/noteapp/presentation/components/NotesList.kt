@@ -31,7 +31,9 @@ fun NotesList(
     layoutMode: LayoutMode,
     onNoteClick: (Long) -> Unit,
     onNoteLongPress: (Long) -> Unit,
-    selectedIds: Set<Long>
+    selectedIds: Set<Long>,
+    onNoteMenuPin: (Long) -> Unit,
+    onNoteMenuDelete: (Long) -> Unit,
 ) {
     val pinned = notes.filter { it.pinned }
     val others = notes.filterNot { it.pinned }
@@ -41,13 +43,14 @@ fun NotesList(
         pinned.forEach {
             CustomNoteCard(
                 note = it,
-                isSelected = it.id in selectedIds,
-                titleStyle = noteTitleStyle,
-                bodyStyle = noteBodyStyle,
-                chipTextStyle = chipTextStyle,
+                isSelected = it.pinned,
                 onClick = { onNoteClick(it.id) },
-                onLongClick = { onNoteLongPress(it.id) },
-                layoutMode = layoutMode,
+                onLongPress = { onNoteLongPress(it.id) },
+                onMenuPin = { onNoteMenuPin(it.id) },
+                onMenuDelete = { onNoteMenuDelete(it.id) },
+                noteTitleStyle = noteTitleStyle,
+                noteBodyStyle = noteBodyStyle,
+                chipTextStyle = chipTextStyle
             )
         }
 
@@ -65,16 +68,19 @@ fun NotesList(
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.screen_padding))
                 ) {
-                    items(others, key = { it.id }) { note ->
+                    items(notes) { note ->
+                        val isSelected = note.id in selectedIds
+
                         CustomNoteCard(
                             note = note,
-                            isSelected = note.id in selectedIds,
+                            isSelected = isSelected,
                             onClick = { onNoteClick(note.id) },
-                            onLongClick = { onNoteLongPress(note.id) },
-                            titleStyle = noteTitleStyle,
-                            bodyStyle = noteBodyStyle,
-                            chipTextStyle = chipTextStyle,
-                            layoutMode = layoutMode,
+                            onLongPress = { onNoteLongPress(note.id) },
+                            onMenuPin = { onNoteMenuPin(note.id) },
+                            onMenuDelete = { onNoteMenuDelete(note.id) },
+                            noteTitleStyle = noteTitleStyle,
+                            noteBodyStyle = noteBodyStyle,
+                            chipTextStyle = chipTextStyle
                         )
                     }
                 }
@@ -86,18 +92,20 @@ fun NotesList(
                     verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.screen_padding)),
                     horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.screen_padding)),
                 ) {
-                    items(others, key = { it.id }) { note ->
+                    items(notes) { note ->
+                        val isSelected = note.id in selectedIds
+
                         CustomNoteCard(
                             note = note,
-                            isSelected = note.id in selectedIds,
+                            isSelected = isSelected,
                             onClick = { onNoteClick(note.id) },
-                            onLongClick = { onNoteLongPress(note.id) },
-                            titleStyle = noteTitleStyle,
-                            bodyStyle = noteBodyStyle,
-                            chipTextStyle = chipTextStyle,
-                            layoutMode = layoutMode,
+                            onLongPress = { onNoteLongPress(note.id) },
+                            onMenuPin = { onNoteMenuPin(note.id) },
+                            onMenuDelete = { onNoteMenuDelete(note.id) },
+                            noteTitleStyle = noteTitleStyle,
+                            noteBodyStyle = noteBodyStyle,
+                            chipTextStyle = chipTextStyle
                         )
-                        Spacer(Modifier.height(dimensionResource(R.dimen.screen_padding)))
                     }
                 }
             }

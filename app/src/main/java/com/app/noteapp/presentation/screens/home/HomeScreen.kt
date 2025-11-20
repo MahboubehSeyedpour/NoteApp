@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -53,6 +52,7 @@ import androidx.navigation.NavController
 import com.app.noteapp.R
 import com.app.noteapp.core.enums.LayoutMode
 import com.app.noteapp.domain.model.AppLanguage
+import com.app.noteapp.presentation.components.CustomAlertDialog
 import com.app.noteapp.presentation.components.CustomSearchField
 import com.app.noteapp.presentation.components.HomeTopBarConfig
 import com.app.noteapp.presentation.components.NoteAppButton
@@ -106,22 +106,19 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
     }
 
     if (confirmDeleteId != null) {
-        AlertDialog(
+        CustomAlertDialog(
             onDismissRequest = { confirmDeleteId = null },
             title = { Text(context.getString(R.string.dialog_delete_title)) },
             text = { Text(context.getString(R.string.dialog_delete_text)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    viewModel.deleteSelected()
-                    confirmDeleteId = null
-                }) { Text(context.getString(R.string.dialog_delete_confirm_btn)) }
+            onConfirmBtnClick = {
+                confirmDeleteId?.let { id -> viewModel.deleteNote(id) }
+                confirmDeleteId = null
             },
-            dismissButton = {
-                TextButton(onClick = { confirmDeleteId = null }) {
-                    Text(context.getString(R.string.dialog_dismiss_btn))
-                }
-            })
+            confirmBtnText = { Text(context.getString(R.string.dialog_delete_confirm_btn)) },
+            onDismissButtonClick = { confirmDeleteId = null },
+            dismissBtnText = { Text(context.getString(R.string.dialog_dismiss_btn)) })
     }
+
 
     ModalNavigationDrawer(
         drawerState = drawerState, drawerContent = {
@@ -150,7 +147,9 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                             )
                         }
                     }, actions = {
-                        IconButton(onClick = { viewModel.pinSelected() }) {
+                        IconButton(onClick = {
+//                            inSelection?.let { id -> viewModel.pinNote(id) }
+                        }) {
                             Icon(
                                 ImageVector.vectorResource(R.drawable.ic_pin),
                                 modifier = Modifier.size(24.dp),
@@ -187,7 +186,11 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                 if (inSelection) {
                     BottomAppBar {
                         Spacer(Modifier.weight(1f))
-                        TextButton(onClick = { viewModel.pinSelected() }) { Text(context.getString(R.string.pin)) }
+                        TextButton(onClick = { confirmDeleteId?.let { id -> viewModel.pinNote(id) } }) {
+                            Text(
+                                context.getString(R.string.pin)
+                            )
+                        }
                         TextButton(onClick = { confirmDeleteId = selected.first() }) {
                             Text(
                                 context.getString(
@@ -259,8 +262,9 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                         else viewModel.toggleSelection(id)
                     },
                     onNoteLongPress = { id -> viewModel.toggleSelection(id) },
-                    selectedIds = selected
-                )
+                    selectedIds = selected,
+                    onNoteMenuPin = { id -> viewModel.pinNote(id) },
+                    onNoteMenuDelete = { id -> confirmDeleteId = id })
             }
         }
     }

@@ -60,13 +60,12 @@ class HomeViewModel @Inject constructor(
             AppLanguage.FA
         )
 
-
     val avatar: StateFlow<AvatarType> = avatarUseCase().stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = AvatarType.MALE
         )
-    private val _tags = MutableStateFlow<List<Tag>>(emptyList())
+
     val tags: StateFlow<List<Tag>> =
         tagUseCase.getAllTags().map { list -> list.map { it.toUI() } }.map { ui ->
             val withoutAll = ui.filterNot { it.id == ALL_TAG_ID || it.name.equals("all", true) }
@@ -83,7 +82,7 @@ class HomeViewModel @Inject constructor(
             entity.toUI(tagUi)
         }
     }
-    val notes: StateFlow<List<Note>> = combine(_notes, _query, _selectedTagId) { list, q, tagId ->
+    val notes: StateFlow<List<Note>> = combine(_notes, _query, selectedTagId) { list, q, tagId ->
         val term = q.trim().lowercase()
         val byQuery = if (term.isBlank()) list else list.filter { n ->
             n.title.lowercase().contains(term) || (n.description ?: "").lowercase().contains(term)
@@ -120,54 +119,44 @@ class HomeViewModel @Inject constructor(
         _layoutMode.update { mode -> if (mode == LayoutMode.LIST) LayoutMode.GRID else LayoutMode.LIST }
     }
 
-    fun deleteSelected() {
-        val ids = _selected.value
-        if (ids.isEmpty()) return
+    fun deleteNote(id: Long) {
         viewModelScope.launch(io) {
             runCatching {
-                ids.forEach { id ->
-                    val note = noteUseCase.getNoteById(id).firstOrNull()
-                    note?.let {
-                        noteUseCase.deleteById(note.id)
-                    }
-                }
-            }.onSuccess {
-                clearSelection()
+                val note = noteUseCase.getNoteById(id).firstOrNull()
+                note?.let { noteUseCase.deleteById(it.id) }
             }.onFailure {
-                viewModelScope.launch { _events.emit(HomeEvents.Error("Failed to delete: ${it.message}")) }
+                viewModelScope.launch {
+                    _events.emit(HomeEvents.Error("Failed to delete: ${it.message}"))
+                }
             }
         }
     }
 
-    fun pinSelected() {
-        val ids = _selected.value
-        if (ids.size != 1) {
-            viewModelScope.launch { _events.emit(HomeEvents.Error("Select exactly one note to pin")) }
-            return
-        }
-        val targetId = ids.firstOrNull()
+    fun pinNote(id: Long) {
         viewModelScope.launch(io) {
             runCatching {
                 val current = notes.firstOrNull()
                 val currentlyPinned = current?.firstOrNull { it.pinned }
-                if (currentlyPinned != null && currentlyPinned.id != targetId) {
+
+                // Unpin previously pinned note (if different)
+                if (currentlyPinned != null && currentlyPinned.id != id) {
                     noteUseCase.update(currentlyPinned.copy(pinned = false).toDomain())
                 }
 
-                targetId?.let {
-                    val target = noteUseCase.getNoteById(targetId).first()
-                    target?.let {
-                        noteUseCase.update(target.copy(pinned = true))
-                    }
+                // Pin target
+                val target = noteUseCase.getNoteById(id).firstOrNull()
+                target?.let {
+                    noteUseCase.update(it.copy(pinned = true))
                 }
 
-                if (currentlyPinned != null && currentlyPinned.id == targetId) {
+                // If user taps pin on already pinned note, unpin it
+                if (currentlyPinned != null && currentlyPinned.id == id) {
                     noteUseCase.update(currentlyPinned.copy(pinned = false).toDomain())
                 }
-            }.onSuccess {
-                clearSelection()
             }.onFailure {
-                viewModelScope.launch { _events.emit(HomeEvents.Error("Failed to pin: ${it.message}")) }
+                viewModelScope.launch {
+                    _events.emit(HomeEvents.Error("Failed to pin: ${it.message}"))
+                }
             }
         }
     }
