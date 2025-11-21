@@ -59,6 +59,7 @@ import com.app.noteapp.presentation.components.NoteAppButton
 import com.app.noteapp.presentation.components.NotesList
 import com.app.noteapp.presentation.components.NotesTopBar
 import com.app.noteapp.presentation.components.TagFlowList
+import com.app.noteapp.presentation.model.DialogType
 import com.app.noteapp.presentation.model.iconRes
 import com.app.noteapp.presentation.navigation.Screens
 import kotlinx.coroutines.flow.collectLatest
@@ -107,16 +108,18 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
 
     if (confirmDeleteId != null) {
         CustomAlertDialog(
+            type = DialogType.ERROR,
             onDismissRequest = { confirmDeleteId = null },
-            title = { Text(context.getString(R.string.dialog_delete_title)) },
-            text = { Text(context.getString(R.string.dialog_delete_text)) },
+            title = stringResource(R.string.delete_note),
+            message = stringResource(R.string.delete_note_question),
             onConfirmBtnClick = {
                 confirmDeleteId?.let { id -> viewModel.deleteNote(id) }
                 confirmDeleteId = null
             },
             confirmBtnText = R.string.dialog_delete_confirm_btn,
             onDismissButtonClick = { confirmDeleteId = null },
-            dismissBtnText = R.string.dialog_dismiss_btn
+            dismissBtnText = R.string.dialog_dismiss_btn,
+            showTopBar = true
         )
     }
 

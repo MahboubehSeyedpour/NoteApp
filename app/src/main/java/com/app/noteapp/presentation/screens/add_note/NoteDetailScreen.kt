@@ -73,6 +73,7 @@ import com.app.noteapp.presentation.components.NoteContent
 import com.app.noteapp.presentation.components.NoteDetailScreenTopBar
 import com.app.noteapp.presentation.components.TagFlowList
 import com.app.noteapp.presentation.components.showDateTimePicker
+import com.app.noteapp.presentation.model.DialogType
 import com.app.noteapp.presentation.theme.AppTheme
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -101,7 +102,7 @@ fun NoteDetailScreen(
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     val requester = rememberPermissionRequester()
-    var permissionError by remember { mutableStateOf<String?>(null) }
+    var permissionError by remember { mutableStateOf<Int?>(null) }
 
     var editMode by remember { mutableStateOf(false) }
     var tagToDelete by remember { mutableStateOf<Tag?>(null) }
@@ -164,13 +165,16 @@ fun NoteDetailScreen(
 
     if (permissionError != null) {
         CustomAlertDialog(
+            type = DialogType.ERROR,
             onDismissRequest = { permissionError = null },
-            title = { Text("Permission required") },
-            text = { Text(permissionError!!) },
+            title = stringResource(R.string.permission_required),
+            message = stringResource(permissionError!!),
             onConfirmBtnClick = { permissionError = null },
             confirmBtnText = R.string.ok,
             dismissBtnText = R.string.no,
-            onDismissButtonClick = {})
+            onDismissButtonClick = {},
+            showTopBar = true
+        )
     }
 
     Scaffold(
@@ -243,16 +247,21 @@ fun NoteDetailScreen(
 
                     if (tagToDelete != null) {
                         CustomAlertDialog(
+                            type = DialogType.WARNING,
                             onDismissRequest = { tagToDelete = null },
-                            title = { Text(stringResource(R.string.delete_tag)) },
-                            text = { Text(stringResource(R.string.delete_tag_confirm) + "\"${tagToDelete!!.name}\"?") },
+                            title = stringResource(R.string.delete_tag),
+                            message = stringResource(
+                                R.string.delete_tag_confirm,
+                                tagToDelete!!.name
+                            ),
                             onConfirmBtnClick = {
                                 viewModel.onDeleteTag(tagToDelete!!.id)
                                 tagToDelete = null
                             },
                             confirmBtnText = R.string.delete,
                             onDismissButtonClick = { tagToDelete = null },
-                            dismissBtnText = R.string.no
+                            dismissBtnText = R.string.no,
+                            showTopBar = true
                         )
                     }
                 }
@@ -299,8 +308,7 @@ fun NoteDetailScreen(
                     scope.launch {
                         val ok = ensureReminderPermissions(requester)
                         if (!ok) {
-                            permissionError =
-                                "We can’t schedule the reminder because required permissions were not granted."
+                            permissionError = R.string.permission_required_message
                             return@launch
                         }
                         showReminderSheet = false
@@ -327,16 +335,18 @@ fun NoteDetailScreen(
 
     if (showDeleteDialog) {
         CustomAlertDialog(
+            type = DialogType.ERROR,
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text(stringResource(R.string.delete_note)) },
-            text = { Text(stringResource(R.string.delete_note_question)) },
+            title = stringResource(R.string.delete_note),
+            message = stringResource(R.string.delete_note_question),
             onConfirmBtnClick = {
                 showDeleteDialog = false
                 viewModel.onConfirmDelete()
             },
             confirmBtnText = R.string.delete,
             onDismissButtonClick = { showDeleteDialog = false },
-            dismissBtnText = R.string.dialog_dismiss_btn
+            dismissBtnText = R.string.dialog_dismiss_btn,
+            showTopBar = true
         )
     }
 }

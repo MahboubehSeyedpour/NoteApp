@@ -62,7 +62,7 @@ class HomeScreenTest {
         composeRule.onNodeWithContentDescription("Delete").performClick()
 
         composeRule.onNodeWithText(
-            composeRule.activity.getString(R.string.dialog_delete_text)
+            composeRule.activity.getString(R.string.delete_note_question)
         ).assertExists()
     }
 }
