@@ -3,24 +3,23 @@ package com.app.noteapp.presentation.screens.home
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.BottomAppBar
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
+import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,15 +29,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -53,15 +48,13 @@ import com.app.noteapp.R
 import com.app.noteapp.core.enums.LayoutMode
 import com.app.noteapp.domain.model.AppLanguage
 import com.app.noteapp.presentation.components.CustomAlertDialog
-import com.app.noteapp.presentation.components.CustomSearchField
-import com.app.noteapp.presentation.components.HomeTopBarConfig
+import com.app.noteapp.presentation.components.CustomNoteCard
 import com.app.noteapp.presentation.components.NoteAppButton
-import com.app.noteapp.presentation.components.NotesList
-import com.app.noteapp.presentation.components.NotesTopBar
-import com.app.noteapp.presentation.components.TagFlowList
+import com.app.noteapp.presentation.components.TagsList
 import com.app.noteapp.presentation.model.DialogType
 import com.app.noteapp.presentation.model.iconRes
 import com.app.noteapp.presentation.navigation.Screens
+import com.app.noteapp.presentation.screens.home.components.TopBar
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -70,17 +63,23 @@ import kotlinx.coroutines.launch
 fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltViewModel()) {
 
     val lifecycle = LocalLifecycleOwner.current.lifecycle
-    val notes by viewModel.notes.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val layoutMode by viewModel.layoutMode.collectAsState()
     var confirmDeleteId by remember { mutableStateOf<Long?>(null) }
     val query by viewModel.query.collectAsState()
     val selected by viewModel.selected.collectAsState()
-    val inSelection = selected.isNotEmpty()
+    selected.isNotEmpty()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val avatar by viewModel.avatar.collectAsState()
     val lang by viewModel.language.collectAsStateWithLifecycle()
+    val tags by viewModel.tags.collectAsStateWithLifecycle()
+
+    val notes by viewModel.notes.collectAsStateWithLifecycle()
+    val pinnedNote = notes.filter { it.pinned }
+    val others = notes.filterNot { it.pinned }
+
+    val gridState = rememberLazyStaggeredGridState()
 
     LaunchedEffect(viewModel.events) {
         lifecycle.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
@@ -141,134 +140,149 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                 .padding(dimensionResource(R.dimen.screen_padding)),
             containerColor = MaterialTheme.colorScheme.background,
             topBar = {
-                if (inSelection) {
-                    TopAppBar(title = { Text("${selected.size} selected") }, navigationIcon = {
-                        IconButton(onClick = { viewModel.clearSelection() }) {
-                            Icon(
-                                ImageVector.vectorResource(
-                                    R.drawable.ic_close
-                                ), contentDescription = stringResource(R.string.clear_selection)
-                            )
-                        }
-                    }, actions = {
-                        IconButton(onClick = {
-//                            inSelection?.let { id -> viewModel.pinNote(id) }
-                        }) {
-                            Icon(
-                                ImageVector.vectorResource(R.drawable.ic_pin),
-                                modifier = Modifier.size(24.dp),
-                                contentDescription = stringResource(R.string.pin)
-                            )
-                        }
-                        IconButton(onClick = { confirmDeleteId = selected.first() }) {
-                            Icon(
-                                ImageVector.vectorResource(R.drawable.ic_trash),
-                                contentDescription = stringResource(R.string.delete)
-                            )
-                        }
-                    })
-                } else {
-                    NotesTopBar(
-                        config = HomeTopBarConfig(
-                            avatar = painterResource(avatar.iconRes()),
-                            searchText = query,
-                            onSearchChange = viewModel::onSearchChange,
-                            onGridToggle = { viewModel.onGridToggleClicked() },
-                            onMenuClick = { /* TODO */ },
-                            gridToggleIcon = when (layoutMode) {
-                                LayoutMode.LIST -> ImageVector.vectorResource(R.drawable.ic_vertical_list)
-                                LayoutMode.GRID -> ImageVector.vectorResource(R.drawable.ic_grid_list)
-                            },
-                            menuIcon = ImageVector.vectorResource(R.drawable.ic_menu),
-                            placeholder = context.getString(R.string.search_note),
-                            onAvatarClick = { scope.launch { drawerState.open() } },
-                        )
-                    )
-                }
+                TopBar(
+                    avatar = painterResource(avatar.iconRes()),
+                    onAvatarClick = { scope.launch { drawerState.open() } },
+                    query = query,
+                    onSearchChange = viewModel::onSearchChange,
+                    onGridToggleClicked = viewModel::onGridToggleClicked,
+                    layoutMode = layoutMode
+                )
             },
             bottomBar = {
-                if (inSelection) {
-                    BottomAppBar {
-                        Spacer(Modifier.weight(1f))
-                        TextButton(onClick = { confirmDeleteId?.let { id -> viewModel.pinNote(id) } }) {
-                            Text(
-                                context.getString(R.string.pin)
-                            )
-                        }
-                        TextButton(onClick = { confirmDeleteId = selected.first() }) {
-                            Text(
-                                context.getString(
-                                    R.string.delete
-                                )
-                            )
-                        }
-                    }
-                } else {
-                    NoteAppButton(
-                        text = R.string.note_add, onClick = { viewModel.onAddNoteClicked() })
-                }
+                NoteAppButton(
+                    text = R.string.note_add, onClick = { viewModel.onAddNoteClicked() })
             }) { inner ->
-            Column(
-                modifier = Modifier.padding(inner)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(bottom = dimensionResource(R.dimen.screen_padding))
-                ) {
-                    CustomSearchField(
-                        value = query,
-                        onValueChange = viewModel::onSearchChange,
-                        placeholder = stringResource(R.string.search_note),
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        contentColor = MaterialTheme.colorScheme.onSurface,
-                        shape = RectangleShape,
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(56.dp)
-                    )
 
-                    IconButton(
-                        onClick = { viewModel.onGridToggleClicked() },
+            when (layoutMode) {
+                LayoutMode.LIST -> {
+                    LazyColumn(
                         modifier = Modifier
-                            .padding(start = 12.dp)
-                            .size(40.dp)
+                            .fillMaxSize()
+                            .padding(inner),
+                        contentPadding = PaddingValues(bottom = 72.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Icon(
-                            imageVector = when (layoutMode) {
-                                LayoutMode.LIST -> ImageVector.vectorResource(R.drawable.ic_vertical_list)
-                                LayoutMode.GRID -> ImageVector.vectorResource(R.drawable.ic_grid_list)
-                            }, contentDescription = stringResource(R.string.toggle_layout)
-                        )
+                        stickyHeader(key = "tags-header") {
+                            TagsList(
+                                labels = tags,
+                                selectedTagId = viewModel.selectedTagId.collectAsState().value,
+                                modifier = Modifier
+                                    .background(MaterialTheme.colorScheme.background)
+                                    .padding(vertical = 8.dp),
+                                cornerRadius = 18.dp,
+                                horizontalGap = 18.dp,
+                                verticalGap = 18.dp,
+                                onLabelClick = viewModel::onTagFilterSelected
+                            )
+                        }
+
+                        items(pinnedNote, key = { it.id }) { note ->
+                            CustomNoteCard(
+                                note = note,
+                                isSelected = note.id in selected,
+                                onClick = { viewModel.onNoteDetailsClicked(note.id) },
+                                pinNote = { viewModel.pinNote(note.id) },
+                                deleteNote = { confirmDeleteId = note.id },
+                                noteTitleStyle = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.SemiBold, fontSize = 14.sp
+                                ),
+                                noteBodyStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+                            )
+                        }
+
+                        if (pinnedNote.isNotEmpty() && others.isNotEmpty()) {
+                            item(key = "pinned-divider") {
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(vertical = 8.dp),
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+
+                        items(others, key = { it.id }) { note ->
+                            CustomNoteCard(
+                                note = note,
+                                isSelected = note.id in selected,
+                                onClick = { viewModel.onNoteDetailsClicked(note.id) },
+                                pinNote = { viewModel.pinNote(note.id) },
+                                deleteNote = { confirmDeleteId = note.id },
+                                noteTitleStyle = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.SemiBold, fontSize = 14.sp
+                                ),
+                                noteBodyStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+                            )
+                        }
                     }
                 }
 
-                TagFlowList(
-                    labels = viewModel.tags.collectAsState().value,
-                    selectedTagId = viewModel.selectedTagId.collectAsState().value,
-                    modifier = Modifier.padding(vertical = dimensionResource(R.dimen.screen_padding)),
-                    cornerRadius = 18.dp,
-                    horizontalGap = 18.dp,
-                    verticalGap = 18.dp,
-                    onLabelClick = { tag -> viewModel.onTagFilterSelected(tag) })
+                LayoutMode.GRID -> {
+                    LazyVerticalStaggeredGrid(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(inner),
+                        state = gridState,
+                        columns = StaggeredGridCells.Adaptive(minSize = 160.dp),
+                        verticalItemSpacing = 8.dp,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        contentPadding = PaddingValues(bottom = 72.dp)
+                    ) {
+                        item(
+                            key = "tags-header", span = StaggeredGridItemSpan.FullLine
+                        ) {
+                            TagsList(
+                                labels = tags,
+                                selectedTagId = viewModel.selectedTagId.collectAsState().value,
+                                modifier = Modifier
+                                    .background(MaterialTheme.colorScheme.background)
+                                    .padding(vertical = 8.dp),
+                                cornerRadius = 18.dp,
+                                horizontalGap = 18.dp,
+                                verticalGap = 18.dp,
+                                onLabelClick = viewModel::onTagFilterSelected
+                            )
+                        }
 
-                NotesList(
-                    notes = notes,
-                    noteTitleStyle = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.SemiBold, fontSize = 14.sp
-                    ),
-                    noteBodyStyle = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = 12.sp
-                    ),
-                    chipTextStyle = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium),
-                    layoutMode = layoutMode,
-                    onNoteClick = { id ->
-                        if (selected.isEmpty()) viewModel.onNoteDetailsClicked(id)
-                        else viewModel.toggleSelection(id)
-                    },
-                    onNoteLongPress = { id -> viewModel.toggleSelection(id) },
-                    selectedIds = selected,
-                    onNoteMenuPin = { id -> viewModel.pinNote(id) },
-                    onNoteMenuDelete = { id -> confirmDeleteId = id })
+                        items(pinnedNote, key = { it.id }) { note ->
+                            CustomNoteCard(
+                                note = note,
+                                isSelected = note.id in selected,
+                                onClick = { viewModel.onNoteDetailsClicked(note.id) },
+                                pinNote = { viewModel.pinNote(note.id) },
+                                deleteNote = { confirmDeleteId = note.id },
+                                noteTitleStyle = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.SemiBold, fontSize = 14.sp
+                                ),
+                                noteBodyStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+                            )
+                        }
+
+                        if (pinnedNote.isNotEmpty() && others.isNotEmpty()) {
+                            item(
+                                key = "pinned-divider", span = StaggeredGridItemSpan.FullLine
+                            ) {
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(vertical = 8.dp),
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+
+                        items(others, key = { it.id }) { note ->
+                            CustomNoteCard(
+                                note = note,
+                                isSelected = note.id in selected,
+                                onClick = { viewModel.onNoteDetailsClicked(note.id) },
+                                pinNote = { viewModel.pinNote(note.id) },
+                                deleteNote = { confirmDeleteId = note.id },
+                                noteTitleStyle = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.SemiBold, fontSize = 14.sp
+                                ),
+                                noteBodyStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+                            )
+                        }
+                    }
+                }
             }
         }
     }

@@ -3,7 +3,6 @@ package com.app.noteapp.presentation.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -36,7 +35,7 @@ import com.app.noteapp.domain.model.Tag
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun TagFlowList(
+fun TagsList(
     labels: List<Tag>,
     modifier: Modifier = Modifier,
     cornerRadius: Dp = 8.dp,

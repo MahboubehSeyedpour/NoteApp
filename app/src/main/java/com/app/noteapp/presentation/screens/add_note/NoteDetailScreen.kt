@@ -71,7 +71,7 @@ import com.app.noteapp.presentation.components.CustomAlertDialog
 import com.app.noteapp.presentation.components.NoteAppButton
 import com.app.noteapp.presentation.components.NoteContent
 import com.app.noteapp.presentation.components.NoteDetailScreenTopBar
-import com.app.noteapp.presentation.components.TagFlowList
+import com.app.noteapp.presentation.components.TagsList
 import com.app.noteapp.presentation.components.showDateTimePicker
 import com.app.noteapp.presentation.model.DialogType
 import com.app.noteapp.presentation.theme.AppTheme
@@ -233,7 +233,7 @@ fun NoteDetailScreen(
                         })
                     }
 
-                    TagFlowList(
+                    TagsList(
                         labels = viewModel.tags.collectAsState().value,
                         cornerRadius = 18.dp,
                         horizontalGap = 18.dp,
@@ -425,7 +425,7 @@ fun TagSheetContent(
     ) {
         Text(stringResource(R.string.tags), style = MaterialTheme.typography.titleMedium)
         Spacer(Modifier.height(8.dp))
-        TagFlowList(
+        TagsList(
             labels = tags, onLabelClick = onSelect, trailingIcon = null
         )
         Spacer(Modifier.height(16.dp))

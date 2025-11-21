@@ -79,7 +79,7 @@ fun NoteContent(
             modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
-            TagFlowList(
+            TagsList(
                 labels = buildList {
                 note.tag?.let { add(it) }
                 note.reminderTag?.let { add(it) }

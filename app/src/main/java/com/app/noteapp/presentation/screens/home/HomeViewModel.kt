@@ -25,7 +25,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -55,16 +54,14 @@ class HomeViewModel @Inject constructor(
     val selected: StateFlow<Set<Long>> = _selected
 
     val language = languageUseCase().stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5_000),
-            AppLanguage.FA
-        )
+        viewModelScope, SharingStarted.WhileSubscribed(5_000), AppLanguage.FA
+    )
 
     val avatar: StateFlow<AvatarType> = avatarUseCase().stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = AvatarType.MALE
-        )
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = AvatarType.MALE
+    )
 
     val tags: StateFlow<List<Tag>> =
         tagUseCase.getAllTags().map { list -> list.map { it.toUI() } }.map { ui ->
@@ -159,10 +156,6 @@ class HomeViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    fun toggleSelection(noteId: Long) {
-        _selected.update { cur -> if (noteId in cur) cur - noteId else cur + noteId }
     }
 
     fun onTagFilterSelected(tag: Tag) {

@@ -2,9 +2,7 @@ package com.app.noteapp.presentation.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -27,10 +25,8 @@ fun NotesList(
     notes: List<Note>,
     noteTitleStyle: TextStyle,
     noteBodyStyle: TextStyle,
-    chipTextStyle: TextStyle,
     layoutMode: LayoutMode,
     onNoteClick: (Long) -> Unit,
-    onNoteLongPress: (Long) -> Unit,
     selectedIds: Set<Long>,
     onNoteMenuPin: (Long) -> Unit,
     onNoteMenuDelete: (Long) -> Unit,
@@ -40,19 +36,17 @@ fun NotesList(
 
     Column(Modifier.fillMaxSize()) {
 
-        pinned.forEach {
-            CustomNoteCard(
-                note = it,
-                isSelected = it.pinned,
-                onClick = { onNoteClick(it.id) },
-                onLongPress = { onNoteLongPress(it.id) },
-                onMenuPin = { onNoteMenuPin(it.id) },
-                onMenuDelete = { onNoteMenuDelete(it.id) },
-                noteTitleStyle = noteTitleStyle,
-                noteBodyStyle = noteBodyStyle,
-                chipTextStyle = chipTextStyle
-            )
-        }
+//        pinned.forEach {
+//            CustomNoteCard(
+//                note = it,
+//                isSelected = it.pinned,
+//                onClick = { id -> onNoteClick(id) },
+//                pinNote = { id -> onNoteMenuPin(id) },
+//                deleteNote = { onNoteMenuDelete(it.id) },
+//                noteTitleStyle = noteTitleStyle,
+//                noteBodyStyle = noteBodyStyle,
+//            )
+//        }
 
         if (pinned.isNotEmpty() && others.isNotEmpty()) {
             HorizontalDivider(
@@ -75,12 +69,10 @@ fun NotesList(
                             note = note,
                             isSelected = isSelected,
                             onClick = { onNoteClick(note.id) },
-                            onLongPress = { onNoteLongPress(note.id) },
-                            onMenuPin = { onNoteMenuPin(note.id) },
-                            onMenuDelete = { onNoteMenuDelete(note.id) },
+                            pinNote = { onNoteMenuPin(note.id) },
+                            deleteNote = { onNoteMenuDelete(note.id) },
                             noteTitleStyle = noteTitleStyle,
                             noteBodyStyle = noteBodyStyle,
-                            chipTextStyle = chipTextStyle
                         )
                     }
                 }
@@ -99,12 +91,10 @@ fun NotesList(
                             note = note,
                             isSelected = isSelected,
                             onClick = { onNoteClick(note.id) },
-                            onLongPress = { onNoteLongPress(note.id) },
-                            onMenuPin = { onNoteMenuPin(note.id) },
-                            onMenuDelete = { onNoteMenuDelete(note.id) },
+                            pinNote = { onNoteMenuPin(note.id) },
+                            deleteNote = { onNoteMenuDelete(note.id) },
                             noteTitleStyle = noteTitleStyle,
                             noteBodyStyle = noteBodyStyle,
-                            chipTextStyle = chipTextStyle
                         )
                     }
                 }
