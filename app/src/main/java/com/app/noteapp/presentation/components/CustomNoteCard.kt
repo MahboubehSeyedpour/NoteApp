@@ -2,10 +2,13 @@ package com.app.noteapp.presentation.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
@@ -24,6 +27,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.app.noteapp.R
 import com.app.noteapp.domain.model.Note
@@ -39,49 +44,131 @@ fun CustomNoteCard(
     noteTitleStyle: TextStyle,
     noteBodyStyle: TextStyle,
 ) {
-    var menuExpanded by remember { mutableStateOf(false) }
+    val horizontalPadding = 16.dp
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }) {
-        Row(
-            modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = note.title, style = noteTitleStyle
+
+        Column(modifier = Modifier.padding(vertical = 16.dp)) {
+
+            if (note.tag != null) {
+                HeaderWithTagAndOptionsMenu(note, horizontalPadding, pinNote, deleteNote)
+                Spacer(Modifier.height(16.dp))
+                NoteDesc(note, horizontalPadding, noteTitleStyle, noteBodyStyle)
+            } else {
+                NoteContentWithoutTag(
+                    note, horizontalPadding, noteTitleStyle, noteBodyStyle, pinNote, deleteNote
                 )
-                if (!note.description.isNullOrBlank()) {
-                    Text(
-                        text = note.description, style = noteBodyStyle, maxLines = 3
-                    )
-                }
             }
+        }
+    }
+}
 
+@Composable
+fun HeaderWithTagAndOptionsMenu(
+    note: Note,
+    horizontalPadding: Dp,
+    pinNote: () -> Unit,
+    deleteNote: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start
+    ) {
+        TagsList(
+            labels = if (note.tag != null) listOf(note.tag) else emptyList(),
+            modifier = Modifier
+                .padding(horizontal = horizontalPadding)
+                .weight(1f),
+            cornerRadius = 18.dp,
+            horizontalGap = 18.dp,
+            verticalGap = 18.dp,
+        )
 
-            Box {
-                IconButton(onClick = { menuExpanded = true }) {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.ic_options),
-                        contentDescription = stringResource(R.string.more_options)
-                    )
-                }
+        MenuButton(pinNote, deleteNote)
+    }
+}
 
-                DropdownMenu(
-                    expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
-                    DropdownMenuItem(text = { Text(stringResource(R.string.pin)) }, onClick = {
-                        menuExpanded = false
-                        pinNote()
-                    })
-                    DropdownMenuItem(text = { Text(stringResource(R.string.delete)) }, onClick = {
-                        menuExpanded = false
-                        deleteNote()
-                    })
-                }
-            }
+@Composable
+fun NoteDesc(
+    note: Note,
+    horizontalPadding: Dp,
+    noteTitleStyle: TextStyle,
+    noteBodyStyle: TextStyle
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = horizontalPadding),
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(text = note.title, style = noteTitleStyle)
+        if (!note.description.isNullOrBlank()) {
+            Text(
+                text = note.description,
+                style = noteBodyStyle,
+                maxLines = 3,
+                textAlign = TextAlign.Justify
+            )
+        }
+    }
+}
+
+@Composable
+fun NoteContentWithoutTag(
+    note: Note,
+    horizontalPadding: Dp,
+    noteTitleStyle: TextStyle,
+    noteBodyStyle: TextStyle,
+    pinNote: () -> Unit,
+    deleteNote: () -> Unit,
+) {
+    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.Center) {
+        Row(
+            modifier = Modifier.padding(start = horizontalPadding),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(modifier = Modifier.weight(1f), text = note.title, style = noteTitleStyle)
+            MenuButton(pinNote, deleteNote)
+        }
+        if (!note.description.isNullOrBlank()) {
+            Text(
+                modifier = Modifier.padding(horizontal = horizontalPadding),
+                text = note.description,
+                style = noteBodyStyle,
+                maxLines = 3,
+                textAlign = TextAlign.Justify
+            )
+        }
+    }
+}
+
+@Composable
+fun MenuButton(pinNote: () -> Unit, deleteNote: () -> Unit) {
+
+    var menuExpanded by remember { mutableStateOf(false) }
+
+    Box {
+        IconButton(onClick = { menuExpanded = true }) {
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.ic_options),
+                contentDescription = stringResource(R.string.more_options),
+            )
+        }
+
+        DropdownMenu(
+            expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
+            DropdownMenuItem(text = { Text(stringResource(R.string.pin)) }, onClick = {
+                menuExpanded = false
+                pinNote()
+            })
+            DropdownMenuItem(text = { Text(stringResource(R.string.delete)) }, onClick = {
+                menuExpanded = false
+                deleteNote()
+            })
         }
     }
 }

@@ -59,7 +59,7 @@ fun TagsList(
         labels.forEach { label ->
             val chipShape = RoundedCornerShape(cornerRadius)
             val isSelected = (selectedTagId != null && (label.id == selectedTagId))
-            val borderWidth = if (isSelected) selectedBorderWidth else 1.dp
+            val borderWidth = if (isSelected) selectedBorderWidth else (-1).dp
             val bgAlpha = if (isSelected) 0.12f else 0.05f
             val borderColor = label.color.copy(alpha = if (isSelected) 0.8f else 0.35f)
 
