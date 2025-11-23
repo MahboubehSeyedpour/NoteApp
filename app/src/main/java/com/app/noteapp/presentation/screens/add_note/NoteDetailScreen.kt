@@ -424,7 +424,7 @@ fun TagSheetContent(
             .padding(16.dp)
     ) {
         Text(stringResource(R.string.tags), style = MaterialTheme.typography.titleMedium)
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(16.dp))
         TagsList(
             labels = tags, onLabelClick = onSelect, trailingIcon = null
         )
@@ -438,22 +438,28 @@ fun TagSheetContent(
                 .fillMaxWidth()
                 .border(1.dp, MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f))
         )
-        Spacer(Modifier.height(8.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Spacer(Modifier.height(16.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
             preset.forEach { c ->
                 Box(
                     Modifier
-                        .size(28.dp)
+                        .size(if (c == selectedColor) 36.dp else 28.dp)
                         .clip(CircleShape)
                         .background(c)
-                        .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
-                        .clickable { selectedColor = c })
+                        .border(
+                            width = if (c == selectedColor) 5.dp else 1.dp,
+                            color = if (c == selectedColor) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                            shape = CircleShape
+                        )
+                        .clickable { selectedColor = c },
+                    contentAlignment = Alignment.Center
+                ){}
             }
         }
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(16.dp))
         NoteAppButton(
             text = R.string.add_tag,
             onClick = { if (newName.isNotBlank()) onAdd(newName.trim(), selectedColor) })
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(16.dp))
     }
 }
