@@ -1,15 +1,13 @@
 package com.app.noteapp.presentation.screens.home
 
-import android.widget.Space
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -20,11 +18,12 @@ import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,11 +34,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.os.LocaleListCompat
@@ -53,8 +54,8 @@ import com.app.noteapp.R
 import com.app.noteapp.core.enums.LayoutMode
 import com.app.noteapp.domain.model.AppLanguage
 import com.app.noteapp.presentation.components.CustomAlertDialog
+import com.app.noteapp.presentation.components.CustomFab
 import com.app.noteapp.presentation.components.CustomNoteCard
-import com.app.noteapp.presentation.components.NoteAppButton
 import com.app.noteapp.presentation.components.TagsList
 import com.app.noteapp.presentation.model.DialogType
 import com.app.noteapp.presentation.model.iconRes
@@ -85,6 +86,8 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
     val others = notes.filterNot { it.pinned }
 
     val gridState = rememberLazyStaggeredGridState()
+
+    val locale = LocalConfiguration.current.locales[0]
 
     LaunchedEffect(viewModel.events) {
         lifecycle.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
@@ -155,11 +158,24 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                 )
             },
             bottomBar = {
-                Surface(modifier = Modifier.padding(vertical = dimensionResource(R.dimen.screen_padding))) {
-                    NoteAppButton(
-                        text = R.string.note_add, onClick = { viewModel.onAddNoteClicked() })
+                Column{
+                    HorizontalDivider(
+                        modifier = Modifier.padding(bottom = 12.dp),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = notes.size.toString().plus(" ").plus(stringResource(R.string.notes)),
+                        textAlign = TextAlign.Center
+                    )
                 }
-            }) { inner ->
+            },
+            floatingActionButton = {
+                CustomFab({ viewModel.onAddNoteClicked() })
+            },
+            floatingActionButtonPosition = FabPosition.End
+        ) { inner ->
 
             when (layoutMode) {
                 LayoutMode.LIST -> {
@@ -168,7 +184,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                             .fillMaxSize()
                             .padding(inner)
                             .padding(horizontal = 6.dp),
-                        contentPadding = PaddingValues(bottom = 6.dp),
+                        contentPadding = PaddingValues(bottom = 32.dp),
                         verticalArrangement = Arrangement.spacedBy(18.dp)
                     ) {
                         stickyHeader(key = "tags-header") {
@@ -234,7 +250,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                         columns = StaggeredGridCells.Adaptive(minSize = 160.dp),
                         verticalItemSpacing = 12.dp,
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        contentPadding = PaddingValues(vertical = 6.dp)
+                        contentPadding = PaddingValues(bottom = 32.dp)
                     ) {
                         item(
                             key = "tags-header", span = StaggeredGridItemSpan.FullLine

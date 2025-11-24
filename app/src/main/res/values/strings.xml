@@ -6,6 +6,7 @@
     <string name="dialog_reminder_confirm_btn">Save</string>
     <string name="dialog_time_picker_confirm_btn">OK</string>
     <string name="my_notes">My Notes</string>
+    <string name="notes">Notes</string>
     <string name="delete_note">Delete note</string>
     <string name="delete_note_question">Are you sure you want to delete this note? (This action can not be undone)</string>
 

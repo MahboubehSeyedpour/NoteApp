@@ -6,6 +6,7 @@
     <string name="dialog_reminder_confirm_btn">ذخیره</string>
     <string name="dialog_time_picker_confirm_btn">باشه</string>
     <string name="my_notes">یادداشت های من</string>
+    <string name="notes">یادداشت</string>
     <string name="delete_note">حذف یادداشت</string>
     <string name="delete_note_question">آیا میخواهید این یادداشت را حذف کنید؟ (این عملیات برگشت پذیر نیست)</string>
 
