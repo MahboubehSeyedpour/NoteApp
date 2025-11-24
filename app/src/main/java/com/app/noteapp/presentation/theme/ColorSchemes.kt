@@ -32,7 +32,8 @@ val LuxLightColorScheme = lightColorScheme(
     surfaceVariant     = Neutral90,
     onSurfaceVariant   = LuxGraphite,
 
-    outline            = LuxBone,
+//    outline            = LuxBone,
+    outline            = LightContent,
     outlineVariant     = Neutral90,
 
     // optional but nice to set

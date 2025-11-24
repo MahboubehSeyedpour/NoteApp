@@ -166,9 +166,10 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(inner),
-                        contentPadding = PaddingValues(bottom = 72.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                            .padding(inner)
+                            .padding(horizontal = 6.dp),
+                        contentPadding = PaddingValues(bottom = 6.dp),
+                        verticalArrangement = Arrangement.spacedBy(18.dp)
                     ) {
                         stickyHeader(key = "tags-header") {
                             TagsList(
@@ -227,12 +228,13 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                     LazyVerticalStaggeredGrid(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(inner),
+                            .padding(inner)
+                            .padding(horizontal = 6.dp),
                         state = gridState,
                         columns = StaggeredGridCells.Adaptive(minSize = 160.dp),
-                        verticalItemSpacing = 8.dp,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        contentPadding = PaddingValues(bottom = 72.dp)
+                        verticalItemSpacing = 12.dp,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        contentPadding = PaddingValues(vertical = 6.dp)
                     ) {
                         item(
                             key = "tags-header", span = StaggeredGridItemSpan.FullLine

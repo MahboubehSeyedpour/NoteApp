@@ -23,11 +23,11 @@ package com.app.noteapp.presentation.theme
 import androidx.compose.ui.graphics.Color
 
 // Primary
-val LuxEmerald     = Color(0xFF5C8374) // primary
+val LuxEmerald     = Color(0xFF540863) // primary
 val LuxEmeraldDark = Color(0xFF1B4242) // primary dark
 
 // Light surfaces
-val LuxIvory       = Color(0xFFEFF0F4) // surface light
+val LuxIvory       = Color(0xFFFEFEFE) // surface light
 val LuxBone        = Color(0xFFA9D3C4) // slight tweak of 9EC8B9 (optional); or reuse 9EC8B9
 
 // Dark surfaces
@@ -49,6 +49,7 @@ val Neutral90 = Color(0xFFE7F3EF)
 val Neutral98 = Color(0xFFF3FBF8)
 val Neutral10 = Color(0xFF0B1616)
 val Neutral20 = Color(0xFF152525)
+val LightContent = Color(0xFF0F0F0F)
 
 // Used by mappers/VM
 val ReminderTagColor = LuxEmerald

@@ -46,7 +46,7 @@ fun CustomSearchField(
         modifier = modifier
             .border(
                 width = 1.dp,
-                color = MaterialTheme.colorScheme.outline,
+                color = MaterialTheme.colorScheme.primary,
                 shape = LocalAppShapes.current.chip
             )
             .clip(LocalAppShapes.current.chip)

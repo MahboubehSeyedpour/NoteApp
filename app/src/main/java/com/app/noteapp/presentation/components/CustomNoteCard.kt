@@ -11,10 +11,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CardElevation
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -49,99 +52,79 @@ fun CustomNoteCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }) {
+            .clickable { onClick() },
+        colors = CardDefaults.cardColors(
+            contentColor = MaterialTheme.colorScheme.outline,
+            containerColor = MaterialTheme.colorScheme.background
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 3.dp
+        )
+    ) {
 
         Column(modifier = Modifier.padding(vertical = 16.dp)) {
 
             if (note.tag != null) {
-                HeaderWithTagAndOptionsMenu(note, horizontalPadding, pinNote, deleteNote)
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    TagsList(
+                        labels = listOf(note.tag),
+                        modifier = Modifier
+                            .padding(horizontal = horizontalPadding)
+                            .weight(1f),
+                        cornerRadius = 18.dp,
+                        horizontalGap = 18.dp,
+                        verticalGap = 18.dp,
+                    )
+
+                    MenuButton(pinNote, deleteNote)
+                }
+
                 Spacer(Modifier.height(16.dp))
-                NoteDesc(note, horizontalPadding, noteTitleStyle, noteBodyStyle)
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = horizontalPadding),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(text = note.title, style = noteTitleStyle)
+                    if (!note.description.isNullOrBlank()) {
+                        Text(
+                            text = note.description,
+                            style = noteBodyStyle,
+                            maxLines = 3,
+                            textAlign = TextAlign.Justify
+                        )
+                    }
+                }
+
             } else {
-                NoteContentWithoutTag(
-                    note, horizontalPadding, noteTitleStyle, noteBodyStyle, pinNote, deleteNote
-                )
+
+                Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.Center) {
+                    Row(
+                        modifier = Modifier.padding(start = horizontalPadding),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(modifier = Modifier.weight(1f), text = note.title, style = noteTitleStyle)
+                        MenuButton(pinNote, deleteNote)
+                    }
+                    if (!note.description.isNullOrBlank()) {
+                        Text(
+                            modifier = Modifier.padding(horizontal = horizontalPadding),
+                            text = note.description,
+                            style = noteBodyStyle,
+                            maxLines = 3,
+                            textAlign = TextAlign.Justify
+                        )
+                    }
+                }
+
             }
-        }
-    }
-}
-
-@Composable
-fun HeaderWithTagAndOptionsMenu(
-    note: Note,
-    horizontalPadding: Dp,
-    pinNote: () -> Unit,
-    deleteNote: () -> Unit,
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start
-    ) {
-        TagsList(
-            labels = if (note.tag != null) listOf(note.tag) else emptyList(),
-            modifier = Modifier
-                .padding(horizontal = horizontalPadding)
-                .weight(1f),
-            cornerRadius = 18.dp,
-            horizontalGap = 18.dp,
-            verticalGap = 18.dp,
-        )
-
-        MenuButton(pinNote, deleteNote)
-    }
-}
-
-@Composable
-fun NoteDesc(
-    note: Note,
-    horizontalPadding: Dp,
-    noteTitleStyle: TextStyle,
-    noteBodyStyle: TextStyle
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = horizontalPadding),
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(text = note.title, style = noteTitleStyle)
-        if (!note.description.isNullOrBlank()) {
-            Text(
-                text = note.description,
-                style = noteBodyStyle,
-                maxLines = 3,
-                textAlign = TextAlign.Justify
-            )
-        }
-    }
-}
-
-@Composable
-fun NoteContentWithoutTag(
-    note: Note,
-    horizontalPadding: Dp,
-    noteTitleStyle: TextStyle,
-    noteBodyStyle: TextStyle,
-    pinNote: () -> Unit,
-    deleteNote: () -> Unit,
-) {
-    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.Center) {
-        Row(
-            modifier = Modifier.padding(start = horizontalPadding),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(modifier = Modifier.weight(1f), text = note.title, style = noteTitleStyle)
-            MenuButton(pinNote, deleteNote)
-        }
-        if (!note.description.isNullOrBlank()) {
-            Text(
-                modifier = Modifier.padding(horizontal = horizontalPadding),
-                text = note.description,
-                style = noteBodyStyle,
-                maxLines = 3,
-                textAlign = TextAlign.Justify
-            )
         }
     }
 }
