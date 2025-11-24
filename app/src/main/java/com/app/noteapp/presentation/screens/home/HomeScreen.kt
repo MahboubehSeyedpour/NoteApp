@@ -52,6 +52,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import com.app.noteapp.R
 import com.app.noteapp.core.enums.LayoutMode
+import com.app.noteapp.core.extensions.toLocalizedDigits
 import com.app.noteapp.domain.model.AppLanguage
 import com.app.noteapp.presentation.components.CustomAlertDialog
 import com.app.noteapp.presentation.components.CustomFab
@@ -166,7 +167,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
 
                     Text(
                         modifier = Modifier.fillMaxWidth(),
-                        text = notes.size.toString().plus(" ").plus(stringResource(R.string.notes)),
+                        text = notes.size.toLocalizedDigits(locale).plus(" ").plus(stringResource(R.string.notes)),
                         textAlign = TextAlign.Center
                     )
                 }
