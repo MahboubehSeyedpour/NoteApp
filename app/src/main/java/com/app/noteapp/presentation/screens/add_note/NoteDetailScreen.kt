@@ -300,7 +300,9 @@ fun NoteDetailScreen(
         ModalBottomSheet(
             onDismissRequest = { showReminderSheet = false },
             sheetState = reminderSheetState,
-            dragHandle = { BottomSheetDefaults.DragHandle() }) {
+            dragHandle = { BottomSheetDefaults.DragHandle() },
+            containerColor = MaterialTheme.colorScheme.background
+        ) {
             ReminderSheetContent(
                 reminderText = uiState.note?.reminderTag?.name,
                 onClearReminder = { viewModel.onClearReminder() },
@@ -322,7 +324,9 @@ fun NoteDetailScreen(
         ModalBottomSheet(
             onDismissRequest = { showTagSheet = false },
             sheetState = tagSheetState,
-            dragHandle = { BottomSheetDefaults.DragHandle() }) {
+            dragHandle = { BottomSheetDefaults.DragHandle() },
+            containerColor = MaterialTheme.colorScheme.background
+        ) {
             TagSheetContent(tags = viewModel.tags.collectAsState().value, onSelect = { tag ->
                 viewModel.onTagSelected(tag)
                 showTagSheet = false

@@ -127,7 +127,8 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
     if (showFilterSheet) {
         ModalBottomSheet(
             onDismissRequest = { showFilterSheet = false },
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+            containerColor = MaterialTheme.colorScheme.background
         ) {
             NotesFilterSheet(
                 tags = tags,
