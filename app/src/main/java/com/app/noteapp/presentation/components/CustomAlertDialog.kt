@@ -70,7 +70,7 @@ fun CustomAlertDialog(
     ) {
         Surface(
             shape = AlertDialogDefaults.shape,
-            color = MaterialTheme.colorScheme.background,
+            color = MaterialTheme.colorScheme.surface,
             tonalElevation = 0.dp,
             modifier = Modifier
                 .padding(horizontal = 24.dp)
@@ -103,7 +103,7 @@ fun CustomAlertDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     TextButton(onClick = onDismissButtonClick) {
-                        Text(stringResource(dismissBtnText))
+                        Text(stringResource(dismissBtnText), color = MaterialTheme.colorScheme.onSurface)
                     }
                     Spacer(Modifier.width(8.dp))
                     Button(

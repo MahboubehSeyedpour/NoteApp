@@ -5,71 +5,69 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 
 val LuxLightColorScheme = lightColorScheme(
-    primary            = LuxEmerald,
+    primary            = PrimaryLight,
     onPrimary          = Color.White,
-    primaryContainer   = LuxEmerald.copy(alpha = 0.14f),
-    onPrimaryContainer = LuxEmeraldDark,
+    primaryContainer   = PrimaryLight.copy(alpha = 0.14f),
+    onPrimaryContainer = PrimaryDark,
 
-    secondary          = LuxGold,
+    secondary          = SecondaryLight,
     onSecondary        = Color.White,
-    secondaryContainer = LuxGold.copy(alpha = 0.16f),
-    onSecondaryContainer = LuxGoldDark,
+    secondaryContainer = SecondaryLight.copy(alpha = 0.16f),
+    onSecondaryContainer = SecondaryDark,
 
-    tertiary           = LuxAmethyst,
+    tertiary           = TertiaryLight,
     onTertiary         = Color.White,
-    tertiaryContainer  = LuxAmethyst.copy(alpha = 0.16f),
-    onTertiaryContainer = LuxAmethystDark,
+    tertiaryContainer  = TertiaryLight.copy(alpha = 0.16f),
+    onTertiaryContainer = TertiaryDark,
 
-    error              = LuxError,
+    error              = Error,
     onError            = Color.White,
 
-    background         = LuxIvory,
-    onBackground       = LuxCharcoal,
+    background         = BackgroundLight,
+    onBackground       = PrimaryLight,
 
-    surface            = Color.White,
-    onSurface          = LuxCharcoal,
+    surface            = Surface,
+    onSurface          = OnSurface,
 
-    surfaceVariant     = Neutral90,
-    onSurfaceVariant   = LuxGraphite,
+    surfaceVariant     = SurfaceVariant,
+    onSurfaceVariant   = SurfaceVariant,
 
-//    outline            = LuxBone,
-    outline            = LightContent,
-    outlineVariant     = Neutral90,
+    outline            = Outline,
+    outlineVariant     = OutlineVariant,
 
-    // optional but nice to set
-    surfaceTint        = LuxEmerald,
+    surfaceTint        = PrimaryLight,
 )
 
 val LuxDarkColorScheme = darkColorScheme(
-    primary            = LuxEmerald,
+    primary            = PrimaryDark,
     onPrimary          = Color.White,
-    primaryContainer   = LuxEmeraldDark,
+    primaryContainer   = PrimaryDark,
     onPrimaryContainer = Color.White,
 
-    secondary          = LuxGold,
-    onSecondary        = LuxCharcoal,
-    secondaryContainer = LuxGoldDark,
+    secondary          = SecondaryDark,
+    onSecondary        = OnSecondaryLight,
+    secondaryContainer = SecondaryContainer,
     onSecondaryContainer = Color.White,
 
-    tertiary           = LuxAmethyst,
+    tertiary           = TertiaryLight,
     onTertiary         = Color.White,
-    tertiaryContainer  = LuxAmethystDark,
+    tertiaryContainer  = TertiaryContainer,
     onTertiaryContainer = Color.White,
 
-    error              = LuxErrorDark,
-    onError            = LuxCharcoal,
+    error              = Error,
+    onError            = Color.White,
 
-    background         = LuxCharcoal,
+    background         = BackgroundDark,
     onBackground       = Color.White,
 
-    surface            = LuxGraphite,
+    surface            = Surface,
     onSurface          = Color.White,
 
-    surfaceVariant     = Neutral20,
-    onSurfaceVariant   = Neutral98,
+    surfaceVariant     = SurfaceVariant,
+    onSurfaceVariant   = OnSurfaceVariant,
 
-    outline            = Neutral20,
-    outlineVariant     = Neutral10,
+    outline            = Outline,
+    outlineVariant     = OutlineVariant,
 
-    surfaceTint        = LuxEmerald,
+    surfaceTint        = PrimaryLight,
 )

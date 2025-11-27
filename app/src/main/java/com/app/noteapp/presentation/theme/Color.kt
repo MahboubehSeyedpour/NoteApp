@@ -1,55 +1,36 @@
-//package com.app.noteapp.presentation.theme
-//
-//import androidx.compose.ui.graphics.Color
-//
-//val Purple80 = Color(0xFFD0BCFF)
-//val PurpleGrey80 = Color(0xFFCCC2DC)
-//val Pink80 = Color(0xFFEFB8C8)
-//
-//val Purple40 = Color(0xFF6650a4)
-//val PurpleGrey40 = Color(0xFF625b71)
-//val Pink40 = Color(0xFF7D5260)
-//
-//val Primary = Color(0xFF3384F9)
-//val Background = Color(0xFFEFF0F4)
-//val LightGray = Color(0xFFD4D4D5)
-//val White = Color(0xFFFFFFFF)
-//val SecondaryBg = Color(0x403384F9)
-//val SecondaryContent = Color(0xFF3384F9)
-//val Black = Color(0x80000000)
-
 package com.app.noteapp.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 
 // Primary
-val LuxEmerald     = Color(0xFF540863) // primary
-val LuxEmeraldDark = Color(0xFF1B4242) // primary dark
+val PrimaryLight     = Color(0xFF3E1E68)
+val PrimaryDark = Color(0xFF1B4242)
 
-// Light surfaces
-val LuxIvory       = Color(0xFFFEFEFE) // surface light
-val LuxBone        = Color(0xFFA9D3C4) // slight tweak of 9EC8B9 (optional); or reuse 9EC8B9
+val BackgroundLight       = Color(0xFFFEFEFE)
+val BackgroundDark       = Color(0xFFFEFEFE)
 
-// Dark surfaces
-val LuxCharcoal    = Color(0xFF092635) // background dark
-val LuxGraphite    = Color(0xFF12353A) // between 092635 and 1B4242; or reuse 1B4242
+val SecondaryLight = Color(0xFF9AA6B2)
+val SecondaryDark = Color(0xFF578FCA)
 
-// Accents (reuse remaining tones)
-val LuxGold        = Color(0xFF1B4242)
-val LuxGoldDark    = Color(0xFF0F2E2E)
-val LuxAmethyst    = Color(0xFF9EC8B9)
-val LuxAmethystDark= Color(0xFF5C8374)
+val OnSecondaryLight = Color(0xFFF5F5F5)
+val OnSecondaryDark = Color(0xFFF5F5F5)
 
-// Error (keep)
-val LuxError       = Color(0xFFBA1A1A)
-val LuxErrorDark   = Color(0xFFFFB4AB)
 
-// Neutral ramps (optional)
-val Neutral90 = Color(0xFFE7F3EF)
-val Neutral98 = Color(0xFFF3FBF8)
-val Neutral10 = Color(0xFF0B1616)
-val Neutral20 = Color(0xFF152525)
-val LightContent = Color(0xFF0F0F0F)
+val TertiaryLight = Color(0xFFF5F0CD)
+val TertiaryDark = Color(0xFFF5F0CD)
 
-// Used by mappers/VM
-val ReminderTagColor = LuxEmerald
+val Error = Color(0xFFFF6363)
+
+val Surface = Color(0xFFFBFBFB)
+val OnSurface = Color(0xFF222831)
+val SurfaceVariant = Color(0xFF5D2F77)
+val OnSurfaceVariant = Color(0xFFEBFFD8)
+
+val Outline = Color(0xFF4DA8DA)
+val OutlineVariant = Color(0xFF80D8C3)
+
+val SurfaceTint = Color(0xFFFFD66B)
+val SecondaryContainer = Color(0xFF8DBCC7)
+val TertiaryContainer = Color(0xFFA4CCD9)
+
+val ReminderTagColor = PrimaryLight

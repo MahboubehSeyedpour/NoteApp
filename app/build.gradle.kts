@@ -49,17 +49,6 @@ android {
     buildFeatures {
         compose = true
     }
-//    composeOptions {
-//        kotlinCompilerExtensionVersion = "1.5.13"
-//    }
-//    packaging {
-//        resources {
-//            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-//        }
-//    }
-//    configurations.all {
-//        exclude(group = "com.intellij", module = "annotations")
-//    }
 }
 
 dependencies {

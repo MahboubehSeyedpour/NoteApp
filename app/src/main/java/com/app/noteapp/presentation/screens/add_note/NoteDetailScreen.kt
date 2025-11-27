@@ -436,7 +436,7 @@ fun TagSheetContent(
             singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
-                .border(1.dp, MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f))
+                .border(1.dp, MaterialTheme.colorScheme.primary),
         )
         Spacer(Modifier.height(16.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {

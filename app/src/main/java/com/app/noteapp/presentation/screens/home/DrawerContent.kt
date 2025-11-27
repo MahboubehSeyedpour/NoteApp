@@ -152,7 +152,7 @@ fun LanguagePickerSection(
             .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
         Text(
-            text = stringResource(R.string.choose_language), // add to strings
+            text = stringResource(R.string.choose_language),
             style = MaterialTheme.typography.titleMedium
         )
         Spacer(Modifier.height(12.dp))

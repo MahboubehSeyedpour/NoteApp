@@ -18,7 +18,7 @@ fun CircularIconButton(
     onClick: () -> Unit,
     icon: @Composable () -> Unit
 ) {
-    val bg = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+    val bg = MaterialTheme.colorScheme.background.copy(alpha = 0.35f)
     Surface(
         shape = CircleShape,
         color = bg,
@@ -32,7 +32,7 @@ fun CircularIconButton(
                 .padding(10.dp),
             contentAlignment = Alignment.Center
         ) {
-            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onSurfaceVariant) {
+            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onBackground) {
                 icon()
             }
         }

@@ -65,4 +65,17 @@
     <string name="ok">باشه</string>
     <string name="no">نه</string>
     <string name="all">همه</string>
+
+    <string name="filter_notes">فیلتر</string>
+    <string name="filter_by_tag">تگ</string>
+    <string name="filter_by_time">زمان</string>
+    <string name="filter_time_all">همه</string>
+    <string name="filter_time_today">امروز</string>
+    <string name="filter_time_this_week">این هفته</string>
+    <string name="filter_time_this_month">این ماه</string>
+    <string name="filter_by_reminder">فقط دارای یادآور</string>
+    <string name="filter_by_reminder_desc">فقط یادداشت های دارای یادآور را نشان بده</string>
+
+    <string name="pick_date_range">تاریخ مورد نظرتان را انتخاب کنید</string>
+
 </resources>

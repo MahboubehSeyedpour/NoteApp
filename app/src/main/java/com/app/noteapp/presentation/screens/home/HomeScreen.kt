@@ -21,10 +21,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -32,6 +34,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -61,6 +64,7 @@ import com.app.noteapp.presentation.components.TagsList
 import com.app.noteapp.presentation.model.DialogType
 import com.app.noteapp.presentation.model.iconRes
 import com.app.noteapp.presentation.navigation.Screens
+import com.app.noteapp.presentation.screens.home.components.NotesFilterSheet
 import com.app.noteapp.presentation.screens.home.components.TopBar
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -90,6 +94,8 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
 
     val locale = LocalConfiguration.current.locales[0]
 
+    var showFilterSheet by rememberSaveable { mutableStateOf(false) }
+
     LaunchedEffect(viewModel.events) {
         lifecycle.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
             viewModel.events.collectLatest { event ->
@@ -112,6 +118,31 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
             AppLanguage.EN -> LocaleListCompat.forLanguageTags("en")
         }
         AppCompatDelegate.setApplicationLocales(locales)
+    }
+
+    val timeFilter by viewModel.timeFilter.collectAsState()
+    val rangeStart by viewModel.rangeStart.collectAsState()
+    val rangeEnd by viewModel.rangeEnd.collectAsState()
+
+    if (showFilterSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showFilterSheet = false },
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        ) {
+            NotesFilterSheet(
+                tags = tags,
+                selectedTagId = viewModel.selectedTagId.collectAsState().value,
+                onTagSelected = viewModel::onTagFilterSelected,
+                timeFilter = timeFilter,
+                onTimeFilterSelected = viewModel::onTimeFilterSelected,
+                rangeStart = rangeStart,
+                rangeEnd = rangeEnd,
+                onCustomRangeSelected = viewModel::onCustomRangeSelected,
+                onlyReminder = viewModel.onlyReminder.collectAsStateWithLifecycle().value,
+                onOnlyReminderChange = viewModel::onOnlyReminderChange,
+                onClose = { showFilterSheet = false }
+            )
+        }
     }
 
     if (confirmDeleteId != null) {
@@ -155,7 +186,8 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                     query = query,
                     onSearchChange = viewModel::onSearchChange,
                     onGridToggleClicked = viewModel::onGridToggleClicked,
-                    layoutMode = layoutMode
+                    layoutMode = layoutMode,
+                    onFilterClick = { showFilterSheet = true }
                 )
             },
             bottomBar = {

@@ -47,7 +47,7 @@ fun NoteDetailScreenTopBar(
                     onClick = onNotificationClick,
                     icon = {
                         Icon(
-                            ImageVector.vectorResource(R.drawable.ic_notif),
+                            ImageVector.vectorResource(R.drawable.ic_add_notification),
                             contentDescription = "Notify"
                         )
                     },
