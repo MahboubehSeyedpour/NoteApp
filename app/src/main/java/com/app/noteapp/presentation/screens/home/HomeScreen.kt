@@ -60,7 +60,6 @@ import com.app.noteapp.domain.model.AppLanguage
 import com.app.noteapp.presentation.components.CustomAlertDialog
 import com.app.noteapp.presentation.components.CustomFab
 import com.app.noteapp.presentation.components.CustomNoteCard
-import com.app.noteapp.presentation.components.TagsList
 import com.app.noteapp.presentation.model.DialogType
 import com.app.noteapp.presentation.model.iconRes
 import com.app.noteapp.presentation.navigation.Screens
@@ -96,6 +95,8 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
 
     var showFilterSheet by rememberSaveable { mutableStateOf(false) }
 
+    val isFilterActive by viewModel.onFilter.collectAsState()
+
     LaunchedEffect(viewModel.events) {
         lifecycle.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
             viewModel.events.collectLatest { event ->
@@ -120,7 +121,6 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
         AppCompatDelegate.setApplicationLocales(locales)
     }
 
-    val timeFilter by viewModel.timeFilter.collectAsState()
     val rangeStart by viewModel.rangeStart.collectAsState()
     val rangeEnd by viewModel.rangeEnd.collectAsState()
 
@@ -133,15 +133,20 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
             NotesFilterSheet(
                 tags = tags,
                 selectedTagId = viewModel.selectedTagId.collectAsState().value,
-                onTagSelected = viewModel::onTagFilterSelected,
-                timeFilter = timeFilter,
-                onTimeFilterSelected = viewModel::onTimeFilterSelected,
+                onFilterClicked = { tagId, rangeStart, rangeEnd, onlyReminders ->
+                    showFilterSheet = false
+                    viewModel.onFilterClicked(tagId, rangeStart, rangeEnd, onlyReminders)
+                },
                 rangeStart = rangeStart,
                 rangeEnd = rangeEnd,
                 onCustomRangeSelected = viewModel::onCustomRangeSelected,
                 onlyReminder = viewModel.onlyReminder.collectAsStateWithLifecycle().value,
                 onOnlyReminderChange = viewModel::onOnlyReminderChange,
-                onClose = { showFilterSheet = false }
+                onClose = { showFilterSheet = false },
+                onDeleteAllFiltersClicked = {
+                    showFilterSheet = false
+                    viewModel.clearFilters()
+                }
             )
         }
     }
@@ -188,11 +193,12 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                     onSearchChange = viewModel::onSearchChange,
                     onGridToggleClicked = viewModel::onGridToggleClicked,
                     layoutMode = layoutMode,
-                    onFilterClick = { showFilterSheet = true }
+                    onFilterClick = { showFilterSheet = true },
+                    isFilterActive = isFilterActive
                 )
             },
             bottomBar = {
-                Column{
+                Column {
                     HorizontalDivider(
                         modifier = Modifier.padding(bottom = 12.dp),
                         color = MaterialTheme.colorScheme.primary
@@ -200,7 +206,8 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
 
                     Text(
                         modifier = Modifier.fillMaxWidth(),
-                        text = notes.size.toLocalizedDigits(locale).plus(" ").plus(stringResource(R.string.notes)),
+                        text = notes.size.toLocalizedDigits(locale).plus(" ")
+                            .plus(stringResource(R.string.notes)),
                         textAlign = TextAlign.Center
                     )
                 }
@@ -221,20 +228,6 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                         contentPadding = PaddingValues(bottom = 32.dp),
                         verticalArrangement = Arrangement.spacedBy(18.dp)
                     ) {
-                        stickyHeader(key = "tags-header") {
-                            TagsList(
-                                labels = tags,
-                                selectedTagId = viewModel.selectedTagId.collectAsState().value,
-                                modifier = Modifier
-                                    .background(MaterialTheme.colorScheme.background)
-                                    .padding(vertical = 8.dp),
-                                cornerRadius = 18.dp,
-                                horizontalGap = 18.dp,
-                                verticalGap = 18.dp,
-                                onLabelClick = viewModel::onTagFilterSelected
-                            )
-                        }
-
                         items(pinnedNote, key = { it.id }) { note ->
                             CustomNoteCard(
                                 note = note,
@@ -286,21 +279,6 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         contentPadding = PaddingValues(bottom = 32.dp)
                     ) {
-                        item(
-                            key = "tags-header", span = StaggeredGridItemSpan.FullLine
-                        ) {
-                            TagsList(
-                                labels = tags,
-                                selectedTagId = viewModel.selectedTagId.collectAsState().value,
-                                modifier = Modifier
-                                    .background(MaterialTheme.colorScheme.background)
-                                    .padding(vertical = 8.dp),
-                                cornerRadius = 18.dp,
-                                horizontalGap = 18.dp,
-                                verticalGap = 18.dp,
-                                onLabelClick = viewModel::onTagFilterSelected
-                            )
-                        }
 
                         items(pinnedNote, key = { it.id }) { note ->
                             CustomNoteCard(

@@ -25,4 +25,7 @@ class NoteRepositoryImpl @Inject constructor(
     override fun getAllNotesWithTag(): Flow<List<NoteTagRelation>> = noteDao.getAllNotesWithTag()
 
     override fun getNoteWithTagById(id: Long): Flow<NoteTagRelation> = noteDao.getNoteWithTagById(id)
+
+    override fun getNotesBetween(start: Long, end: Long): Flow<List<NoteEntity>> =
+        noteDao.getNotesBetween(start, end)
 }

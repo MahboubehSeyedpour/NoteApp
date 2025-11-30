@@ -31,5 +31,5 @@ fun Note.toDomain(): NoteEntity = NoteEntity(
     tagId = tag?.id,
     reminderAt = reminderAt,
     pinned = pinned,
-    createdAt = createdAt,
+    createdAt = System.currentTimeMillis(),
 )

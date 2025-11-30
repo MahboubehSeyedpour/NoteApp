@@ -40,4 +40,7 @@ class NoteUseCase @Inject constructor(
     fun getNoteById(id: Long): Flow<NoteEntity?> = noteRepository.getNoteById(id)
 
     suspend fun getLastNoteId(): Long? = noteRepository.getLastNoteId()
+
+    fun getNotesBetween(start: Long, end: Long): Flow<List<NoteEntity>> =
+        noteRepository.getNotesBetween(start, end)
 }

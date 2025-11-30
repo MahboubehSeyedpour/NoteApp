@@ -13,4 +13,5 @@ interface NoteRepository {
     suspend fun getLastNoteId(): Long?
     fun getNoteWithTagById(id: Long): Flow<NoteTagRelation>
     fun getAllNotesWithTag(): Flow<List<NoteTagRelation>>
+    fun getNotesBetween(start: Long, end: Long): Flow<List<NoteEntity>>
 }

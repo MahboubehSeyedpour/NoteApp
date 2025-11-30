@@ -4,9 +4,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.noteapp.core.enums.LayoutMode
-import com.app.noteapp.core.extensions.isThisMonth
-import com.app.noteapp.core.extensions.isThisWeek
-import com.app.noteapp.core.extensions.isToday
+import com.app.noteapp.core.time.TimeRange
+import com.app.noteapp.core.time.rangeFor
+import com.app.noteapp.data.local.entity.NoteEntity
 import com.app.noteapp.data.mapper.toDomain
 import com.app.noteapp.data.mapper.toUI
 import com.app.noteapp.di.IoDispatcher
@@ -21,6 +21,7 @@ import com.app.noteapp.domain.usecase.TagUseCase
 import com.app.noteapp.presentation.theme.ReminderTagColor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,10 +30,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.ZoneId
 import javax.inject.Inject
 
 @HiltViewModel
@@ -68,6 +71,9 @@ class HomeViewModel @Inject constructor(
     private val _onlyReminder = MutableStateFlow(false)
     val onlyReminder: StateFlow<Boolean> = _onlyReminder
 
+    private val _onFilter = MutableStateFlow(false)
+    val onFilter: StateFlow<Boolean> = _onFilter
+
     val language = languageUseCase().stateIn(
         viewModelScope, SharingStarted.WhileSubscribed(5_000), AppLanguage.FA
     )
@@ -88,11 +94,41 @@ class HomeViewModel @Inject constructor(
     private val _selectedTagId = MutableStateFlow<Long>(ALL_TAG_ID)
     val selectedTagId: StateFlow<Long> = _selectedTagId
 
-    private val _notes: Flow<List<Note>> = noteUseCase.getAllNotes().map { all ->
-        all.sortedByDescending { it.createdAt }.map { entity ->
-            val tagUi = entity.tagId?.let { tid -> tagUseCase.getTag(tid).firstOrNull()?.toUI() }
-            entity.toUI(tagUi)
+    private val zoneId: ZoneId = ZoneId.systemDefault()
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val filteredNotes: Flow<List<NoteEntity>> =
+        combine(
+            _timeFilter,
+            _rangeStart,
+            _rangeEnd,
+            _onFilter
+        ) { filter, start, end, onFilter ->
+            if (!onFilter) {
+                null
+            } else {
+                rangeFor(filter, start, end, zoneId)
+            }
+        }.flatMapLatest { range: TimeRange? ->
+            if (range == null) {
+                // no effective date restriction
+                noteUseCase.getAllNotes()
+            } else {
+                noteUseCase.getNotesBetween(range.start, range.endExclusive)
+            }
         }
+
+    private val _notes: Flow<List<Note>> = filteredNotes.map { all ->
+        all
+            .sortedByDescending {
+                it.createdAt
+            }
+            .map { entity ->
+                val tagUi = entity.tagId?.let { tid ->
+                    tagUseCase.getTag(tid).firstOrNull()?.toUI()
+                }
+                entity.toUI(tagUi)
+            }
     }
 
     private val baseFilters: Flow<Triple<List<Note>, String, Long>> =
@@ -100,14 +136,10 @@ class HomeViewModel @Inject constructor(
             Triple(list, q, tagId)
         }
 
-
     val notes: StateFlow<List<Note>> = combine(
         baseFilters,
-        timeFilter,
-        rangeStart,
-        rangeEnd,
         onlyReminder
-    ) { (list, q, tagId), timeFilter, start, end, onlyReminder ->
+    ) { (list, q, tagId), onlyReminder ->
 
         val term = q.trim().lowercase()
 
@@ -119,20 +151,9 @@ class HomeViewModel @Inject constructor(
         val byTag = if (tagId == ALL_TAG_ID) byQuery
         else byQuery.filter { it.tag?.id == tagId }
 
-        val byTime = when (timeFilter) {
-            TimeFilter.ALL -> byTag
-            TimeFilter.TODAY -> byTag.filter { it.createdAt.isToday() }
-            TimeFilter.THIS_WEEK -> byTag.filter { it.createdAt.isThisWeek() }
-            TimeFilter.THIS_MONTH -> byTag.filter { it.createdAt.isThisMonth() }
-            TimeFilter.CUSTOM_RANGE -> {
-                if (start == null || end == null) byTag
-                else byTag.filter { it.createdAt in start..end }
-            }
-        }
-
         val byReminder =
-            if (!onlyReminder) byTime
-            else byTime.filter { it.reminderAt != null }
+            if (!onlyReminder) byTag
+            else byTag.filter { it.reminderAt != null }
 
         byReminder.sortedWith(
             compareByDescending<Note> { it.pinned }
@@ -144,6 +165,8 @@ class HomeViewModel @Inject constructor(
         emptyList()
     )
 
+
+
     fun onAvatarSelected(type: AvatarType) {
         viewModelScope.launch(io) {
             avatarUseCase(type)
@@ -154,9 +177,15 @@ class HomeViewModel @Inject constructor(
         _query.value = newQuery
     }
 
-    fun clearSelection() {
-        _selected.value = emptySet()
+    fun clearFilters() {
+        _selectedTagId.value = ALL_TAG_ID
+        _onlyReminder.value = false
+        _timeFilter.value = TimeFilter.ALL
+        _rangeStart.value = null
+        _rangeEnd.value = null
+        _onFilter.value = false
     }
+
 
     fun onNoteDetailsClicked(noteId: Long) = viewModelScope.launch {
         _events.emit(HomeEvents.NavigateToNoteDetailScreen(noteId))
@@ -212,10 +241,6 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun onTagFilterSelected(tag: Tag) {
-        _selectedTagId.value = tag.id
-    }
-
     fun onLanguageSelected(lang: AppLanguage) {
         viewModelScope.launch { languageUseCase(lang) }
     }
@@ -223,13 +248,31 @@ class HomeViewModel @Inject constructor(
     fun onOnlyReminderChange(enabled: Boolean) {
         _onlyReminder.value = enabled
     }
+    fun onFilterClicked(
+        tagId: Long?,
+        rangeStart: Long?,
+        rangeEnd: Long?,
+        onlyReminders: Boolean
+    ) {
+        // 1) Tag
+        _selectedTagId.value = tagId ?: ALL_TAG_ID
 
-    fun onTimeFilterSelected(filter: TimeFilter) {
-        _timeFilter.value = filter
-        if (filter != TimeFilter.CUSTOM_RANGE) {
+        // 2) Reminder only
+        _onlyReminder.value = onlyReminders
+
+        // 3) Time range
+        if (rangeStart != null && rangeEnd != null && rangeStart <= rangeEnd) {
+            _timeFilter.value = TimeFilter.CUSTOM_RANGE
+            _rangeStart.value = rangeStart
+            _rangeEnd.value = rangeEnd
+        } else {
+            // No valid range -> fall back to ALL
+            _timeFilter.value = TimeFilter.ALL
             _rangeStart.value = null
             _rangeEnd.value = null
         }
+
+        _onFilter.value = true
     }
 
     fun onCustomRangeSelected(start: Long?, end: Long?) {
@@ -246,9 +289,5 @@ val ALL_TAG = Tag(
 )
 
 enum class TimeFilter {
-    ALL,
-    TODAY,
-    THIS_WEEK,
-    THIS_MONTH,
-    CUSTOM_RANGE
+    ALL, TODAY, THIS_WEEK, THIS_MONTH, CUSTOM_RANGE
 }

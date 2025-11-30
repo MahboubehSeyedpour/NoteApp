@@ -45,4 +45,12 @@ interface NoteDao {
     @Query("SELECT * FROM notes WHERE id=:tagId ORDER BY created_at DESC")
     fun getNotesByTag(tagId: Long): Flow<List<NoteTagRelation>>
 
+    @Query("""
+    SELECT * FROM notes
+    WHERE created_at >= :start AND created_at < :end
+""")
+    fun getNotesBetween(start: Long, end: Long): Flow<List<NoteEntity>>
+
+
+
 }

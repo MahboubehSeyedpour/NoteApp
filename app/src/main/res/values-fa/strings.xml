@@ -76,6 +76,8 @@
     <string name="filter_by_reminder">فقط دارای یادآور</string>
     <string name="filter_by_reminder_desc">فقط یادداشت های دارای یادآور را نشان بده</string>
 
-    <string name="pick_date_range">تاریخ مورد نظرتان را انتخاب کنید</string>
+    <string name="pick_date_range">انتخاب تاریخ</string>
+    <string name="filter">فیلتر</string>
+    <string name="delete_all_filters">پاک کردن همه فیلترها</string>
 
 </resources>

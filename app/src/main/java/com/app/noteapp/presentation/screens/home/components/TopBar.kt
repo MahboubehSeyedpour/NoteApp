@@ -12,8 +12,11 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +44,7 @@ fun TopBar(
     onGridToggleClicked: () -> Unit,
     layoutMode: LayoutMode,
     onFilterClick: () -> Unit,
+    isFilterActive: Boolean,
 ) {
 
     Column(
@@ -61,7 +65,8 @@ fun TopBar(
                 onSearchChange = onSearchChange,
                 onGridToggleClicked = onGridToggleClicked,
                 layoutMode = layoutMode,
-                onFilterClick = onFilterClick
+                onFilterClick = onFilterClick,
+                isFilterActive = isFilterActive
             )
         }
     }
@@ -99,6 +104,7 @@ fun Actions(
     onGridToggleClicked: () -> Unit,
     layoutMode: LayoutMode,
     onFilterClick: () -> Unit,
+    isFilterActive: Boolean,
 ) {
 
     var searchExpanded by rememberSaveable { mutableStateOf(false) }
@@ -117,11 +123,23 @@ fun Actions(
             )
         }
 
-        IconButton(onClick = onFilterClick, modifier = Modifier.size(40.dp)) {
-            Icon(
-                imageVector = ImageVector.vectorResource(R.drawable.ic_filter),
-                contentDescription = stringResource(R.string.search_note)
-            )
+        BadgedBox(
+            modifier = Modifier.size(40.dp),
+            badge = {
+                if (isFilterActive) {
+                    Badge(
+                        modifier = Modifier.size(8.dp),
+                        containerColor = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
+        ) {
+            IconButton(onClick = onFilterClick, modifier = Modifier.matchParentSize()) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_filter),
+                    contentDescription = stringResource(R.string.search_note)
+                )
+            }
         }
 
         IconButton(

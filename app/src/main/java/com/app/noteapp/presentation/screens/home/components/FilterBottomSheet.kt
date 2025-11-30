@@ -29,8 +29,8 @@ import androidx.compose.ui.unit.sp
 import com.app.noteapp.R
 import com.app.noteapp.domain.model.Tag
 import com.app.noteapp.presentation.components.DateRangePickerDialog
+import com.app.noteapp.presentation.components.NoteAppButton
 import com.app.noteapp.presentation.components.TagsList
-import com.app.noteapp.presentation.screens.home.TimeFilter
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -39,9 +39,8 @@ import java.time.format.DateTimeFormatter
 fun NotesFilterSheet(
     tags: List<Tag>,
     selectedTagId: Long?,
-    onTagSelected: (Tag) -> Unit,
-    timeFilter: TimeFilter,
-    onTimeFilterSelected: (TimeFilter) -> Unit,
+    onFilterClicked: (Long?, Long?, Long?, Boolean) -> Unit,
+    onDeleteAllFiltersClicked: () -> Unit,
     rangeStart: Long?,
     rangeEnd: Long?,
     onCustomRangeSelected: (Long?, Long?) -> Unit,
@@ -50,6 +49,7 @@ fun NotesFilterSheet(
     onClose: () -> Unit,
 ) {
     var showRangePicker by remember { mutableStateOf(false) }
+    var selectedTagId by remember { mutableStateOf(selectedTagId) }
 
     Column(
         modifier = Modifier
@@ -97,7 +97,7 @@ fun NotesFilterSheet(
             cornerRadius = 18.dp,
             horizontalGap = 12.dp,
             verticalGap = 12.dp,
-            onLabelClick = { tag -> onTagSelected(tag) })
+            onLabelClick = { tag -> selectedTagId = tag.id })
 
         Spacer(Modifier.height(42.dp))
 
@@ -123,9 +123,7 @@ fun NotesFilterSheet(
                     style = MaterialTheme.typography.bodyMedium
                 )
                 val rangeText = remember(rangeStart, rangeEnd) {
-                    if (rangeStart != null && rangeEnd != null) formatRange(
-                        rangeStart, rangeEnd
-                    )
+                    if (rangeStart != null && rangeEnd != null) formatRange(rangeStart, rangeEnd)
                     else ""
                 }
                 if (rangeText.isNotEmpty() || rangeText.isNotBlank()) {
@@ -177,6 +175,26 @@ fun NotesFilterSheet(
                 ), checked = onlyReminder, onCheckedChange = onOnlyReminderChange
             )
         }
+
+        Spacer(Modifier.height(18.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            NoteAppButton(
+                modifier = Modifier.weight(1f),
+                R.string.filter,
+                onClick = { onFilterClicked(selectedTagId, rangeStart, rangeEnd, onlyReminder) })
+            Spacer(modifier = Modifier.weight(.1f))
+            NoteAppButton(
+                modifier = Modifier.weight(1f),
+                R.string.delete_all_filters,
+                onClick = onDeleteAllFiltersClicked )
+        }
+
+        Spacer(Modifier.height(18.dp))
     }
 }
 

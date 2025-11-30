@@ -74,8 +74,10 @@
     <string name="filter_time_this_week">This week</string>
     <string name="filter_time_this_month">This month</string>
     <string name="filter_by_reminder">Only reminders</string>
-    <string name="filter_by_reminder_desc">Show only notes that have a reminder</string>
+    <string name="filter_by_reminder_desc">Show only notes with reminder</string>
 
-    <string name="pick_date_range">Pick date range</string>
+    <string name="pick_date_range">Pick date</string>
+    <string name="filter">Filter</string>
+    <string name="delete_all_filters">Delete all filters</string>
 
 </resources>

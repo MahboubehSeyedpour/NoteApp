@@ -1,6 +1,9 @@
 package com.app.noteapp.core.time
 
+import com.app.noteapp.presentation.screens.home.TimeFilter
+import java.time.DayOfWeek
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -38,4 +41,82 @@ fun formatTime(h: Int, m: Int): String {
     val dt = LocalTime.of(h, m)
     val formatter = DateTimeFormatter.ofPattern("h:mm a")
     return dt.format(formatter)
+}
+
+data class TimeRange(val start: Long, val endExclusive: Long)
+
+private fun LocalDate.startOfDayMillis(zoneId: ZoneId): Long =
+    this.atStartOfDay(zoneId).toInstant().toEpochMilli()
+
+private fun LocalDate.endExclusiveMillis(zoneId: ZoneId): Long =
+    this.plusDays(1).atStartOfDay(zoneId).toInstant().toEpochMilli()
+
+fun rangeFor(
+    filter: TimeFilter,
+    startMillis: Long?,
+    endMillis: Long?,
+    zoneId: ZoneId
+): TimeRange? {
+    val now = Instant.now().atZone(zoneId)
+
+    return when (filter) {
+        TimeFilter.ALL -> {
+            // filter is ON but no date restriction
+            null
+        }
+
+        TimeFilter.TODAY -> {
+            val today = now.toLocalDate()
+            TimeRange(
+                start = today.atStartOfDay(zoneId).toInstant().toEpochMilli(),
+                endExclusive = today.plusDays(1).atStartOfDay(zoneId).toInstant().toEpochMilli()
+            )
+        }
+
+        TimeFilter.THIS_WEEK -> {
+            // week starting Monday; adjust if you want Sunday
+            val today = now.toLocalDate()
+            val weekStart = today.with(java.time.DayOfWeek.MONDAY)
+            val weekEnd = weekStart.plusDays(7)
+
+            TimeRange(
+                start = weekStart.atStartOfDay(zoneId).toInstant().toEpochMilli(),
+                endExclusive = weekEnd.atStartOfDay(zoneId).toInstant().toEpochMilli()
+            )
+        }
+
+        TimeFilter.THIS_MONTH -> {
+            val today = now.toLocalDate()
+            val firstDay = today.withDayOfMonth(1)
+            val firstNextMonth = firstDay.plusMonths(1)
+
+            TimeRange(
+                start = firstDay.atStartOfDay(zoneId).toInstant().toEpochMilli(),
+                endExclusive = firstNextMonth.atStartOfDay(zoneId).toInstant().toEpochMilli()
+            )
+        }
+
+        TimeFilter.CUSTOM_RANGE -> {
+            if (startMillis == null || endMillis == null) {
+                // Filter ON but user didn’t pick both dates -> treat as no date restriction
+                null
+            } else {
+                // Convert picker millis → LocalDate in system zone
+                val startDate = Instant.ofEpochMilli(startMillis).atZone(zoneId).toLocalDate()
+                val endDate = Instant.ofEpochMilli(endMillis).atZone(zoneId).toLocalDate()
+
+                val normalizedStart = minOf(startDate, endDate)
+                val normalizedEnd = maxOf(startDate, endDate)
+
+                TimeRange(
+                    start = normalizedStart.atStartOfDay(zoneId).toInstant().toEpochMilli(),
+                    endExclusive = normalizedEnd
+                        .plusDays(1)
+                        .atStartOfDay(zoneId)
+                        .toInstant()
+                        .toEpochMilli()
+                )
+            }
+        }
+    }
 }

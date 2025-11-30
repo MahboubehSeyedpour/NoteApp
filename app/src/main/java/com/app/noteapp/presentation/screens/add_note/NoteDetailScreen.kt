@@ -462,6 +462,7 @@ fun TagSheetContent(
         }
         Spacer(Modifier.height(16.dp))
         NoteAppButton(
+            modifier = Modifier.fillMaxWidth(),
             text = R.string.add_tag,
             onClick = { if (newName.isNotBlank()) onAdd(newName.trim(), selectedColor) })
         Spacer(Modifier.height(16.dp))

@@ -1,6 +1,5 @@
 package com.app.noteapp.presentation.components
 
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -13,10 +12,9 @@ import androidx.compose.ui.unit.dp
 import com.app.noteapp.presentation.theme.LocalAppShapes
 
 @Composable
-fun NoteAppButton(text: Int, onClick: () -> Unit) {
+fun NoteAppButton(modifier: Modifier = Modifier, text: Int, onClick: () -> Unit) {
     Button(
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = modifier
             .height(58.dp), colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary,
