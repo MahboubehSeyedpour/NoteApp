@@ -1,5 +1,8 @@
 package com.app.noteapp.presentation.screens.home.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -34,6 +37,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.app.noteapp.R
 import com.app.noteapp.core.enums.LayoutMode
+import com.app.noteapp.presentation.components.CustomSearchBar
 
 @Composable
 fun TopBar(
@@ -106,65 +110,82 @@ fun Actions(
     onFilterClick: () -> Unit,
     isFilterActive: Boolean,
 ) {
-
     var searchExpanded by rememberSaveable { mutableStateOf(false) }
 
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.End
+    AnimatedVisibility(
+        visible = !searchExpanded, enter = fadeIn(), exit = fadeOut()
     ) {
-        IconButton(
-            onClick = { searchExpanded = true }, modifier = Modifier.size(40.dp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.End
         ) {
-            Icon(
-                imageVector = ImageVector.vectorResource(R.drawable.ic_search),
-                contentDescription = stringResource(R.string.search_note)
-            )
-        }
 
-        BadgedBox(
-            modifier = Modifier.size(40.dp),
-            badge = {
-                if (isFilterActive) {
-                    Badge(
-                        modifier = Modifier.size(8.dp),
-                        containerColor = MaterialTheme.colorScheme.error
-                    )
-                }
-            }
-        ) {
-            IconButton(onClick = onFilterClick, modifier = Modifier.matchParentSize()) {
+            IconButton(
+                onClick = { searchExpanded = !searchExpanded }, modifier = Modifier.size(40.dp)
+            ) {
                 Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_filter),
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_search),
                     contentDescription = stringResource(R.string.search_note)
                 )
             }
-        }
+            BadgedBox(
+                badge = {
+                    if (isFilterActive) {
+                        Badge(
+                            modifier = Modifier.size(8.dp),
+                            containerColor = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }) {
+                IconButton(
+                    onClick = onFilterClick, modifier = Modifier.size(40.dp)
+                ) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_filter),
+                        contentDescription = stringResource(R.string.search_note)
+                    )
+                }
+            }
 
-        IconButton(
-            onClick = onGridToggleClicked, modifier = Modifier
-                .padding(start = 12.dp)
-                .size(40.dp)
-        ) {
-            Icon(
-                imageVector = when (layoutMode) {
-                    LayoutMode.LIST -> ImageVector.vectorResource(R.drawable.ic_vertical_list)
-                    LayoutMode.GRID -> ImageVector.vectorResource(R.drawable.ic_grid_list)
-                }, contentDescription = stringResource(R.string.toggle_layout)
-            )
-        }
+            IconButton(
+                onClick = onGridToggleClicked,
+                modifier = Modifier
+                    .padding(start = 12.dp)
+                    .size(40.dp)
+            ) {
+                Icon(
+                    imageVector = when (layoutMode) {
+                        LayoutMode.LIST -> ImageVector.vectorResource(R.drawable.ic_vertical_list)
+                        LayoutMode.GRID -> ImageVector.vectorResource(R.drawable.ic_grid_list)
+                    }, contentDescription = stringResource(R.string.toggle_layout)
+                )
+            }
 
-        IconButton(
-            onClick = { /* TODO notifications */ },
-            modifier = Modifier
-                .padding(start = 12.dp)
-                .size(40.dp)
-        ) {
-            Icon(
-                imageVector = ImageVector.vectorResource(R.drawable.ic_notification),
-                contentDescription = stringResource(R.string.close)
-            )
+            IconButton(
+                onClick = { /* TODO notifications */ },
+                modifier = Modifier
+                    .padding(start = 12.dp)
+                    .size(40.dp)
+            ) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_notification),
+                    contentDescription = stringResource(R.string.close)
+                )
+            }
         }
+    }
+
+    AnimatedVisibility(
+        visible = searchExpanded, enter = fadeIn(), exit = fadeOut()
+    ) {
+        CustomSearchBar(
+            value = query,
+            onValueChange = onSearchChange,
+            onSearchClick = { },
+            onClose = {
+                onSearchChange("")
+                searchExpanded = false
+            })
     }
 }
