@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.app.noteapp.R
 import com.app.noteapp.core.time.combineToEpochMillis
 import com.app.noteapp.core.time.formatReminderEpoch
 import com.app.noteapp.data.mapper.toDomain
@@ -14,6 +15,7 @@ import com.app.noteapp.domain.model.Tag
 import com.app.noteapp.domain.reminders.ReminderScheduler
 import com.app.noteapp.domain.usecase.NoteUseCase
 import com.app.noteapp.domain.usecase.TagUseCase
+import com.app.noteapp.presentation.model.ToastType
 import com.app.noteapp.presentation.theme.ReminderTagColor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -113,7 +115,12 @@ class NoteDetailViewModel @Inject constructor(
     private fun saveNote() {
         if (_uiState.value.note?.title?.isBlank() == true || _uiState.value.note?.title?.isEmpty() == true || _uiState.value.note?.description?.isBlank() == true || _uiState.value.note?.description?.isEmpty() == true) {
             viewModelScope.launch {
-                _events.emit(NoteDetailEvents.Error("Note must have title and description!"))
+                _events.emit(
+                    NoteDetailEvents.ShowToast(
+                        messageRes = R.string.empty_note_error,
+                        type = ToastType.ERROR
+                    )
+                )
             }
         } else {
             val ui = _uiState.value.note ?: return
@@ -132,7 +139,13 @@ class NoteDetailViewModel @Inject constructor(
                 }.onSuccess {
                     _events.emit(NoteDetailEvents.NavigateToHomeScreen)
                 }.onFailure { e ->
-                    _events.emit(NoteDetailEvents.Error("Failed to save note: ${e.message}"))
+                    // e.message
+                    _events.emit(
+                        NoteDetailEvents.ShowToast(
+                            messageRes = R.string.fail_to_save_note,
+                            type = ToastType.ERROR
+                        )
+                    )
                 }
             }
         }
@@ -151,7 +164,14 @@ class NoteDetailViewModel @Inject constructor(
     fun onConfirmDelete() {
         val id = noteId
         if (id == null) {
-            viewModelScope.launch { _events.emit(NoteDetailEvents.Error("Invalid note id")) }
+            viewModelScope.launch {
+                _events.emit(
+                    NoteDetailEvents.ShowToast(
+                        messageRes = R.string.invalid_note_id,
+                        type = ToastType.ERROR
+                    )
+                )
+            }
             return
         }
         viewModelScope.launch(io) {
@@ -163,7 +183,13 @@ class NoteDetailViewModel @Inject constructor(
             }.onSuccess {
                 _events.emit(NoteDetailEvents.NavigateToHomeScreen)
             }.onFailure { e ->
-                _events.emit(NoteDetailEvents.Error("Failed to delete: ${e.message}"))
+//                _events.emit(NoteDetailEvents.Error("Failed to delete: ${e.message}"))
+                _events.emit(
+                    NoteDetailEvents.ShowToast(
+                        messageRes = R.string.fail_to_save_note,
+                        type = ToastType.ERROR
+                    )
+                )
             }
         }
     }
@@ -180,7 +206,9 @@ class NoteDetailViewModel @Inject constructor(
     fun onAddTag(name: String, color: Color) {
         val newTag = Tag(id = 0L, name.trim().lowercase(), color)
         if (newTag.name.equals("all", ignoreCase = true)) {
-            viewModelScope.launch { _events.emit(NoteDetailEvents.Error("Tag name 'All' is reserved")) }
+            viewModelScope.launch {
+                _events.emit(NoteDetailEvents.ShowToast(messageRes = R.string.tag_is_reserved, type = ToastType.ERROR))
+            }
             return
         }
         viewModelScope.launch(io) {
@@ -199,7 +227,8 @@ class NoteDetailViewModel @Inject constructor(
                 }
             }.onFailure { e ->
                 viewModelScope.launch {
-                    _events.emit(NoteDetailEvents.Error("Failed to delete tag: ${e.message}"))
+//                    _events.emit(NoteDetailEvents.Error("Failed to delete tag: ${e.message}"))
+                    _events.emit(NoteDetailEvents.ShowToast(messageRes = R.string.fail_to_save_note, type = ToastType.ERROR))
                 }
             }
         }

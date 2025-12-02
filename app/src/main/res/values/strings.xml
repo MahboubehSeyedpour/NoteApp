@@ -79,5 +79,9 @@
     <string name="pick_date_range">Pick date</string>
     <string name="filter">Filter</string>
     <string name="delete_all_filters">Delete all filters</string>
+    <string name="empty_note_error">Note must have title and description!</string>
+    <string name="fail_to_save_note">Failed to save note: %1$</string>
+    <string name="invalid_note_id">Invalid note id</string>
+    <string name="tag_is_reserved">Tag name "All" is reserved</string>
 
 </resources>

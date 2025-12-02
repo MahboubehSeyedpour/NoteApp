@@ -74,9 +74,8 @@ fun rangeFor(
         }
 
         TimeFilter.THIS_WEEK -> {
-            // week starting Monday; adjust if you want Sunday
             val today = now.toLocalDate()
-            val weekStart = today.with(java.time.DayOfWeek.MONDAY)
+            val weekStart = today.with(DayOfWeek.SATURDAY)
             val weekEnd = weekStart.plusDays(7)
 
             TimeRange(

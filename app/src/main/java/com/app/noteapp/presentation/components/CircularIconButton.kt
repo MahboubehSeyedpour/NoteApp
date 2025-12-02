@@ -11,17 +11,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun CircularIconButton(
     onClick: () -> Unit,
+    backgroundColor: Color = MaterialTheme.colorScheme.background.copy(alpha = 0.35f),
     icon: @Composable () -> Unit
 ) {
-    val bg = MaterialTheme.colorScheme.background.copy(alpha = 0.35f)
+
     Surface(
         shape = CircleShape,
-        color = bg,
+        color = backgroundColor,
         onClick = onClick,
         tonalElevation = 0.dp,
         shadowElevation = 0.dp

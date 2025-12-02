@@ -2,7 +2,6 @@ package com.app.noteapp.presentation.screens.add_note
 
 import android.Manifest
 import android.os.Build
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -47,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Yellow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -72,8 +71,10 @@ import com.app.noteapp.presentation.components.NoteAppButton
 import com.app.noteapp.presentation.components.NoteContent
 import com.app.noteapp.presentation.components.NoteDetailScreenTopBar
 import com.app.noteapp.presentation.components.TagsList
+import com.app.noteapp.presentation.components.ToastHost
 import com.app.noteapp.presentation.components.showDateTimePicker
 import com.app.noteapp.presentation.model.DialogType
+import com.app.noteapp.presentation.model.ToastUI
 import com.app.noteapp.presentation.theme.AppTheme
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -106,6 +107,7 @@ fun NoteDetailScreen(
 
     var editMode by remember { mutableStateOf(false) }
     var tagToDelete by remember { mutableStateOf<Tag?>(null) }
+    var toast by remember { mutableStateOf<ToastUI?>(null) }
 
     suspend fun ensureReminderPermissions(
         requester: (PermissionRequest, (PermissionResult) -> Unit) -> Unit
@@ -130,9 +132,11 @@ fun NoteDetailScreen(
             viewModel.events.collectLatest { e ->
                 when (e) {
                     is NoteDetailEvents.NavigateToHomeScreen -> navController.popBackStack()
-                    is NoteDetailEvents.Error -> Toast.makeText(
-                        context, e.message, Toast.LENGTH_SHORT
-                    ).show()
+                    is NoteDetailEvents.ShowToast -> {
+                        toast = ToastUI(
+                            message = e.messageRes, type = e.type
+                        )
+                    }
 
                     NoteDetailEvents.OpenReminderPicker -> showDateTimePicker(context) { dateMillis, hour, minute ->
                         viewModel.setReminder(dateMillis, hour, minute)
@@ -177,122 +181,141 @@ fun NoteDetailScreen(
         )
     }
 
-    Scaffold(
+    Box(
         modifier = Modifier
-            .background(MaterialTheme.colorScheme.background)
             .fillMaxSize()
-            .padding(dimensionResource(R.dimen.screen_padding)),
-        containerColor = MaterialTheme.colorScheme.background,
-        topBar = {
-            Column {
-                NoteDetailScreenTopBar(
-                    onBack = { viewModel.onBackClicked() },
-                    onNotificationClick = { showReminderSheet = true },
-                    onShareClick = {},
-                    onDeleteClicked = { viewModel.onDeleteClicked() })
-                HorizontalDivider(
-                    modifier = Modifier.padding(top = dimensionResource(R.dimen.screen_padding)),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f)
-                )
-            }
-        },
-        bottomBar = {
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 150.dp)
-                    .animateContentSize()
-                    .background(MaterialTheme.colorScheme.background)
-            ) {
-                HorizontalDivider(
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f)
-                )
+            .background(Yellow),
+        contentAlignment = Alignment.BottomCenter
+    ) {
 
-                Column(
+        Scaffold(
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.background)
+                .fillMaxSize()
+                .padding(dimensionResource(R.dimen.screen_padding)),
+            containerColor = MaterialTheme.colorScheme.background,
+            topBar = {
+                Column {
+                    NoteDetailScreenTopBar(
+                        onBack = { viewModel.onBackClicked() },
+                        onDoneClicked = { viewModel.onBackClicked() },
+                        onNotificationClick = { showReminderSheet = true },
+                        onShareClick = {},
+                        onDeleteClicked = { viewModel.onDeleteClicked() })
+                    HorizontalDivider(
+                        modifier = Modifier.padding(top = dimensionResource(R.dimen.screen_padding)),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f)
+                    )
+                }
+            },
+            bottomBar = {
+                Box(
                     Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.SpaceBetween
+                        .height(150.dp)
+                        .animateContentSize()
+                        .background(MaterialTheme.colorScheme.background)
                 ) {
-                    Row(
+                    HorizontalDivider(
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f)
+                    )
+
+                    Column(
                         Modifier
                             .fillMaxWidth()
-                            .padding(bottom = dimensionResource(R.dimen.screen_padding)),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(
-                            stringResource(R.string.choose_tag),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-
-                        CircularIconButton(onClick = { editMode = !editMode }, icon = {
-                            Icon(
-                                ImageVector.vectorResource(R.drawable.ic_edit),
-                                contentDescription = "Edit"
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = dimensionResource(R.dimen.screen_padding)),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                stringResource(R.string.choose_tag),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
-                        })
+
+                            CircularIconButton(onClick = { editMode = !editMode }, icon = {
+                                Icon(
+                                    ImageVector.vectorResource(R.drawable.ic_edit),
+                                    contentDescription = "Edit"
+                                )
+                            })
+                        }
+
+                        TagsList(
+                            labels = viewModel.tags.collectAsState().value,
+                            cornerRadius = 18.dp,
+                            horizontalGap = 18.dp,
+                            verticalGap = 18.dp,
+                            onLabelClick = { tag -> viewModel.onTagSelected(tag) },
+                            trailingIcon = ImageVector.vectorResource(R.drawable.ic_add),
+                            onTrailingClick = { showTagSheet = true },
+                            selectedTagId = uiState.note?.tag?.id,
+                            editMode = editMode,
+                            onDeleteClick = { tag -> tagToDelete = tag })
+
+                        if (tagToDelete != null) {
+                            CustomAlertDialog(
+                                type = DialogType.WARNING,
+                                onDismissRequest = { tagToDelete = null },
+                                title = stringResource(R.string.delete_tag),
+                                message = stringResource(
+                                    R.string.delete_tag_confirm, tagToDelete!!.name
+                                ),
+                                onConfirmBtnClick = {
+                                    viewModel.onDeleteTag(tagToDelete!!.id)
+                                    tagToDelete = null
+                                },
+                                confirmBtnText = R.string.delete,
+                                onDismissButtonClick = { tagToDelete = null },
+                                dismissBtnText = R.string.no,
+                                showTopBar = true
+                            )
+                        }
+                    }
+                }
+            }) { inner ->
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .padding(inner)
+            ) {
+                when {
+                    uiState.isLoading -> Box(
+                        Modifier.fillMaxSize(), contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
                     }
 
-                    TagsList(
-                        labels = viewModel.tags.collectAsState().value,
-                        cornerRadius = 18.dp,
-                        horizontalGap = 18.dp,
-                        verticalGap = 18.dp,
-                        onLabelClick = { tag -> viewModel.onTagSelected(tag) },
-                        trailingIcon = ImageVector.vectorResource(R.drawable.ic_add),
-                        onTrailingClick = { showTagSheet = true },
-                        selectedTagId = uiState.note?.tag?.id,
-                        editMode = editMode,
-                        onDeleteClick = { tag -> tagToDelete = tag })
+                    uiState.note != null -> NoteContent(
+                        note = uiState.note!!,
+                        onTitleChange = viewModel::updateTitle,
+                        onDescriptionChange = viewModel::updateDescription,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                    )
 
-                    if (tagToDelete != null) {
-                        CustomAlertDialog(
-                            type = DialogType.WARNING,
-                            onDismissRequest = { tagToDelete = null },
-                            title = stringResource(R.string.delete_tag),
-                            message = stringResource(
-                                R.string.delete_tag_confirm,
-                                tagToDelete!!.name
-                            ),
-                            onConfirmBtnClick = {
-                                viewModel.onDeleteTag(tagToDelete!!.id)
-                                tagToDelete = null
-                            },
-                            confirmBtnText = R.string.delete,
-                            onDismissButtonClick = { tagToDelete = null },
-                            dismissBtnText = R.string.no,
-                            showTopBar = true
-                        )
+                    else -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(stringResource(R.string.note_init_failure))
                     }
                 }
             }
+        }
 
-        }) { inner ->
-        Column(
-            Modifier
-                .fillMaxSize()
-                .padding(inner)
-        ) {
-            when {
-                uiState.isLoading -> Box(
-                    Modifier.fillMaxSize(), contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-
-                uiState.note != null -> NoteContent(
-                    note = uiState.note!!,
-                    onTitleChange = viewModel::updateTitle,
-                    onDescriptionChange = viewModel::updateDescription,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                )
-
-                else -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(stringResource(R.string.note_init_failure))
-                }
-            }
+        toast?.let { t ->
+            ToastHost(
+                toast = ToastUI(
+                    message = t.message, type = t.type
+                ),
+                onDismiss = { toast = null },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            )
         }
     }
 
@@ -443,7 +466,10 @@ fun TagSheetContent(
                 .border(1.dp, MaterialTheme.colorScheme.primary),
         )
         Spacer(Modifier.height(16.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             preset.forEach { c ->
                 Box(
                     Modifier
@@ -455,9 +481,8 @@ fun TagSheetContent(
                             color = if (c == selectedColor) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
                             shape = CircleShape
                         )
-                        .clickable { selectedColor = c },
-                    contentAlignment = Alignment.Center
-                ){}
+                        .clickable { selectedColor = c }, contentAlignment = Alignment.Center
+                ) {}
             }
         }
         Spacer(Modifier.height(16.dp))
