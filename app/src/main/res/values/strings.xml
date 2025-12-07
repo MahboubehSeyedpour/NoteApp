@@ -55,7 +55,6 @@
     <string name="permission_required_message">We can’t schedule the reminder because required permissions were not granted.</string>
 
     <!--    icon descriptions   -->
-    <string name="clear_selection">Clear selection</string>
     <string name="toggle_layout">Toggle layout</string>
 
     <string name="choose_language">Choose Language</string>

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">NoteApp</string>
+    <string name="app_name">دفتر یادداشت</string>
 
     <string name="dialog_delete_confirm_btn">پاک کردن</string>
     <string name="dialog_dismiss_btn">لغو</string>
@@ -30,7 +30,7 @@
     <string name="note_add">اضافه کردن یادداشت جدید</string>
 
     <string name="reminder_set">تنظیم یادآور</string>
-    <string name="permission_denied_notification">notification permission denied</string>
+    <string name="permission_denied_notification">مجوز دسترسی به اعلان ها داده نشد!</string>
 
     <string name="search_icon">جستجو</string>
     <string name="avatar_icon">آواتار</string>
@@ -39,14 +39,14 @@
     <string name="add_tag">افزودن تگ</string>
     <string name="tag_name">نام تگ</string>
     <string name="tags">تگ ها</string>
-    <string name="add_reminder">Add reminder</string>
-    <string name="pick_date_time">Pick date &amp; time</string>
-    <string name="clear_reminder">Clear reminder</string>
+    <string name="add_reminder">افزودن یادآور</string>
+    <string name="pick_date_time">انتخاب تاریخ و زمان</string>
+    <string name="clear_reminder">حذف یادآور</string>
     <string name="tap_to_change">یادآور را تغییر دهید</string>
     <string name="no_reminder_set">یادآوری ثبت نشده</string>
     <string name="edit">ویرایش</string>
     <string name="delete_tag">حذف تگ</string>
-    <string name="delete_tag_confirm">مطمئنی می‌خوای برچسب %1$s را حذف کنی؟</string>
+    <string name="delete_tag_confirm">مطمئنید می‌خواهید برچسب %1$s را حذف کنید؟</string>
     <string name="close">خروج</string>
     <string name="dialog_header_permission">مجوز دسترسی</string>
     <string name="dialog_header_warning">اخطار</string>
@@ -55,8 +55,7 @@
     <string name="permission_required_message">امکان ثبت یادآور وجود ندارد. دسترسی لازم را به برنامه نداده اید</string>
 
     <!--    icon descriptions   -->
-    <string name="clear_selection">Clear selection</string>
-    <string name="toggle_layout">Toggle layout</string>
+    <string name="toggle_layout">تغییر وضعیت نمایش</string>
 
     <string name="choose_language">انتخاب زبان</string>
     <string name="lang_fa">فارسی</string>
