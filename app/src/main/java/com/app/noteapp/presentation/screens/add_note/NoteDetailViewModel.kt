@@ -41,7 +41,7 @@ class NoteDetailViewModel @Inject constructor(
     @IoDispatcher private val io: CoroutineDispatcher
 ) : ViewModel() {
 
-    private val noteId: Long? = savedStateHandle.get("id")
+    private val noteId: Long? = savedStateHandle["id"]
 
     private val _tags = MutableStateFlow<List<Tag>>(emptyList())
     val tags: StateFlow<List<Tag>> = _tags
@@ -53,6 +53,8 @@ class NoteDetailViewModel @Inject constructor(
 
     private val _events = MutableSharedFlow<NoteDetailEvents>()
     val events = _events.asSharedFlow()
+
+
 
     init {
         viewModelScope.launch {

@@ -12,10 +12,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.app.noteapp.R
 
@@ -26,13 +26,12 @@ fun CustomSearchBar(
     onSearchClick: () -> Unit,
     onClose: () -> Unit,
 ) {
-    val shape = RoundedCornerShape(24.dp)
 
     TextField(
         value = value,
         onValueChange = onValueChange,
         modifier = Modifier.fillMaxSize(),
-        shape = shape,
+        shape = RoundedCornerShape(dimensionResource(R.dimen.searchbar_corner_round)),
         singleLine = true,
         leadingIcon = {
             IconButton(onClick = onSearchClick) {

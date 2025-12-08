@@ -9,6 +9,9 @@
     <string name="notes">Notes</string>
     <string name="delete_note">Delete note</string>
     <string name="delete_note_question">Are you sure you want to delete this note? (This action can not be undone)</string>
+    <string name="choose_avatar_img">Choose Avatar Image</string>
+    <string name="female">Female</string>
+    <string name="male">Male</string>
 
     <string name="search_note">Search note</string>
 
@@ -48,6 +51,7 @@
     <string name="delete_tag">Delete tag</string>
     <string name="delete_tag_confirm">Are you sure you want to delete tag %1$s?</string>
     <string name="close">Close</string>
+    <string name="notification">Notification</string>
     <string name="dialog_header_permission">Permission Access</string>
     <string name="dialog_header_warning">Warning</string>
     <string name="dialog_header_error">Error</string>

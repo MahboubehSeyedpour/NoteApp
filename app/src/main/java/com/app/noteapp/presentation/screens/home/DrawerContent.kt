@@ -11,17 +11,21 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -38,13 +42,21 @@ fun DrawerContent(
     onLanguageSelected: (AppLanguage) -> Unit,
 ) {
     ModalDrawerSheet {
-        AvatarPickerSection(
-            selected = currentAvatar, onSelect = onAvatarSelected
-        )
+        AvatarPickerSection(selected = currentAvatar, onSelect = onAvatarSelected)
+
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+
         HorizontalDivider()
-        LanguagePickerSection(
-            selected = currentLanguage, onSelect = onLanguageSelected
-        )
+
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+
+        LanguagePickerSection(selected = currentLanguage, onSelect = onLanguageSelected)
     }
 }
 
@@ -56,15 +68,20 @@ fun AvatarPickerSection(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .padding(
+                horizontal = dimensionResource(R.dimen.h_space),
+                vertical = dimensionResource(R.dimen.v_space)
+            )
     ) {
         Text(
-            text = "Choose Avatar Image", style = MaterialTheme.typography.titleMedium
+            text = stringResource(R.string.choose_avatar_img), style = MaterialTheme.typography.titleMedium
         )
-        Spacer(Modifier.height(12.dp))
+
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
 
         Row(
-            modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_items_h_padding))
         ) {
             AvatarOption(
                 type = AvatarType.FEMALE,
@@ -80,19 +97,19 @@ fun AvatarPickerSection(
             )
         }
 
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
 
         Row(
             modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
         ) {
             AvatarRadio(
-                label = "Female",
+                label = stringResource(R.string.female),
                 checked = selected == AvatarType.FEMALE,
                 onChecked = { onSelect(AvatarType.FEMALE) },
                 modifier = Modifier.weight(1f)
             )
             AvatarRadio(
-                label = "Male",
+                label = stringResource(R.string.male),
                 checked = selected == AvatarType.MALE,
                 onChecked = { onSelect(AvatarType.MALE) },
                 modifier = Modifier.weight(1f)
@@ -107,20 +124,25 @@ private fun AvatarOption(
 ) {
     val borderColor =
         if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
-    val borderWidth = if (selected) 2.dp else 1.dp
+    val borderWidth =
+        if (selected) dimensionResource(R.dimen.item_selected_border_width) else dimensionResource(R.dimen.dp_1)
 
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(16.dp))
-            .border(borderWidth, borderColor, RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(dimensionResource(R.dimen.ic_corner_round)))
+            .border(
+                borderWidth,
+                borderColor,
+                RoundedCornerShape(dimensionResource(R.dimen.ic_corner_round))
+            )
             .clickable { onSelect(type) }
-            .padding(8.dp),
+            .padding(dimensionResource(R.dimen.v_space)),
         horizontalAlignment = Alignment.CenterHorizontally) {
         Image(
             painter = painterResource(type.iconRes()),
             contentDescription = type.name,
             modifier = Modifier
-                .size(72.dp)
+                .size(dimensionResource(R.dimen.ic_avatar_size))
                 .clip(CircleShape)
         )
     }
@@ -135,9 +157,12 @@ private fun AvatarRadio(
         modifier = modifier
             .clip(RoundedCornerShape(999.dp))
             .clickable { onChecked() }) {
-        RadioButton(
-            selected = checked, onClick = onChecked
-        )
+        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
+            RadioButton(
+                selected = checked, onClick = onChecked
+            )
+        }
+        Spacer(Modifier.width(dimensionResource(R.dimen.h_space)))
         Text(text = label, style = MaterialTheme.typography.bodyMedium)
     }
 }
@@ -149,13 +174,17 @@ fun LanguagePickerSection(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .padding(
+                horizontal = dimensionResource(R.dimen.h_space),
+                vertical = dimensionResource(R.dimen.v_space)
+            )
     ) {
         Text(
             text = stringResource(R.string.choose_language),
             style = MaterialTheme.typography.titleMedium
         )
-        Spacer(Modifier.height(12.dp))
+
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
 
         Row(
             modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
@@ -184,9 +213,11 @@ private fun LanguageRadio(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .clip(RoundedCornerShape(999.dp))
-            .clickable { onChecked() }
-            .padding(horizontal = 8.dp, vertical = 4.dp)) {
-        RadioButton(selected = checked, onClick = onChecked)
+            .clickable { onChecked() }) {
+        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) { // remove radio button padding
+            RadioButton(selected = checked, onClick = onChecked)
+        }
+        Spacer(Modifier.width(dimensionResource(R.dimen.h_space)))
         Text(text = label, style = MaterialTheme.typography.bodyMedium)
     }
 }

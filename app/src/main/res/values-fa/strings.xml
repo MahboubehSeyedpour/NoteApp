@@ -9,6 +9,9 @@
     <string name="notes">یادداشت</string>
     <string name="delete_note">حذف یادداشت</string>
     <string name="delete_note_question">آیا میخواهید این یادداشت را حذف کنید؟ (این عملیات برگشت پذیر نیست)</string>
+    <string name="choose_avatar_img">انتخاب عکس آواتار</string>
+    <string name="female">زن</string>
+    <string name="male">مرد</string>
 
     <string name="search_note">جستجوی یادداشت</string>
 
@@ -48,6 +51,7 @@
     <string name="delete_tag">حذف تگ</string>
     <string name="delete_tag_confirm">مطمئنید می‌خواهید برچسب %1$s را حذف کنید؟</string>
     <string name="close">خروج</string>
+    <string name="notification">اعلانات</string>
     <string name="dialog_header_permission">مجوز دسترسی</string>
     <string name="dialog_header_warning">اخطار</string>
     <string name="dialog_header_error">خطا</string>

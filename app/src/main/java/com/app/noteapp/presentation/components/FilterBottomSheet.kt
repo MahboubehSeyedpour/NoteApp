@@ -1,5 +1,6 @@
-package com.app.noteapp.presentation.screens.home.components
+package com.app.noteapp.presentation.components
 
+import android.R.attr.verticalGap
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,8 +10,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,16 +24,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.app.noteapp.R
 import com.app.noteapp.domain.model.Tag
-import com.app.noteapp.presentation.components.DateRangePickerDialog
-import com.app.noteapp.presentation.components.NoteAppButton
-import com.app.noteapp.presentation.components.TagsList
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -54,7 +54,10 @@ fun NotesFilterSheet(
     Column(
         modifier = Modifier
             .navigationBarsPadding()
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .padding(
+                horizontal = dimensionResource(R.dimen.btm_sheet_h_padding),
+                vertical = dimensionResource(R.dimen.btm_sheet_v_padding)
+            )
     ) {
 
         Row(
@@ -71,15 +74,15 @@ fun NotesFilterSheet(
                 color = MaterialTheme.colorScheme.primary
             )
 
-            Text(modifier = Modifier
-                .clickable { onClose() }
-                .padding(vertical = 8.dp),
+            Text(
+                modifier = Modifier.clickable { onClose() },
                 text = stringResource(R.string.close),
                 color = MaterialTheme.colorScheme.secondary,
-                style = MaterialTheme.typography.labelLarge)
+                style = MaterialTheme.typography.labelLarge
+            )
         }
 
-        Spacer(Modifier.height(42.dp))
+        Spacer(Modifier.height(dimensionResource(R.dimen.btm_sheet_section_padding)))
 
         // 1. Tags section
         Text(
@@ -89,17 +92,16 @@ fun NotesFilterSheet(
             color = MaterialTheme.colorScheme.primary
         )
 
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(dimensionResource(R.dimen.btm_sheet_inter_section_padding)))
 
         TagsList(
             labels = tags,
             selectedTagId = selectedTagId,
-            cornerRadius = 18.dp,
-            horizontalGap = 12.dp,
-            verticalGap = 12.dp,
+            horizontalGap = dimensionResource(R.dimen.list_items_h_padding),
+            verticalGap = dimensionResource(R.dimen.list_items_v_padding),
             onLabelClick = { tag -> selectedTagId = tag.id })
 
-        Spacer(Modifier.height(42.dp))
+        Spacer(Modifier.height(dimensionResource(R.dimen.btm_sheet_section_padding)))
 
         // 2. Time filter section
         Text(
@@ -108,7 +110,8 @@ fun NotesFilterSheet(
             fontSize = 20.sp,
             color = MaterialTheme.colorScheme.primary
         )
-        Spacer(Modifier.height(8.dp))
+
+        Spacer(Modifier.height(dimensionResource(R.dimen.btm_sheet_inter_section_padding)))
 
         Row(
             modifier = Modifier
@@ -153,7 +156,7 @@ fun NotesFilterSheet(
                 })
         }
 
-        Spacer(Modifier.height(18.dp))
+        Spacer(Modifier.height(dimensionResource(R.dimen.btm_sheet_inter_section_padding)))
 
         // 3. Reminders filter
         Row(
@@ -166,7 +169,7 @@ fun NotesFilterSheet(
                 style = MaterialTheme.typography.bodyMedium,
             )
 
-            androidx.compose.material3.Switch(
+            Switch(
                 colors = SwitchDefaults.colors(
                     checkedIconColor = MaterialTheme.colorScheme.primary,
                     uncheckedIconColor = MaterialTheme.colorScheme.secondary,
@@ -176,7 +179,7 @@ fun NotesFilterSheet(
             )
         }
 
-        Spacer(Modifier.height(18.dp))
+        Spacer(Modifier.height(dimensionResource(R.dimen.btm_sheet_section_padding)))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -187,14 +190,15 @@ fun NotesFilterSheet(
                 modifier = Modifier.weight(1f),
                 R.string.filter,
                 onClick = { onFilterClicked(selectedTagId, rangeStart, rangeEnd, onlyReminder) })
-            Spacer(modifier = Modifier.weight(.1f))
+
+            Spacer(Modifier.weight(.2f))
+
             NoteAppButton(
                 modifier = Modifier.weight(1f),
                 R.string.delete_all_filters,
-                onClick = onDeleteAllFiltersClicked )
+                onClick = onDeleteAllFiltersClicked
+            )
         }
-
-        Spacer(Modifier.height(18.dp))
     }
 }
 

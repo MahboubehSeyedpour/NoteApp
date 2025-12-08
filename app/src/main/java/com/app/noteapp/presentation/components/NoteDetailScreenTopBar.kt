@@ -13,7 +13,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
 import com.app.noteapp.R
 
 @Composable
@@ -37,7 +36,7 @@ fun NoteDetailScreenTopBar(
                         contentDescription = "Back"
                     )
                 })
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row {
                 CircularIconButton(
                     onClick = onDeleteClicked, icon = {
                         Icon(
@@ -63,12 +62,11 @@ fun NoteDetailScreenTopBar(
                     })
                 CircularIconButton(
                     onClick = onDoneClicked, icon = {
-                        Icon(
-                            ImageVector.vectorResource(R.drawable.ic_done),
-                            contentDescription = "Done"
-                        )
-                    },
-                    backgroundColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                    Icon(
+                        ImageVector.vectorResource(R.drawable.ic_done),
+                        contentDescription = "Done"
+                    )
+                }, backgroundColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
             }
         }
     }

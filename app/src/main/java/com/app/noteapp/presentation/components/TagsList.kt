@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,7 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -38,16 +37,19 @@ import com.app.noteapp.domain.model.Tag
 fun TagsList(
     labels: List<Tag>,
     modifier: Modifier = Modifier,
-    cornerRadius: Dp = 8.dp,
-    horizontalGap: Dp = 8.dp,
-    verticalGap: Dp = 8.dp,
-    labelPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 6.dp),
+    cornerRadius: Dp = dimensionResource(R.dimen.tag_corner_round),
+    horizontalGap: Dp = dimensionResource(R.dimen.dp_0),
+    verticalGap: Dp = dimensionResource(R.dimen.dp_0),
+    labelPadding: PaddingValues = PaddingValues(
+        horizontal = dimensionResource(R.dimen.tag_h_padding),
+        vertical = dimensionResource(R.dimen.tag_v_padding)
+    ),
     onLabelClick: ((Tag) -> Unit)? = null,
     trailingIcon: ImageVector? = null,
     onTrailingClick: (() -> Unit)? = null,
     trailingContent: (@Composable (() -> Unit))? = null,
     selectedTagId: Long? = null,
-    selectedBorderWidth: Dp = 4.dp,
+    selectedBorderWidth: Dp = dimensionResource(R.dimen.item_selected_border_width),
     editMode: Boolean = false,
     onDeleteClick: ((Tag) -> Unit)? = null,
 ) {
@@ -86,13 +88,13 @@ fun TagsList(
 
                     if (editMode && onDeleteClick != null) {
                         Box(
-                            modifier = Modifier.padding(start = 6.dp)
+                            modifier = Modifier.padding(start = dimensionResource(R.dimen.h_space))
                         ) {
                             Icon(
                                 imageVector = ImageVector.vectorResource(R.drawable.ic_close),
                                 contentDescription = "Delete ${label.name}",
                                 modifier = Modifier
-                                    .size(14.dp)
+                                    .size(dimensionResource(R.dimen.tag_close_icon))
                                     .clip(CircleShape)
                                     .clickable { onDeleteClick(label) },
                                 tint = label.color.copy(alpha = 0.8f)
@@ -106,13 +108,15 @@ fun TagsList(
         when {
             trailingContent != null -> trailingContent()
             trailingIcon != null && onTrailingClick != null -> {
-                IconButton(
-                    onClick = onTrailingClick,
-                    modifier = Modifier
-                        .size(36.dp)
-                        .clip(RoundedCornerShape(cornerRadius))
-                        .testTag("tag-add")
-                ) { Icon(trailingIcon, contentDescription = "Add tag") }
+                CircularIconButton(
+                    onClick = { onTrailingClick() },
+                    icon = {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.ic_close),
+                            contentDescription = "Add tag"
+                        )
+                    },
+                )
             }
         }
     }

@@ -7,15 +7,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
+import com.app.noteapp.R
 import com.app.noteapp.presentation.theme.LocalAppShapes
 
 @Composable
 fun NoteAppButton(modifier: Modifier = Modifier, text: Int, onClick: () -> Unit) {
     Button(
         modifier = modifier
-            .height(58.dp), colors = ButtonDefaults.buttonColors(
+            .height(dimensionResource(R.dimen.button_height)),
+        colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary,
             disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.38f),

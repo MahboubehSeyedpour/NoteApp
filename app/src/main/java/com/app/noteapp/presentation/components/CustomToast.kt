@@ -15,55 +15,53 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.unit.dp
 import com.app.noteapp.R
 import com.app.noteapp.presentation.model.ToastType
 
 
 @Composable
 fun CustomToast(
-    message: String,
-    type: ToastType,
-    modifier: Modifier = Modifier
+    message: String, type: ToastType, modifier: Modifier = Modifier
 ) {
     val (bgColor, icon, iconTint) = when (type) {
         ToastType.SUCCESS -> Triple(
             Color(0xFF16A34A), // green
-            R.drawable.ic_circle_check,
-            Color.White
+            R.drawable.ic_circle_check, Color.White
         )
+
         ToastType.ERROR -> Triple(
             Color(0xFFDC2626), // red
-            R.drawable.ic_circle_error,
-            Color.White
+            R.drawable.ic_circle_error, Color.White
         )
+
         ToastType.WARNING -> Triple(
             Color(0xFFF97316), // orange
-            R.drawable.ic_circle_warning,
-            Color.White
+            R.drawable.ic_circle_warning, Color.White
         )
     }
 
     Surface(
         modifier = modifier,
         color = bgColor,
-        shape = RoundedCornerShape(12.dp),
-        shadowElevation = 8.dp
+        shape = RoundedCornerShape(dimensionResource(R.dimen.toast_corner_round)),
+        shadowElevation = dimensionResource(R.dimen.toast_elevation)
     ) {
         Row(
-            modifier = Modifier
-                .padding(horizontal = 12.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.padding(
+                    horizontal = dimensionResource(R.dimen.toast_content_h_padding),
+                    vertical = dimensionResource(R.dimen.toast_content_h_padding)
+                ), verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 imageVector = ImageVector.vectorResource(icon),
                 contentDescription = null,
                 tint = iconTint,
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(dimensionResource(R.dimen.toast_icon_size))
             )
 
-            Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(dimensionResource(R.dimen.h_space)))
 
             Text(
                 text = message,

@@ -1,10 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- static dimens -->
+    <dimen name="dp_0">0.dp</dimen>
+    <dimen name="dp_1">1.dp</dimen>
+    <dimen name="dp_2">2.dp</dimen>
+    <dimen name="dp_6">6.dp</dimen>
+    <dimen name="dp_8">8.dp</dimen>
+    <dimen name="dp_12">12.dp</dimen>
+    <dimen name="dp_14">14.dp</dimen>
+
+    <!-- spacer -->
+    <dimen name="h_space">8.dp</dimen>
+    <dimen name="v_space">8.dp</dimen>
+
+    <!-- main screen -->
     <dimen name="screen_padding">16.dp</dimen>
+
     <dimen name="card_padding">16.dp</dimen>
-    <dimen name="vertical_spacing">12.dp</dimen>
     <dimen name="icon_size">24.dp</dimen>
-    <dimen name="chip_horizontal_padding">10.dp</dimen>
-    <dimen name="chip_vertical_padding">6.dp</dimen>
-    <dimen name="card_elevation">1.dp</dimen>
+    <dimen name="chip_h_padding">10.dp</dimen>
+    <dimen name="chip_v_padding">6.dp</dimen>
+
+    <!-- card -->
+    <dimen name="card_elevation">0.dp</dimen>
+    <dimen name="card_content_padding">16.dp</dimen>
+
+    <!-- toast -->
+    <dimen name="toast_corner_round">12.dp</dimen>
+    <dimen name="toast_content_v_padding">8.dp</dimen>
+    <dimen name="toast_content_h_padding">12.dp</dimen>
+    <dimen name="toast_icon_size">20.dp</dimen>
+    <dimen name="toast_elevation">8.dp</dimen>
+
+    <!-- button -->
+    <dimen name="button_height">58.dp</dimen>
+
+    <!-- icon button -->
+    <dimen name="ic_button_tonal_elevation">0.dp</dimen>
+    <dimen name="ic_button_shadow_elevation">0.dp</dimen>
+    <dimen name="ic_button_size">50.dp</dimen>
+    <dimen name="ic_button_padding">10.dp</dimen>
+    <dimen name="ic_corner_round">16.dp</dimen>
+    <dimen name="ic_avatar_size">72.dp</dimen>
+
+
+    <!-- fab -->
+    <dimen name="fab_elevation">6.dp</dimen>
+
+    <!-- dialog -->
+    <dimen name="dialog_tonal_elevation">0.dp</dimen>
+    <dimen name="dialog_padding">16.dp</dimen>
+    <dimen name="dialog_width_min">280.dp</dimen>
+    <dimen name="dialog_width_max">560.dp</dimen>
+    <dimen name="dialog_icon_size">24.dp</dimen>
+
+    <!-- tag -->
+    <dimen name="tag_corner_round">12.dp</dimen>
+    <dimen name="tag_size_on_select">36.dp</dimen>
+    <dimen name="tag_size_normal">28.dp</dimen>
+    <dimen name="tag_h_padding">16.dp</dimen>
+    <dimen name="tag_v_padding">6.dp</dimen>
+    <dimen name="tag_close_icon">14.dp</dimen>
+
+    <!-- list -->
+    <dimen name="list_padding">16.dp</dimen>
+    <dimen name="list_items_h_padding">12.dp</dimen>
+    <dimen name="list_items_v_padding">12.dp</dimen>
+    <dimen name="grid_min_size">160.dp</dimen>
+
+    <!-- searchbar -->
+    <dimen name="searchbar_corner_round">24.dp</dimen>
+
+    <!-- badge -->
+    <dimen name="badge_size">8.dp</dimen>
+
+    <!-- topbar & bottom bar -->
+    <dimen name="topbar_height">56.dp</dimen>
+    <dimen name="btm_bar_height">150.dp</dimen>
+
+    <!-- bottom sheet -->
+    <dimen name="btm_sheet_v_padding">16.dp</dimen>
+    <dimen name="btm_sheet_h_padding">24.dp</dimen>
+    <dimen name="btm_sheet_section_padding">24.dp</dimen>
+    <dimen name="btm_sheet_inter_section_padding">6.dp</dimen>
+
+    <dimen name="item_selected_border_width">4.dp</dimen>
+
 </resources>

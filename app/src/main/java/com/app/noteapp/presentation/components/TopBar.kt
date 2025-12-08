@@ -1,4 +1,4 @@
-package com.app.noteapp.presentation.screens.home.components
+package com.app.noteapp.presentation.components
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -20,7 +20,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,10 +36,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.unit.dp
 import com.app.noteapp.R
 import com.app.noteapp.core.enums.LayoutMode
-import com.app.noteapp.presentation.components.CustomSearchBar
 
 @Composable
 fun TopBar(
@@ -62,7 +59,7 @@ fun TopBar(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp),
+                .height(dimensionResource(R.dimen.topbar_height)),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
@@ -85,18 +82,16 @@ fun Avatar(
     onAvatarClick: () -> Unit,
 ) {
     if (avatar != null) {
-        Image(
-            painter = avatar,
-            contentDescription = stringResource(R.string.avatar_icon),
-            modifier = Modifier
-                .size(50.dp)
-                .clip(CircleShape)
-                .clickable(onClick = onAvatarClick)
-        )
+        CircularIconButton(onClick = { onAvatarClick() }, icon = {
+            Image(
+                painter = avatar,
+                contentDescription = stringResource(R.string.avatar_icon),
+            )
+        })
     } else {
         Box(
             modifier = Modifier
-                .size(50.dp)
+                .size(dimensionResource(R.dimen.icon_size))
                 .clip(CircleShape)
                 .background(White.copy(alpha = 0.15f))
                 .clickable(onClick = onAvatarClick)
@@ -142,8 +137,7 @@ fun Actions(
             .fillMaxSize()
             .animateContentSize(
                 animationSpec = tween(durationMillis = 180, easing = FastOutSlowInEasing)
-            ),
-        verticalAlignment = Alignment.CenterVertically
+            ), verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
@@ -155,12 +149,11 @@ fun Actions(
                 CustomSearchBar(
                     value = query,
                     onValueChange = onSearchChange,
-                    onSearchClick = {  },
+                    onSearchClick = { },
                     onClose = {
                         onSearchChange("")
                         searchExpanded = false
-                    }
-                )
+                    })
             }
         }
 
@@ -173,65 +166,49 @@ fun Actions(
             horizontalArrangement = Arrangement.End
         ) {
             if (iconsWeight > 0f) {
-                IconButton(
-                    onClick = { searchExpanded = true },
-                    modifier = Modifier.size(40.dp)
-                ) {
+                CircularIconButton(onClick = { searchExpanded = true }, icon = {
                     Icon(
                         imageVector = ImageVector.vectorResource(R.drawable.ic_search),
                         contentDescription = stringResource(R.string.search_note)
                     )
-                }
+                })
+            }
 
-                BadgedBox(
-                    badge = {
-                        if (isFilterActive) {
-                            Badge(
-                                modifier = Modifier.size(8.dp),
-                                containerColor = MaterialTheme.colorScheme.error
-                            )
-                        }
+            BadgedBox(
+                badge = {
+                    if (isFilterActive) {
+                        Badge(
+                            modifier = Modifier.size(dimensionResource(R.dimen.badge_size)),
+                            containerColor = MaterialTheme.colorScheme.error
+                        )
                     }
-                ) {
-                    IconButton(
-                        onClick = onFilterClick,
-                        modifier = Modifier.size(40.dp)
-                    ) {
+                }) {
+                CircularIconButton(
+                    onClick = onFilterClick, icon = {
                         Icon(
                             imageVector = ImageVector.vectorResource(R.drawable.ic_filter),
                             contentDescription = stringResource(R.string.search_note)
                         )
-                    }
-                }
+                    })
+            }
 
-                IconButton(
-                    onClick = onGridToggleClicked,
-                    modifier = Modifier
-                        .padding(start = 12.dp)
-                        .size(40.dp)
-                ) {
+            CircularIconButton(
+                onClick = onGridToggleClicked, icon = {
                     Icon(
                         imageVector = when (layoutMode) {
                             LayoutMode.LIST -> ImageVector.vectorResource(R.drawable.ic_vertical_list)
                             LayoutMode.GRID -> ImageVector.vectorResource(R.drawable.ic_grid_list)
-                        },
-                        contentDescription = stringResource(R.string.toggle_layout)
+                        }, contentDescription = stringResource(R.string.toggle_layout)
                     )
-                }
-
-                IconButton(
-                    onClick = { /* TODO notifications */ },
-                    modifier = Modifier
-                        .padding(start = 12.dp)
-                        .size(40.dp)
-                ) {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.ic_notification),
-                        contentDescription = stringResource(R.string.close)
-                    )
-                }
-            }
+                })
         }
+
+        CircularIconButton(onClick = { /* TODO notifications */ }, icon = {
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.ic_notification),
+                contentDescription = stringResource(R.string.notification)
+            )
+        })
     }
 }
 

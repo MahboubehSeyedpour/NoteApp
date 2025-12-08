@@ -26,11 +26,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import com.app.noteapp.R
 import com.app.noteapp.domain.model.Note
 
@@ -45,8 +45,6 @@ fun CustomNoteCard(
     noteTitleStyle: TextStyle,
     noteBodyStyle: TextStyle,
 ) {
-    val horizontalPadding = 16.dp
-
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -56,11 +54,11 @@ fun CustomNoteCard(
             contentColor = MaterialTheme.colorScheme.onSurface
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 0.dp
+            defaultElevation = dimensionResource(R.dimen.card_elevation)
         )
     ) {
 
-        Column(modifier = Modifier.padding(vertical = 16.dp)) {
+        Column(modifier = Modifier.padding(dimensionResource(R.dimen.card_content_padding))) {
 
             if (note.tag != null) {
 
@@ -71,55 +69,51 @@ fun CustomNoteCard(
                 ) {
                     TagsList(
                         labels = listOf(note.tag),
-                        modifier = Modifier
-                            .padding(horizontal = horizontalPadding)
-                            .weight(1f),
-                        cornerRadius = 18.dp,
-                        horizontalGap = 18.dp,
-                        verticalGap = 18.dp,
+                        modifier = Modifier.weight(1f),
+                        cornerRadius = dimensionResource(R.dimen.tag_corner_round),
+                        verticalGap = dimensionResource(R.dimen.list_items_v_padding),
                     )
 
                     MenuButton(pinNote, deleteNote)
                 }
 
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
 
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = horizontalPadding),
-                    verticalArrangement = Arrangement.Center
+                    modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.Center
                 ) {
                     Text(text = note.title, style = noteTitleStyle)
-                    if (!note.description.isNullOrBlank()) {
-                        Text(
-                            text = note.description,
-                            style = noteBodyStyle,
-                            maxLines = 3,
-                            textAlign = TextAlign.Justify
-                        )
-                    }
+                    Text(
+                        text = note.description ?: "",
+                        style = noteBodyStyle,
+                        maxLines = 3,
+                        textAlign = TextAlign.Justify
+                    )
                 }
 
             } else {
 
-                Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.Center) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.Center
+                ) {
                     Row(
-                        modifier = Modifier.padding(start = horizontalPadding),
+                        modifier = Modifier.padding(start = dimensionResource(R.dimen.list_items_h_padding)),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(modifier = Modifier.weight(1f), text = note.title, style = noteTitleStyle)
+                        Text(
+                            modifier = Modifier.weight(1f),
+                            text = note.title,
+                            style = noteTitleStyle
+                        )
                         MenuButton(pinNote, deleteNote)
                     }
-                    if (!note.description.isNullOrBlank()) {
-                        Text(
-                            modifier = Modifier.padding(horizontal = horizontalPadding),
-                            text = note.description,
-                            style = noteBodyStyle,
-                            maxLines = 3,
-                            textAlign = TextAlign.Justify
-                        )
-                    }
+                    Text(
+                        modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.list_items_h_padding)),
+                        text = note.description ?: "",
+                        style = noteBodyStyle,
+                        maxLines = 3,
+                        textAlign = TextAlign.Justify
+                    )
                 }
 
             }

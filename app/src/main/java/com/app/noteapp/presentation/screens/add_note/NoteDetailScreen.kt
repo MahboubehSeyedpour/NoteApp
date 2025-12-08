@@ -52,7 +52,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -212,7 +211,7 @@ fun NoteDetailScreen(
                 Box(
                     Modifier
                         .fillMaxWidth()
-                        .height(150.dp)
+                        .height(dimensionResource(R.dimen.btm_bar_height))
                         .animateContentSize()
                         .background(MaterialTheme.colorScheme.background)
                 ) {
@@ -223,8 +222,10 @@ fun NoteDetailScreen(
                     Column(
                         Modifier
                             .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.SpaceBetween
+                            .padding(
+                                vertical = dimensionResource(R.dimen.btm_sheet_v_padding),
+                                horizontal = dimensionResource(R.dimen.btm_sheet_h_padding)
+                            ), verticalArrangement = Arrangement.SpaceBetween
                     ) {
                         Row(
                             Modifier
@@ -247,9 +248,8 @@ fun NoteDetailScreen(
 
                         TagsList(
                             labels = viewModel.tags.collectAsState().value,
-                            cornerRadius = 18.dp,
-                            horizontalGap = 18.dp,
-                            verticalGap = 18.dp,
+                            horizontalGap = dimensionResource(R.dimen.list_items_h_padding),
+                            verticalGap = dimensionResource(R.dimen.list_items_v_padding),
                             onLabelClick = { tag -> viewModel.onTagSelected(tag) },
                             trailingIcon = ImageVector.vectorResource(R.drawable.ic_add),
                             onTrailingClick = { showTagSheet = true },
@@ -259,7 +259,7 @@ fun NoteDetailScreen(
 
                         if (tagToDelete != null) {
                             CustomAlertDialog(
-                                type = DialogType.WARNING,
+                                type = DialogType.ERROR,
                                 onDismissRequest = { tagToDelete = null },
                                 title = stringResource(R.string.delete_tag),
                                 message = stringResource(
@@ -310,11 +310,12 @@ fun NoteDetailScreen(
             ToastHost(
                 toast = ToastUI(
                     message = t.message, type = t.type
-                ),
-                onDismiss = { toast = null },
-                modifier = Modifier
+                ), onDismiss = { toast = null }, modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(
+                        horizontal = dimensionResource(R.dimen.toast_content_h_padding),
+                        vertical = dimensionResource(R.dimen.list_items_v_padding)
+                    )
             )
         }
     }
@@ -386,10 +387,14 @@ fun ReminderSheetContent(
         Modifier
             .navigationBarsPadding()
             .imePadding()
-            .padding(16.dp)
+            .padding(
+                horizontal = dimensionResource(R.dimen.btm_sheet_h_padding),
+                vertical = dimensionResource(R.dimen.list_items_v_padding)
+            )
     ) {
         Text(stringResource(R.string.add_reminder), style = MaterialTheme.typography.titleMedium)
-        Spacer(Modifier.height(12.dp))
+
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
 
         // Pick date & time
         ListItem(
@@ -425,7 +430,7 @@ fun ReminderSheetContent(
             )
         }
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
     }
 }
 
@@ -448,14 +453,21 @@ fun TagSheetContent(
         Modifier
             .navigationBarsPadding()
             .imePadding()
-            .padding(16.dp)
+            .padding(
+                horizontal = dimensionResource(R.dimen.btm_sheet_h_padding),
+                vertical = dimensionResource(R.dimen.btm_sheet_v_padding)
+            )
     ) {
         Text(stringResource(R.string.tags), style = MaterialTheme.typography.titleMedium)
-        Spacer(Modifier.height(16.dp))
+
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+
         TagsList(
             labels = tags, onLabelClick = onSelect, trailingIcon = null
         )
-        Spacer(Modifier.height(16.dp))
+
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+
         OutlinedTextField(
             value = newName,
             onValueChange = { newName = it },
@@ -463,21 +475,29 @@ fun TagSheetContent(
             singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
-                .border(1.dp, MaterialTheme.colorScheme.primary),
+                .border(dimensionResource(R.dimen.dp_1), MaterialTheme.colorScheme.primary),
         )
-        Spacer(Modifier.height(16.dp))
+
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+
         Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_items_h_padding)),
             verticalAlignment = Alignment.CenterVertically
         ) {
             preset.forEach { c ->
                 Box(
                     Modifier
-                        .size(if (c == selectedColor) 36.dp else 28.dp)
+                        .size(
+                            if (c == selectedColor) dimensionResource(R.dimen.tag_size_on_select) else dimensionResource(
+                                R.dimen.tag_size_normal
+                            )
+                        )
                         .clip(CircleShape)
                         .background(c)
                         .border(
-                            width = if (c == selectedColor) 5.dp else 1.dp,
+                            width = if (c == selectedColor) dimensionResource(R.dimen.dp_6) else dimensionResource(
+                                R.dimen.dp_1
+                            ),
                             color = if (c == selectedColor) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
                             shape = CircleShape
                         )
@@ -485,11 +505,14 @@ fun TagSheetContent(
                 ) {}
             }
         }
-        Spacer(Modifier.height(16.dp))
+
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+
         NoteAppButton(
             modifier = Modifier.fillMaxWidth(),
             text = R.string.add_tag,
             onClick = { if (newName.isNotBlank()) onAdd(newName.trim(), selectedColor) })
-        Spacer(Modifier.height(16.dp))
+
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
     }
 }

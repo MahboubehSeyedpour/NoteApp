@@ -44,7 +44,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.os.LocaleListCompat
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -60,11 +59,11 @@ import com.app.noteapp.domain.model.AppLanguage
 import com.app.noteapp.presentation.components.CustomAlertDialog
 import com.app.noteapp.presentation.components.CustomFab
 import com.app.noteapp.presentation.components.CustomNoteCard
+import com.app.noteapp.presentation.components.NotesFilterSheet
+import com.app.noteapp.presentation.components.TopBar
 import com.app.noteapp.presentation.model.DialogType
 import com.app.noteapp.presentation.model.iconRes
 import com.app.noteapp.presentation.navigation.Screens
-import com.app.noteapp.presentation.screens.home.components.NotesFilterSheet
-import com.app.noteapp.presentation.screens.home.components.TopBar
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -146,8 +145,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                 onDeleteAllFiltersClicked = {
                     showFilterSheet = false
                     viewModel.clearFilters()
-                }
-            )
+                })
         }
     }
 
@@ -200,7 +198,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
             bottomBar = {
                 Column {
                     HorizontalDivider(
-                        modifier = Modifier.padding(bottom = 12.dp),
+                        modifier = Modifier.padding(bottom = dimensionResource(R.dimen.btm_sheet_v_padding)),
                         color = MaterialTheme.colorScheme.primary
                     )
 
@@ -224,9 +222,9 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(inner)
-                            .padding(horizontal = 6.dp),
-                        contentPadding = PaddingValues(bottom = 32.dp),
-                        verticalArrangement = Arrangement.spacedBy(18.dp)
+                            .padding(horizontal = dimensionResource(R.dimen.list_items_h_padding)),
+                        contentPadding = PaddingValues(bottom = dimensionResource(R.dimen.list_items_v_padding)),
+                        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_items_v_padding))
                     ) {
                         items(pinnedNote, key = { it.id }) { note ->
                             CustomNoteCard(
@@ -245,7 +243,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                         if (pinnedNote.isNotEmpty() && others.isNotEmpty()) {
                             item(key = "pinned-divider") {
                                 HorizontalDivider(
-                                    modifier = Modifier.padding(vertical = 8.dp),
+                                    modifier = Modifier.padding(vertical = dimensionResource(R.dimen.v_space)),
                                     color = MaterialTheme.colorScheme.primary
                                 )
                             }
@@ -272,12 +270,12 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(inner)
-                            .padding(horizontal = 6.dp),
+                            .padding(horizontal = dimensionResource(R.dimen.list_items_h_padding)),
                         state = gridState,
-                        columns = StaggeredGridCells.Adaptive(minSize = 160.dp),
-                        verticalItemSpacing = 12.dp,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        contentPadding = PaddingValues(bottom = 32.dp)
+                        columns = StaggeredGridCells.Adaptive(minSize = dimensionResource(R.dimen.grid_min_size)),
+                        verticalItemSpacing = dimensionResource(R.dimen.list_items_v_padding),
+                        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_items_h_padding)),
+                        contentPadding = PaddingValues(bottom = dimensionResource(R.dimen.list_items_v_padding))
                     ) {
 
                         items(pinnedNote, key = { it.id }) { note ->
@@ -299,7 +297,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                                 key = "pinned-divider", span = StaggeredGridItemSpan.FullLine
                             ) {
                                 HorizontalDivider(
-                                    modifier = Modifier.padding(vertical = 8.dp),
+                                    modifier = Modifier.padding(vertical = dimensionResource(R.dimen.v_space)),
                                     color = MaterialTheme.colorScheme.primary
                                 )
                             }

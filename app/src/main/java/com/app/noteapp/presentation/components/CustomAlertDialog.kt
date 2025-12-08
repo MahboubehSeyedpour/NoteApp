@@ -28,17 +28,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.app.noteapp.R
 import com.app.noteapp.presentation.model.DialogType
-
-val hPadding = 16.dp
 
 @Composable
 fun CustomAlertDialog(
@@ -71,10 +69,13 @@ fun CustomAlertDialog(
         Surface(
             shape = AlertDialogDefaults.shape,
             color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 0.dp,
+            tonalElevation = dimensionResource(R.dimen.dialog_tonal_elevation),
             modifier = Modifier
-                .padding(horizontal = 24.dp)
-                .widthIn(min = 280.dp, max = 560.dp)
+                .padding(horizontal = dimensionResource(R.dimen.dialog_padding))
+                .widthIn(
+                    min = dimensionResource(R.dimen.dialog_width_min),
+                    max = dimensionResource(R.dimen.dialog_width_max)
+                )
                 .wrapContentHeight()
         ) {
             Column(Modifier.fillMaxWidth()) {
@@ -92,20 +93,23 @@ fun CustomAlertDialog(
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(hPadding)
+                        .padding(dimensionResource(R.dimen.dialog_padding))
                 )
 
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(hPadding),
+                        .padding(dimensionResource(R.dimen.dialog_padding)),
                     horizontalArrangement = Arrangement.End,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     TextButton(onClick = onDismissButtonClick) {
-                        Text(stringResource(dismissBtnText), color = MaterialTheme.colorScheme.onSurface)
+                        Text(
+                            stringResource(dismissBtnText),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
                     }
-                    Spacer(Modifier.width(8.dp))
+                    Spacer(Modifier.width(dimensionResource(R.dimen.h_space)))
                     Button(
                         onClick = onConfirmBtnClick,
                         colors = ButtonDefaults.buttonColors(containerColor = highlightColor)
@@ -125,15 +129,14 @@ fun DialogTopBar(highlightColor: Color, onDismissRequest: () -> Unit, title: Str
             modifier = Modifier
                 .fillMaxWidth()
                 .background(highlightColor)
-                .padding(horizontal = hPadding, vertical = 16.dp),
+                .padding(dimensionResource(R.dimen.dialog_padding)),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.labelLarge.copy(textAlign = TextAlign.Center),
                 color = MaterialTheme.colorScheme.onPrimary,
-                modifier = Modifier
-                    .weight(1f)
+                modifier = Modifier.weight(1f)
             )
 
             Icon(
@@ -141,7 +144,7 @@ fun DialogTopBar(highlightColor: Color, onDismissRequest: () -> Unit, title: Str
                 contentDescription = stringResource(R.string.close),
                 tint = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(dimensionResource(R.dimen.dialog_icon_size))
                     .clickable { onDismissRequest() })
 
         }
