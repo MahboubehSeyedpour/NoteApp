@@ -88,4 +88,10 @@
     <string name="invalid_note_id">Invalid note id</string>
     <string name="tag_is_reserved">Tag name "All" is reserved</string>
 
+    <!-- font names -->
+    <string name="iran_nastaliq">IranNastaliq</string>
+    <string name="iran_sans">IranSans</string>
+    <string name="pelak">Pelak</string>
+    <string name="shabnam">Shabnam</string>
+
 </resources>

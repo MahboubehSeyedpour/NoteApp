@@ -88,4 +88,10 @@
     <string name="invalid_note_id">شناسه نامعتبر</string>
     <string name="tag_is_reserved">تگ "همه" رزرو شده است</string>
 
+    <!-- font names -->
+    <string name="iran_nastaliq">ایران نستعلیق</string>
+    <string name="iran_sans">ایران سنس</string>
+    <string name="pelak">پلاک</string>
+    <string name="shabnam">شبنم</string>
+
 </resources>

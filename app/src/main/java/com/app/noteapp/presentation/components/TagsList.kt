@@ -108,15 +108,12 @@ fun TagsList(
         when {
             trailingContent != null -> trailingContent()
             trailingIcon != null && onTrailingClick != null -> {
-                CircularIconButton(
-                    onClick = { onTrailingClick() },
-                    icon = {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.ic_close),
-                            contentDescription = "Add tag"
-                        )
-                    },
-                )
+                Box (modifier = Modifier.size(dimensionResource(R.dimen.ic_button_size)), contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = trailingIcon,
+                        contentDescription = "Add tag",
+                        modifier = Modifier.clickable { onTrailingClick() })
+                }
             }
         }
     }

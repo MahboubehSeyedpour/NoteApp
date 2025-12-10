@@ -1,9 +1,12 @@
 package com.app.noteapp.presentation.screens.home
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,17 +17,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -34,9 +37,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.app.noteapp.R
 import com.app.noteapp.domain.model.AppFont
@@ -251,16 +259,22 @@ fun FontPickerSection(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    val fontItems = remember {
-        AppFont.entries.map { font ->
-            font to when (font) {
-                AppFont.IRAN_NASTALIQ -> "ایران نستعلیق"
-                AppFont.IRAN_SANS     -> "ایران سنس"
-                AppFont.PELAK         -> "پلاک"
-                AppFont.SHABNAM       -> "شبنم"
-            }
-        }
-    }
+    var fieldWidth by remember { mutableStateOf(0.dp) }
+    val density = LocalDensity.current
+
+    val iranNastaliq = stringResource(R.string.iran_nastaliq)
+    val iranSans = stringResource(R.string.iran_sans)
+    val pelak = stringResource(R.string.pelak)
+    val shabnam = stringResource(R.string.shabnam)
+
+    val fontItems = listOf(
+        AppFont.IRAN_NASTALIQ to iranNastaliq,
+        AppFont.IRAN_SANS to iranSans,
+        AppFont.PELAK to pelak,
+        AppFont.SHABNAM to shabnam,
+    )
+
+    val selectedLabel = fontItems.firstOrNull { it.first == selected }?.second.orEmpty()
 
     Column(
         modifier = Modifier
@@ -277,32 +291,67 @@ fun FontPickerSection(
 
         Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
 
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded },
+        Box(
+            modifier = Modifier.fillMaxWidth()
         ) {
-            val selectedLabel = fontItems.firstOrNull { it.first == selected }?.second.orEmpty()
 
-            TextField(
+            Surface(
                 modifier = Modifier
-                    .menuAnchor()
-                    .fillMaxWidth(),
-                value = selectedLabel,
-                onValueChange = {}, // read-only
-                readOnly = true,
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                },
-                colors = ExposedDropdownMenuDefaults.textFieldColors()
-            )
+                    .fillMaxWidth()
+                    .onGloballyPositioned { coordinates ->
+                        fieldWidth = with(density) { coordinates.size.width.toDp() }
+                    }
+                    .clickable { expanded = !expanded },
+                shape = RoundedCornerShape(dimensionResource(R.dimen.tag_corner_round)),
+                tonalElevation = 0.dp,
+                shadowElevation = 0.dp,
+                border = BorderStroke(
+                    width = dimensionResource(R.dimen.dp_1),
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)
+                ),
+                color = MaterialTheme.colorScheme.surface
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = dimensionResource(R.dimen.h_space),
+                            vertical = dimensionResource(R.dimen.tag_v_padding)),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = selectedLabel.ifBlank { stringResource(R.string.pelak) },
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
 
-            ExposedDropdownMenu(
+                    Icon(
+                        imageVector = if (expanded)
+                            ImageVector.vectorResource(R.drawable.ic_arrow_up)
+                        else
+                            ImageVector.vectorResource(R.drawable.ic_arrow_down),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            DropdownMenu(
                 expanded = expanded,
-                onDismissRequest = { expanded = false }
+                onDismissRequest = { expanded = false },
+                offset = DpOffset(x = 0.dp, y = dimensionResource(R.dimen.v_space)), // space between Surface and menu
+                modifier = Modifier
+                    .width(fieldWidth)
+                    .background(MaterialTheme.colorScheme.surface)
             ) {
                 fontItems.forEach { (font, label) ->
                     DropdownMenuItem(
-                        text = { Text(label) },
+                        text = {
+                            Text(
+                                text = label,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        },
                         onClick = {
                             expanded = false
                             if (font != selected) {
@@ -315,4 +364,5 @@ fun FontPickerSection(
         }
     }
 }
+
 
