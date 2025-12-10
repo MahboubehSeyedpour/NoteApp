@@ -93,5 +93,8 @@
     <string name="iran_sans">IranSans</string>
     <string name="pelak">Pelak</string>
     <string name="shabnam">Shabnam</string>
+    <string name="boomlis">Boomlis</string>
+    <string name="school_planner">SchoolPlanner</string>
+    <string name="bolding">Bolding</string>
 
 </resources>

@@ -266,12 +266,18 @@ fun FontPickerSection(
     val iranSans = stringResource(R.string.iran_sans)
     val pelak = stringResource(R.string.pelak)
     val shabnam = stringResource(R.string.shabnam)
+    val bromlis = stringResource(R.string.boomlis)
+    val schoolPlanner = stringResource(R.string.school_planner)
+    val bolding = stringResource(R.string.bolding)
 
     val fontItems = listOf(
         AppFont.IRAN_NASTALIQ to iranNastaliq,
         AppFont.IRAN_SANS to iranSans,
         AppFont.PELAK to pelak,
         AppFont.SHABNAM to shabnam,
+        AppFont.BROMLIS_REGULAR to bromlis,
+        AppFont.BOLDING to schoolPlanner,
+        AppFont.SCHOOL_PLANNER to bolding,
     )
 
     val selectedLabel = fontItems.firstOrNull { it.first == selected }?.second.orEmpty()

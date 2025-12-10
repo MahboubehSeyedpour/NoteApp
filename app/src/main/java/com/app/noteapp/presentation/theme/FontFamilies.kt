@@ -40,10 +40,25 @@ private val ShabnamFontFamily = FontFamily(
     Font(R.font.shabnam_light),
 )
 
+private val BoldingFontFamily = FontFamily(
+    Font(R.font.bolding),
+)
+
+private val SchoolPlannerFontFamily = FontFamily(
+    Font(R.font.school_planner),
+)
+
+private val BromlisFontFamily = FontFamily(
+    Font(R.font.bromlis_regular),
+)
+
 fun fontFamilyFor(appFont: AppFont): FontFamily =
     when (appFont) {
         AppFont.IRAN_NASTALIQ -> IranNastaliqFontFamily
         AppFont.IRAN_SANS -> IranSansFontFamily
         AppFont.PELAK -> PelakFontFamily
         AppFont.SHABNAM -> ShabnamFontFamily
+        AppFont.BOLDING -> BoldingFontFamily
+        AppFont.SCHOOL_PLANNER -> SchoolPlannerFontFamily
+        AppFont.BROMLIS_REGULAR -> BromlisFontFamily
     }

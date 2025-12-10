@@ -4,10 +4,13 @@ enum class AppFont(val key: String) {
     IRAN_NASTALIQ("iran_nastaliq"),
     IRAN_SANS("iran_sans"),
     PELAK("pelak"),
-    SHABNAM("shabnam");
+    SHABNAM("shabnam"),
+    BOLDING("bolding"),
+    BROMLIS_REGULAR("bromlis_regular"),
+    SCHOOL_PLANNER("school_planner");
 
     companion object {
         fun fromKey(key: String?): AppFont =
-            entries.firstOrNull { it.key == key } ?: PELAK
+            entries.firstOrNull { it.key == key } ?: SHABNAM
     }
 }

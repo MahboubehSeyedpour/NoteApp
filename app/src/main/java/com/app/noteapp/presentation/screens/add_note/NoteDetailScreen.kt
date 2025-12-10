@@ -280,8 +280,8 @@ fun NoteDetailScreen(
             }) { inner ->
             Column(
                 Modifier
-                    .fillMaxSize()
                     .padding(inner)
+                    .fillMaxSize()
             ) {
                 when {
                     uiState.isLoading -> Box(
