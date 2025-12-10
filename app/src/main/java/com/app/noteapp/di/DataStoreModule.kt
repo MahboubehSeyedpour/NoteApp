@@ -15,6 +15,11 @@ private const val PREFS_NAME = "user_prefs"
 
 // Extension on Context, must be in the same module
 private val Context.dataStore by preferencesDataStore(name = PREFS_NAME)
+private const val FONT_DATASTORE_NAME = "font_prefs"
+
+val Context.fontDataStore: DataStore<Preferences> by preferencesDataStore(
+    name = FONT_DATASTORE_NAME
+)
 
 @Module
 @InstallIn(SingletonComponent::class)

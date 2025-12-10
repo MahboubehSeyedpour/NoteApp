@@ -14,14 +14,23 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,6 +39,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.app.noteapp.R
+import com.app.noteapp.domain.model.AppFont
 import com.app.noteapp.domain.model.AppLanguage
 import com.app.noteapp.domain.model.AvatarType
 import com.app.noteapp.presentation.model.iconRes
@@ -40,6 +50,8 @@ fun DrawerContent(
     onAvatarSelected: (AvatarType) -> Unit,
     currentLanguage: AppLanguage,
     onLanguageSelected: (AppLanguage) -> Unit,
+    currentFont: AppFont,
+    onFontSelected: (AppFont) -> Unit,
 ) {
     ModalDrawerSheet {
         AvatarPickerSection(selected = currentAvatar, onSelect = onAvatarSelected)
@@ -57,6 +69,15 @@ fun DrawerContent(
         Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
 
         LanguagePickerSection(selected = currentLanguage, onSelect = onLanguageSelected)
+
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+        HorizontalDivider()
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+
+        FontPickerSection(
+            selected = currentFont,
+            onSelect = onFontSelected
+        )
     }
 }
 
@@ -219,6 +240,79 @@ private fun LanguageRadio(
         }
         Spacer(Modifier.width(dimensionResource(R.dimen.h_space)))
         Text(text = label, style = MaterialTheme.typography.bodyMedium)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FontPickerSection(
+    selected: AppFont,
+    onSelect: (AppFont) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    val fontItems = remember {
+        AppFont.entries.map { font ->
+            font to when (font) {
+                AppFont.IRAN_NASTALIQ -> "ایران نستعلیق"
+                AppFont.IRAN_SANS     -> "ایران سنس"
+                AppFont.PELAK         -> "پلاک"
+                AppFont.SHABNAM       -> "شبنم"
+            }
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = dimensionResource(R.dimen.h_space),
+                vertical = dimensionResource(R.dimen.v_space)
+            )
+    ) {
+        Text(
+            text = stringResource(R.string.choose_font),
+            style = MaterialTheme.typography.titleMedium
+        )
+
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = !expanded },
+        ) {
+            val selectedLabel = fontItems.firstOrNull { it.first == selected }?.second.orEmpty()
+
+            TextField(
+                modifier = Modifier
+                    .menuAnchor()
+                    .fillMaxWidth(),
+                value = selectedLabel,
+                onValueChange = {}, // read-only
+                readOnly = true,
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                },
+                colors = ExposedDropdownMenuDefaults.textFieldColors()
+            )
+
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                fontItems.forEach { (font, label) ->
+                    DropdownMenuItem(
+                        text = { Text(label) },
+                        onClick = {
+                            expanded = false
+                            if (font != selected) {
+                                onSelect(font)
+                            }
+                        }
+                    )
+                }
+            }
+        }
     }
 }
 

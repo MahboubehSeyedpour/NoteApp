@@ -55,6 +55,7 @@ import androidx.navigation.NavController
 import com.app.noteapp.R
 import com.app.noteapp.core.enums.LayoutMode
 import com.app.noteapp.core.extensions.toLocalizedDigits
+import com.app.noteapp.domain.model.AppFont
 import com.app.noteapp.domain.model.AppLanguage
 import com.app.noteapp.presentation.components.CustomAlertDialog
 import com.app.noteapp.presentation.components.CustomFab
@@ -69,7 +70,11 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltViewModel()) {
+fun HomeScreen(
+    navController: NavController,
+    currentFont: AppFont,
+    onFontSelected: (AppFont) -> Unit,
+    viewModel: HomeViewModel = hiltViewModel()) {
 
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val context = LocalContext.current
@@ -168,14 +173,20 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
 
 
     ModalNavigationDrawer(
-        drawerState = drawerState, drawerContent = {
-            DrawerContent(currentAvatar = avatar, onAvatarSelected = { type ->
+        drawerState = drawerState,
+        drawerContent = {
+            DrawerContent(
+                currentAvatar = avatar,
+                onAvatarSelected = { type ->
                 viewModel.onAvatarSelected(type)
-                scope.launch { drawerState.close() }
-            }, currentLanguage = lang, onLanguageSelected = { newLang ->
+                scope.launch { drawerState.close() } },
+                currentLanguage = lang,
+                onLanguageSelected = { newLang ->
                 viewModel.onLanguageSelected(newLang)
-                scope.launch { drawerState.close() }
-            })
+                scope.launch { drawerState.close() } },
+                currentFont = currentFont,
+                onFontSelected = onFontSelected
+            )
         }) {
         Scaffold(
             modifier = Modifier

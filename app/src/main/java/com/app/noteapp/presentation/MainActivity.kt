@@ -1,8 +1,6 @@
 package com.app.noteapp.presentation
 
-import android.annotation.SuppressLint
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -13,9 +11,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
@@ -40,25 +41,35 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         enableEdgeToEdge()
 
         val noteIdFromNotif = intent.getLongExtra("noteId", 0L)
+
         setContent {
             val navController = rememberNavController()
-            navController.addOnDestinationChangedListener(this)
+            // Handle listener inside composition if you need it
+            DisposableEffect(navController) {
+                navController.addOnDestinationChangedListener(this@MainActivity)
+                onDispose {
+                    navController.removeOnDestinationChangedListener(this@MainActivity)
+                }
+            }
 
-            NoteAppTheme (
-                darkTheme = isSystemInDarkTheme(),
-                dynamicColor = false
-            ){
+            val currentFont by viewModel.currentFont.collectAsState()
+
+            NoteAppTheme(
+                darkTheme = isSystemInDarkTheme(), dynamicColor = false, appFont = currentFont
+            ) {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    NoteApp(viewModel = viewModel, navController,  initialNoteId = noteIdFromNotif)
+                    NoteApp(
+                        viewModel = viewModel,
+                        navController = navController,
+                        initialNoteId = noteIdFromNotif
+                    )
                 }
             }
         }
     }
 
     override fun onDestinationChanged(
-        controller: NavController,
-        destination: NavDestination,
-        arguments: Bundle?
+        controller: NavController, destination: NavDestination, arguments: Bundle?
     ) {
     }
 }
@@ -66,8 +77,9 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
 @Composable
 fun NoteApp(viewModel: MainViewModel, navController: NavHostController, initialNoteId: Long = 0L) {
 
-    Scaffold(containerColor = androidx.compose.ui.graphics.Color.White)
-    { innerPadding ->
+    val currentFont by viewModel.currentFont.collectAsStateWithLifecycle()
+
+    Scaffold(containerColor = androidx.compose.ui.graphics.Color.White) { innerPadding ->
         NavHost(
             navController = navController,
             startDestination = Screens.HomeScreen.route,
@@ -75,7 +87,13 @@ fun NoteApp(viewModel: MainViewModel, navController: NavHostController, initialN
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            composable(Screens.HomeScreen.route) { HomeScreen(navController) }
+            composable(Screens.HomeScreen.route) {
+                HomeScreen(
+                    navController,
+                    currentFont = currentFont,
+                    onFontSelected = viewModel::onFontSelected
+                )
+            }
             composable(
                 route = "${Screens.NoteDetailScreen.route}?id={id}",
                 arguments = listOf(navArgument("id") {
@@ -99,11 +117,11 @@ fun NoteApp(viewModel: MainViewModel, navController: NavHostController, initialN
     }
 }
 
-@SuppressLint("ViewModelConstructorInComposable")
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    NoteAppTheme {
-        NoteApp(viewModel = MainViewModel(), navController = rememberNavController())
-    }
-}
+//@SuppressLint("ViewModelConstructorInComposable")
+//@Preview(showBackground = true)
+//@Composable
+//fun GreetingPreview() {
+//    NoteAppTheme(appFont = AppFont.PELAK) {
+//        NoteApp(viewModel = MainViewModel(), navController = rememberNavController())
+//    }
+//}
