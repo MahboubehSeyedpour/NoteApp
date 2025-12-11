@@ -53,13 +53,13 @@ fun NoteDetailScreenTopBar(
                         )
                     },
                 )
-                CircularIconButton(
-                    onClick = onShareClick, icon = {
-                        Icon(
-                            ImageVector.vectorResource(R.drawable.ic_send),
-                            contentDescription = "Download"
-                        )
-                    })
+//                CircularIconButton(
+//                    onClick = onShareClick, icon = {
+//                        Icon(
+//                            ImageVector.vectorResource(R.drawable.ic_send),
+//                            contentDescription = "Download"
+//                        )
+//                    })
                 CircularIconButton(
                     onClick = onDoneClicked, icon = {
                     Icon(
