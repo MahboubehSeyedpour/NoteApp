@@ -39,32 +39,32 @@ val LuxLightColorScheme = lightColorScheme(
 )
 
 val LuxDarkColorScheme = darkColorScheme(
-    primary            = PrimaryDark,
+    primary            = PrimaryLight,
     onPrimary          = Color.White,
-    primaryContainer   = PrimaryDark,
-    onPrimaryContainer = Color.White,
+    primaryContainer   = PrimaryLight.copy(alpha = 0.14f),
+    onPrimaryContainer = PrimaryDark,
 
-    secondary          = SecondaryDark,
-    onSecondary        = OnSecondaryLight,
-    secondaryContainer = SecondaryContainer,
-    onSecondaryContainer = Color.White,
+    secondary          = SecondaryLight,
+    onSecondary        = Color.White,
+    secondaryContainer = SecondaryLight.copy(alpha = 0.16f),
+    onSecondaryContainer = SecondaryDark,
 
     tertiary           = TertiaryLight,
     onTertiary         = Color.White,
-    tertiaryContainer  = TertiaryContainer,
-    onTertiaryContainer = Color.White,
+    tertiaryContainer  = TertiaryLight.copy(alpha = 0.16f),
+    onTertiaryContainer = TertiaryDark,
 
     error              = Error,
     onError            = Color.White,
 
-    background         = BackgroundDark,
-    onBackground       = Color.White,
+    background         = BackgroundLight,
+    onBackground       = PrimaryLight,
 
     surface            = Surface,
-    onSurface          = Color.White,
+    onSurface          = OnSurface,
 
     surfaceVariant     = SurfaceVariant,
-    onSurfaceVariant   = OnSurfaceVariant,
+    onSurfaceVariant   = SurfaceVariant,
 
     outline            = Outline,
     outlineVariant     = OutlineVariant,
