@@ -10,12 +10,14 @@ import com.app.noteapp.data.local.entity.NoteEntity
 import com.app.noteapp.data.mapper.toDomain
 import com.app.noteapp.data.mapper.toUI
 import com.app.noteapp.di.IoDispatcher
+import com.app.noteapp.domain.backup_model.ImportResult
 import com.app.noteapp.domain.common_model.AppLanguage
 import com.app.noteapp.domain.common_model.AvatarType
 import com.app.noteapp.domain.common_model.Note
 import com.app.noteapp.domain.common_model.Tag
 import com.app.noteapp.domain.usecase.AvatarTypeUseCase
 import com.app.noteapp.domain.usecase.ExportNotesUseCase
+import com.app.noteapp.domain.usecase.ImportNotesUseCase
 import com.app.noteapp.domain.usecase.LanguageUseCase
 import com.app.noteapp.domain.usecase.NoteUseCase
 import com.app.noteapp.domain.usecase.TagUseCase
@@ -32,6 +34,8 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -46,6 +50,7 @@ class HomeViewModel @Inject constructor(
     private val avatarUseCase: AvatarTypeUseCase,
     private val languageUseCase: LanguageUseCase,
     private val exportNotesUseCase: ExportNotesUseCase,
+    private val importNotesUseCase: ImportNotesUseCase,
     @IoDispatcher private val io: CoroutineDispatcher
 ) : ViewModel() {
 
@@ -284,6 +289,10 @@ class HomeViewModel @Inject constructor(
     }
 
     suspend fun exportNotesBytes(): ByteArray = exportNotesUseCase()
+
+    fun importBackup(bytes: ByteArray): Flow<Result<ImportResult>> = flow {
+        emit(runCatching { importNotesUseCase(bytes) })
+    }.flowOn(io)
 
 }
 

@@ -62,6 +62,7 @@ fun DrawerContent(
     currentFont: AppFont,
     onFontSelected: (AppFont) -> Unit,
     onExportClicked: () -> Unit,
+    onImportClicked: () -> Unit,
 ) {
     ModalDrawerSheet {
         AvatarPickerSection(selected = currentAvatar, onSelect = onAvatarSelected)
@@ -90,9 +91,15 @@ fun DrawerContent(
         Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
         Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
 
-        ExportSection(
-            onExportClicked = onExportClicked,
-        )
+        ExportSection(onExportClicked = onExportClicked)
+
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+        HorizontalDivider()
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+
+        ImportSection(onImportClicked = onImportClicked)
     }
 }
 
@@ -383,8 +390,7 @@ fun ExportSection(onExportClicked: () -> Unit) {
             .padding(
                 horizontal = dimensionResource(R.dimen.h_space),
                 vertical = dimensionResource(R.dimen.v_space),
-            ),
-        verticalArrangement = Arrangement.Center
+            ), verticalArrangement = Arrangement.Center
     ) {
 
         Row(
@@ -392,7 +398,7 @@ fun ExportSection(onExportClicked: () -> Unit) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(stringResource(R.string.export))
+            Text(stringResource(R.string.export_to))
             Button(onClick = onExportClicked) {
                 Icon(
                     ImageVector.vectorResource(R.drawable.ic_export), contentDescription = "export"
@@ -405,3 +411,25 @@ fun ExportSection(onExportClicked: () -> Unit) {
         )
     }
 }
+
+@Composable
+fun ImportSection(onImportClicked: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = dimensionResource(R.dimen.h_space),
+                vertical = dimensionResource(R.dimen.v_space),
+            ),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(stringResource(R.string.import_from))
+        Button(onClick = onImportClicked) {
+            Icon(
+                ImageVector.vectorResource(R.drawable.ic_import), contentDescription = "import"
+            )
+        }
+    }
+}
+

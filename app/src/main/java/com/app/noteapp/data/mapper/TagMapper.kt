@@ -3,6 +3,7 @@ package com.app.noteapp.data.mapper
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.app.noteapp.data.local.entity.TagEntity
+import com.app.noteapp.domain.backup_model.TagBackupDto
 import com.app.noteapp.domain.common_model.Tag
 
 fun TagEntity.toUI(): Tag =
@@ -10,3 +11,6 @@ fun TagEntity.toUI(): Tag =
 
 fun Tag.toDomain(): TagEntity =
     TagEntity(id = id, name = name, colorArgb = color.toArgb())
+
+fun TagBackupDto.toTagEntity(): TagEntity =
+    TagEntity(id = id, name = name, colorArgb = colorArgb)

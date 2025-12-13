@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 interface TagDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun addTag(tagEntity: TagEntity)
+    suspend fun addTag(tagEntity: TagEntity): Long
 
     @Query("SELECT * FROM `tags`")
     fun getAllTags(): Flow<List<TagEntity>>
@@ -21,5 +21,14 @@ interface TagDao {
     suspend fun deleteTag(tagEntity: TagEntity)
 
     @Query("SELECT * FROM `tags` WHERE id=:id")
-    fun getTagByName(id: Long): Flow<TagEntity>
+    fun getTagById(id: Long): Flow<TagEntity>
+
+    @Query("SELECT * FROM `tags` WHERE name=:name")
+    fun getTagByName(name: String): Flow<TagEntity>
+
+    @Query("SELECT EXISTS(SELECT 1 FROM tags WHERE id = :id)")
+    suspend fun existsById(id: Long): Boolean
+
+    @Query("SELECT id FROM tags")
+    suspend fun getAllIds(): List<Long>
 }

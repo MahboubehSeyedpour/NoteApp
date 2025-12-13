@@ -12,7 +12,7 @@ class NoteRepositoryImpl @Inject constructor(
 ) : NoteRepository {
     override fun getAllNotes(): Flow<List<NoteEntity>> = noteDao.getAllNotes()
 
-    override suspend fun addNote(noteEntity: NoteEntity) = noteDao.addNote(noteEntity)
+    override suspend fun addNote(noteEntity: NoteEntity): Long = noteDao.addNote(noteEntity)
 
     override suspend fun updateNote(noteEntity: NoteEntity) = noteDao.updateNote(noteEntity)
 

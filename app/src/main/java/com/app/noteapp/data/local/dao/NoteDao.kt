@@ -15,7 +15,10 @@ import kotlinx.coroutines.flow.Flow
 interface NoteDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun addNote(noteEntity: NoteEntity)
+    suspend fun addNote(noteEntity: NoteEntity): Long
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insertForImport(noteEntity: NoteEntity): Long
 
     @Query("SELECT * FROM `notes`")
     fun getAllNotes(): Flow<List<NoteEntity>>
@@ -51,6 +54,10 @@ interface NoteDao {
 """)
     fun getNotesBetween(start: Long, end: Long): Flow<List<NoteEntity>>
 
+    @Query("SELECT EXISTS(SELECT 1 FROM notes WHERE id = :id)")
+    suspend fun existsById(id: Long): Boolean
 
+    @Query("SELECT id FROM notes")
+    suspend fun getAllIds(): List<Long>
 
 }

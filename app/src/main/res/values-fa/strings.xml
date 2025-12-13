@@ -97,7 +97,9 @@
     <string name="school_planner">سکول پلنر</string>
     <string name="bolding">بولدینگ</string>
 
-    <string name="export">ذخیره نسخه پشتیبان</string>
+    <string name="export_to">ذخیره نسخه پشتیبان</string>
     <string name="export_description">نسخه پشتیبان روی دستگاه خودتان ذخیره میشود</string>
+
+    <string name="import_from">بازیابی یادداشت از فایل</string>
 
 </resources>

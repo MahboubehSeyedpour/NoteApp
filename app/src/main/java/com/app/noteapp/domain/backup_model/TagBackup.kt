@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 data class TagBackupDto(
     val id: Long,
     val name: String,
-    val colorArgb: Long,
+    val colorArgb: Int,
 )

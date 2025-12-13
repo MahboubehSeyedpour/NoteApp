@@ -1,8 +1,10 @@
 package com.app.noteapp.data.mapper
 
+import android.R.attr.tag
 import androidx.compose.ui.graphics.Color
 import com.app.noteapp.core.time.formatReminderEpoch
 import com.app.noteapp.data.local.entity.NoteEntity
+import com.app.noteapp.domain.backup_model.NoteBackupDto
 import com.app.noteapp.domain.common_model.Note
 import com.app.noteapp.domain.common_model.Tag
 import com.app.noteapp.presentation.theme.ReminderTagColor
@@ -30,6 +32,16 @@ fun Note.toDomain(): NoteEntity = NoteEntity(
     description = description,
     tagId = tag?.id,
     reminderAt = reminderAt,
+    pinned = pinned,
+    createdAt = System.currentTimeMillis(),
+)
+
+fun NoteBackupDto.toNoteEntity(): NoteEntity = NoteEntity(
+    id = id,
+    title = title,
+    description = description,
+    tagId = tagId,
+    reminderAt = reminderAtEpochMs,
     pinned = pinned,
     createdAt = System.currentTimeMillis(),
 )

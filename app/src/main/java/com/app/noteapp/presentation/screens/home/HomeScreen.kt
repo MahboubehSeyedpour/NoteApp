@@ -174,6 +174,35 @@ fun HomeScreen(
     }
 
 
+    val importLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+
+        scope.launch {
+            runCatching {
+                val bytes = context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                    ?: error("Failed to open input stream")
+
+                viewModel.importBackup(bytes).collect { result ->
+                    result.onSuccess { res ->
+                        viewModel.clearFilters()
+                        viewModel.onSearchChange("")
+                        Toast.makeText(
+                            context,
+                            "Imported: ${res.notesImported} notes, ${res.tagsImported} tags",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }.onFailure { e ->
+                        Toast.makeText(context, "Import failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }.onFailure { e ->
+                Toast.makeText(context, "Import failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     val exportLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/json")
     ) { uri ->
@@ -212,7 +241,8 @@ fun HomeScreen(
                 onExportClicked = {
                         exportLauncher.launch("noteapp-backup-${System.currentTimeMillis()}.json")
                         scope.launch { drawerState.close() }
-                }
+                },
+                onImportClicked = {importLauncher.launch(arrayOf("application/json")) }
             )
         }) {
         Scaffold(
