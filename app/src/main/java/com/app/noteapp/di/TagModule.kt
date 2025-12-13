@@ -12,19 +12,19 @@ import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 
-@Module
-@InstallIn(ViewModelComponent::class)
-object TagModule {
-
-    @Provides
-    fun provideNoteRepository(tagDao: TagDao): TagRepository = TagRepositoryImpl(tagDao)
-
-    @Provides
-    fun provideTagUseCase(
-        tagRepository: TagRepository,
-        @ApplicationContext context: Context,
-        @IoDispatcher io: CoroutineDispatcher
-    ): TagUseCase = TagUseCase(
-        tagRepository = tagRepository, context = context, io = io
-    )
-}
+//@Module
+//@InstallIn(ViewModelComponent::class)
+//object TagModule {
+//
+//    @Provides
+//    fun provideNoteRepository(tagDao: TagDao): TagRepository = TagRepositoryImpl(tagDao)
+//
+//    @Provides
+//    fun provideTagUseCase(
+//        tagRepository: TagRepository,
+//        @ApplicationContext context: Context,
+//        @IoDispatcher io: CoroutineDispatcher
+//    ): TagUseCase = TagUseCase(
+//        tagRepository = tagRepository, context = context, io = io
+//    )
+//}

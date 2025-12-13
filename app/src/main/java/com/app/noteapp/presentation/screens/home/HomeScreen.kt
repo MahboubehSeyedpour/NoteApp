@@ -1,6 +1,8 @@
 package com.app.noteapp.presentation.screens.home
 
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -172,6 +174,27 @@ fun HomeScreen(
     }
 
 
+    val exportLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+
+        scope.launch {
+            runCatching {
+                val bytes = viewModel.exportNotesBytes()
+                context.contentResolver.openOutputStream(uri, "w")?.use { out ->
+                    out.write(bytes)
+                    out.flush()
+                } ?: error("Failed to open output stream")
+            }.onFailure { e ->
+                Toast.makeText(context, "Export failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            }.onSuccess {
+                Toast.makeText(context, "Exported", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -185,7 +208,11 @@ fun HomeScreen(
                 viewModel.onLanguageSelected(newLang)
                 scope.launch { drawerState.close() } },
                 currentFont = currentFont,
-                onFontSelected = onFontSelected
+                onFontSelected = onFontSelected,
+                onExportClicked = {
+                        exportLauncher.launch("noteapp-backup-${System.currentTimeMillis()}.json")
+                        scope.launch { drawerState.close() }
+                }
             )
         }) {
         Scaffold(

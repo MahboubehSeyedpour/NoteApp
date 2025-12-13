@@ -97,4 +97,7 @@
     <string name="school_planner">SchoolPlanner</string>
     <string name="bolding">Bolding</string>
 
+    <string name="export">Export</string>
+    <string name="export_description">Backup will be saved on your device</string>
+
 </resources>

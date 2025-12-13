@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -60,31 +61,37 @@ fun DrawerContent(
     onLanguageSelected: (AppLanguage) -> Unit,
     currentFont: AppFont,
     onFontSelected: (AppFont) -> Unit,
+    onExportClicked: () -> Unit,
 ) {
     ModalDrawerSheet {
         AvatarPickerSection(selected = currentAvatar, onSelect = onAvatarSelected)
 
         Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
         Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
-        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
-        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
-
         HorizontalDivider()
-
-        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
-        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
         Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
         Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
 
         LanguagePickerSection(selected = currentLanguage, onSelect = onLanguageSelected)
 
         Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
         HorizontalDivider()
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
         Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
 
         FontPickerSection(
-            selected = currentFont,
-            onSelect = onFontSelected
+            selected = currentFont, onSelect = onFontSelected
+        )
+
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+        HorizontalDivider()
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+
+        ExportSection(
+            onExportClicked = onExportClicked,
         )
     }
 }
@@ -103,7 +110,8 @@ fun AvatarPickerSection(
             )
     ) {
         Text(
-            text = stringResource(R.string.choose_avatar_img), style = MaterialTheme.typography.titleMedium
+            text = stringResource(R.string.choose_avatar_img),
+            style = MaterialTheme.typography.titleMedium
         )
 
         Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
@@ -320,8 +328,10 @@ fun FontPickerSection(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = dimensionResource(R.dimen.h_space),
-                            vertical = dimensionResource(R.dimen.tag_v_padding)),
+                        .padding(
+                            horizontal = dimensionResource(R.dimen.h_space),
+                            vertical = dimensionResource(R.dimen.tag_v_padding)
+                        ),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -332,10 +342,8 @@ fun FontPickerSection(
                     )
 
                     Icon(
-                        imageVector = if (expanded)
-                            ImageVector.vectorResource(R.drawable.ic_arrow_up)
-                        else
-                            ImageVector.vectorResource(R.drawable.ic_arrow_down),
+                        imageVector = if (expanded) ImageVector.vectorResource(R.drawable.ic_arrow_up)
+                        else ImageVector.vectorResource(R.drawable.ic_arrow_down),
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -343,32 +351,57 @@ fun FontPickerSection(
             }
 
             DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                offset = DpOffset(x = 0.dp, y = dimensionResource(R.dimen.v_space)), // space between Surface and menu
+                expanded = expanded, onDismissRequest = { expanded = false }, offset = DpOffset(
+                    x = 0.dp, y = dimensionResource(R.dimen.v_space)
+                ), // space between Surface and menu
                 modifier = Modifier
                     .width(fieldWidth)
                     .background(MaterialTheme.colorScheme.surface)
             ) {
                 fontItems.forEach { (font, label) ->
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                text = label,
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        },
-                        onClick = {
-                            expanded = false
-                            if (font != selected) {
-                                onSelect(font)
-                            }
+                    DropdownMenuItem(text = {
+                        Text(
+                            text = label, style = MaterialTheme.typography.bodyMedium
+                        )
+                    }, onClick = {
+                        expanded = false
+                        if (font != selected) {
+                            onSelect(font)
                         }
-                    )
+                    })
                 }
             }
         }
     }
 }
 
+@Composable
+fun ExportSection(onExportClicked: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = dimensionResource(R.dimen.h_space),
+                vertical = dimensionResource(R.dimen.v_space),
+            ),
+        verticalArrangement = Arrangement.Center
+    ) {
 
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(stringResource(R.string.export))
+            Button(onClick = onExportClicked) {
+                Icon(
+                    ImageVector.vectorResource(R.drawable.ic_export), contentDescription = "export"
+                )
+            }
+        }
+        Text(
+            stringResource(R.string.export_description),
+            style = MaterialTheme.typography.labelLarge.copy(color = MaterialTheme.colorScheme.secondary)
+        )
+    }
+}

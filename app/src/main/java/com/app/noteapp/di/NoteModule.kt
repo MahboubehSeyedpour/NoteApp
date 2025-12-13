@@ -8,25 +8,25 @@ import com.app.noteapp.domain.usecase.NoteUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
 
-@Module
-@InstallIn(ViewModelComponent::class)
-object NoteModule {
-
-    @Provides
-    fun provideNoteRepository(noteDao: NoteDao): NoteRepository = NoteRepositoryImpl(noteDao)
-
-    @Provides
-    fun provideNoteUseCase(
-        noteRepository: NoteRepository,
-        @ApplicationContext context: Context,
-        @IoDispatcher io: CoroutineDispatcher
-    ): NoteUseCase = NoteUseCase(
-        noteRepository = noteRepository,
-        context = context,
-        io = io
-    )
-}
+//@Module
+//@InstallIn(SingletonComponent::class)
+//object NoteModule {
+//
+//    @Provides
+//    fun provideNoteRepository(noteDao: NoteDao): NoteRepository = NoteRepositoryImpl(noteDao)
+//
+//    @Provides
+//    fun provideNoteUseCase(
+//        noteRepository: NoteRepository,
+//        @ApplicationContext context: Context,
+//        @IoDispatcher io: CoroutineDispatcher
+//    ): NoteUseCase = NoteUseCase(
+//        noteRepository = noteRepository,
+//        context = context,
+//        io = io
+//    )
+//}

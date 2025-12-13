@@ -15,6 +15,7 @@ import com.app.noteapp.domain.common_model.AvatarType
 import com.app.noteapp.domain.common_model.Note
 import com.app.noteapp.domain.common_model.Tag
 import com.app.noteapp.domain.usecase.AvatarTypeUseCase
+import com.app.noteapp.domain.usecase.ExportNotesUseCase
 import com.app.noteapp.domain.usecase.LanguageUseCase
 import com.app.noteapp.domain.usecase.NoteUseCase
 import com.app.noteapp.domain.usecase.TagUseCase
@@ -44,6 +45,7 @@ class HomeViewModel @Inject constructor(
     private val tagUseCase: TagUseCase,
     private val avatarUseCase: AvatarTypeUseCase,
     private val languageUseCase: LanguageUseCase,
+    private val exportNotesUseCase: ExportNotesUseCase,
     @IoDispatcher private val io: CoroutineDispatcher
 ) : ViewModel() {
 
@@ -280,6 +282,8 @@ class HomeViewModel @Inject constructor(
         _rangeStart.value = start
         _rangeEnd.value = end
     }
+
+    suspend fun exportNotesBytes(): ByteArray = exportNotesUseCase()
 
 }
 
