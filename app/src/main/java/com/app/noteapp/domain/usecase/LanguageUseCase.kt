@@ -1,6 +1,6 @@
 package com.app.noteapp.domain.usecase
 
-import com.app.noteapp.domain.model.AppLanguage
+import com.app.noteapp.domain.common_model.AppLanguage
 import com.app.noteapp.domain.repository.LocaleRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject

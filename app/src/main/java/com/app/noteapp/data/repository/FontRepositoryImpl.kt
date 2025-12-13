@@ -1,7 +1,7 @@
 package com.app.noteapp.data.repository
 
 import com.app.noteapp.data.local.font.FontPreferences
-import com.app.noteapp.domain.model.AppFont
+import com.app.noteapp.domain.common_model.AppFont
 import com.app.noteapp.domain.repository.FontRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject

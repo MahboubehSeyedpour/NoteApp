@@ -47,9 +47,9 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.app.noteapp.R
-import com.app.noteapp.domain.model.AppFont
-import com.app.noteapp.domain.model.AppLanguage
-import com.app.noteapp.domain.model.AvatarType
+import com.app.noteapp.domain.common_model.AppFont
+import com.app.noteapp.domain.common_model.AppLanguage
+import com.app.noteapp.domain.common_model.AvatarType
 import com.app.noteapp.presentation.model.iconRes
 
 @Composable

@@ -32,7 +32,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import com.app.noteapp.R
-import com.app.noteapp.domain.model.Note
+import com.app.noteapp.domain.common_model.Note
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

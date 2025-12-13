@@ -2,7 +2,7 @@ package com.app.noteapp.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.app.noteapp.domain.model.AppFont
+import com.app.noteapp.domain.common_model.AppFont
 import com.app.noteapp.domain.repository.FontRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted

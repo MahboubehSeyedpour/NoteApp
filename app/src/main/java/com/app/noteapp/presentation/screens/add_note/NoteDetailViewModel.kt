@@ -10,8 +10,8 @@ import com.app.noteapp.core.time.formatReminderEpoch
 import com.app.noteapp.data.mapper.toDomain
 import com.app.noteapp.data.mapper.toUI
 import com.app.noteapp.di.IoDispatcher
-import com.app.noteapp.domain.model.Note
-import com.app.noteapp.domain.model.Tag
+import com.app.noteapp.domain.common_model.Note
+import com.app.noteapp.domain.common_model.Tag
 import com.app.noteapp.domain.reminders.ReminderScheduler
 import com.app.noteapp.domain.usecase.NoteUseCase
 import com.app.noteapp.domain.usecase.TagUseCase

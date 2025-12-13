@@ -10,10 +10,10 @@ import com.app.noteapp.data.local.entity.NoteEntity
 import com.app.noteapp.data.mapper.toDomain
 import com.app.noteapp.data.mapper.toUI
 import com.app.noteapp.di.IoDispatcher
-import com.app.noteapp.domain.model.AppLanguage
-import com.app.noteapp.domain.model.AvatarType
-import com.app.noteapp.domain.model.Note
-import com.app.noteapp.domain.model.Tag
+import com.app.noteapp.domain.common_model.AppLanguage
+import com.app.noteapp.domain.common_model.AvatarType
+import com.app.noteapp.domain.common_model.Note
+import com.app.noteapp.domain.common_model.Tag
 import com.app.noteapp.domain.usecase.AvatarTypeUseCase
 import com.app.noteapp.domain.usecase.LanguageUseCase
 import com.app.noteapp.domain.usecase.NoteUseCase

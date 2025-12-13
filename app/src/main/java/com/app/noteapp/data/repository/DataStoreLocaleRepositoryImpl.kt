@@ -4,7 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.app.noteapp.domain.model.AppLanguage
+import com.app.noteapp.domain.common_model.AppLanguage
 import com.app.noteapp.domain.repository.LocaleRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

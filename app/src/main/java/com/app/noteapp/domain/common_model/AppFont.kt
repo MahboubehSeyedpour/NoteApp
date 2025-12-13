@@ -1,4 +1,4 @@
-package com.app.noteapp.domain.model
+package com.app.noteapp.domain.common_model
 
 enum class AppFont(val key: String) {
     IRAN_NASTALIQ("iran_nastaliq"),

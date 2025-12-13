@@ -3,7 +3,7 @@ package com.app.noteapp.presentation.theme
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import com.app.noteapp.R
-import com.app.noteapp.domain.model.AppFont
+import com.app.noteapp.domain.common_model.AppFont
 
 private val IranNastaliqFontFamily = FontFamily(
     Font(R.font.iran_nastaliq),

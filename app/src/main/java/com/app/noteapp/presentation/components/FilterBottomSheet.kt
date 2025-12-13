@@ -1,6 +1,5 @@
 package com.app.noteapp.presentation.components
 
-import android.R.attr.verticalGap
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
@@ -30,7 +28,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.unit.sp
 import com.app.noteapp.R
-import com.app.noteapp.domain.model.Tag
+import com.app.noteapp.domain.common_model.Tag
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter

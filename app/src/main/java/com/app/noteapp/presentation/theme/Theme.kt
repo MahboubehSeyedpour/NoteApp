@@ -15,7 +15,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.app.noteapp.domain.model.AppFont
+import com.app.noteapp.domain.common_model.AppFont
 
 @Immutable
 data class AppShapes(

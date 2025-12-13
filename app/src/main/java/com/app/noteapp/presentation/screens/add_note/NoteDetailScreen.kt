@@ -63,7 +63,7 @@ import com.app.noteapp.core.permissions.PermissionRequest
 import com.app.noteapp.core.permissions.PermissionResult
 import com.app.noteapp.core.permissions.awaitPermission
 import com.app.noteapp.core.permissions.rememberPermissionRequester
-import com.app.noteapp.domain.model.Tag
+import com.app.noteapp.domain.common_model.Tag
 import com.app.noteapp.presentation.components.CircularIconButton
 import com.app.noteapp.presentation.components.CustomAlertDialog
 import com.app.noteapp.presentation.components.NoteAppButton

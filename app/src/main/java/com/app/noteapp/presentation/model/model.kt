@@ -2,7 +2,7 @@ package com.app.noteapp.presentation.model
 
 import androidx.annotation.DrawableRes
 import com.app.noteapp.R
-import com.app.noteapp.domain.model.AvatarType
+import com.app.noteapp.domain.common_model.AvatarType
 
 @DrawableRes
 fun AvatarType.iconRes(): Int = when (this) {

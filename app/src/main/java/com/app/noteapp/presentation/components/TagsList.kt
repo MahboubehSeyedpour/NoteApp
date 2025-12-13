@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.app.noteapp.R
-import com.app.noteapp.domain.model.Tag
+import com.app.noteapp.domain.common_model.Tag
 
 
 @OptIn(ExperimentalLayoutApi::class)

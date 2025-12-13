@@ -55,8 +55,8 @@ import androidx.navigation.NavController
 import com.app.noteapp.R
 import com.app.noteapp.core.enums.LayoutMode
 import com.app.noteapp.core.extensions.toLocalizedDigits
-import com.app.noteapp.domain.model.AppFont
-import com.app.noteapp.domain.model.AppLanguage
+import com.app.noteapp.domain.common_model.AppFont
+import com.app.noteapp.domain.common_model.AppLanguage
 import com.app.noteapp.presentation.components.CustomAlertDialog
 import com.app.noteapp.presentation.components.CustomFab
 import com.app.noteapp.presentation.components.CustomNoteCard
