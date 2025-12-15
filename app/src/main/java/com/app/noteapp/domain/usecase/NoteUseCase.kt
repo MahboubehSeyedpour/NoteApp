@@ -17,7 +17,7 @@ class NoteUseCase @Inject constructor(
     @IoDispatcher private val io: CoroutineDispatcher
 ) {
 
-    fun getAllNotes(): Flow<List<NoteEntity>> = noteRepository.getAllNotes()
+    fun getAllNotes(): Flow<List<NoteEntity>> = noteRepository.getNotesStream()
 
     suspend fun addOrUpdateNote(note: NoteEntity) {
         withContext(io) {
@@ -31,16 +31,16 @@ class NoteUseCase @Inject constructor(
     }
 
     suspend fun deleteById(id: Long) = withContext(io) {
-        val note = noteRepository.getNoteById(id).firstOrNull()
+        val note = noteRepository.getNoteStream(id).firstOrNull()
         note?.let {
             noteRepository.deleteNote(note)
         }
     }
 
-    fun getNoteById(id: Long): Flow<NoteEntity?> = noteRepository.getNoteById(id)
+    fun getNoteById(id: Long): Flow<NoteEntity?> = noteRepository.getNoteStream(id)
 
     suspend fun getLastNoteId(): Long? = noteRepository.getLastNoteId()
 
     fun getNotesBetween(start: Long, end: Long): Flow<List<NoteEntity>> =
-        noteRepository.getNotesBetween(start, end)
+        noteRepository.getNotesBetweenStream(start, end)
 }

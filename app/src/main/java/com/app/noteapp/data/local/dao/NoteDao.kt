@@ -21,7 +21,7 @@ interface NoteDao {
     suspend fun insertForImport(noteEntity: NoteEntity): Long
 
     @Query("SELECT * FROM `notes`")
-    fun getAllNotes(): Flow<List<NoteEntity>>
+    fun getNotesStream(): Flow<List<NoteEntity>>
 
     @Update
     suspend fun updateNote(noteEntity: NoteEntity)
@@ -30,29 +30,29 @@ interface NoteDao {
     suspend fun deleteNote(noteEntity: NoteEntity)
 
     @Query("SELECT * FROM `notes` WHERE id=:id")
-    fun getNoteById(id: Long): Flow<NoteEntity?>
+    fun getNoteStream(id: Long): Flow<NoteEntity?>
 
     @Query("SELECT id FROM `notes` ORDER BY id DESC LIMIT 1")
     fun getLastNoteId(): Long?
 
     @Transaction
     @Query("SELECT * FROM notes ORDER BY created_at DESC")
-    fun getAllNotesWithTag(): Flow<List<NoteTagRelation>>
+    fun getNotesWithTagStream(): Flow<List<NoteTagRelation>>
 
     @Transaction
     @Query("SELECT * FROM notes WHERE id=:id")
-    fun getNoteWithTagById(id: Long): Flow<NoteTagRelation>
+    fun getNoteWithTagStream(id: Long): Flow<NoteTagRelation>
 
 
     @Transaction
     @Query("SELECT * FROM notes WHERE id=:tagId ORDER BY created_at DESC")
-    fun getNotesByTag(tagId: Long): Flow<List<NoteTagRelation>>
+    fun getNotesByTagStream(tagId: Long): Flow<List<NoteTagRelation>>
 
     @Query("""
     SELECT * FROM notes
     WHERE created_at >= :start AND created_at < :end
 """)
-    fun getNotesBetween(start: Long, end: Long): Flow<List<NoteEntity>>
+    fun getNotesBetweenStream(start: Long, end: Long): Flow<List<NoteEntity>>
 
     @Query("SELECT EXISTS(SELECT 1 FROM notes WHERE id = :id)")
     suspend fun existsById(id: Long): Boolean

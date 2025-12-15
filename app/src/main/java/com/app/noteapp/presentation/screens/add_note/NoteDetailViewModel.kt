@@ -16,17 +16,21 @@ import com.app.noteapp.domain.reminders.ReminderScheduler
 import com.app.noteapp.domain.usecase.NoteUseCase
 import com.app.noteapp.domain.usecase.TagUseCase
 import com.app.noteapp.presentation.model.ToastType
+import com.app.noteapp.presentation.screens.home.ALL_TAG
+import com.app.noteapp.presentation.screens.home.ALL_TAG_ID
 import com.app.noteapp.presentation.theme.ReminderTagColor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.ZoneId
@@ -43,17 +47,15 @@ class NoteDetailViewModel @Inject constructor(
 
     private val noteId: Long? = savedStateHandle["id"]
 
-    private val _tags = MutableStateFlow<List<Tag>>(emptyList())
-    val tags: StateFlow<List<Tag>> = _tags
+    val tags: StateFlow<List<Tag>> =
+        tagUseCase.getAllTags().map { list -> list.map { it.toUI() }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), listOf())
 
-    private val _uiState = MutableStateFlow(
-        NoteDetailUIState(isLoading = false, note = Note())
-    )
+    private val _uiState = MutableStateFlow(NoteDetailUIState(isLoading = false, note = Note()))
     val uiState: StateFlow<NoteDetailUIState> = _uiState
 
     private val _events = MutableSharedFlow<NoteDetailEvents>()
     val events = _events.asSharedFlow()
-
 
 
     init {
@@ -66,15 +68,6 @@ class NoteDetailViewModel @Inject constructor(
                 }.collect { ui ->
                     _uiState.update { it.copy(isLoading = false, note = ui) }
                 }
-            }
-        }
-        observeTags()
-    }
-
-    private fun observeTags() {
-        viewModelScope.launch(io) {
-            tagUseCase.getAllTags().collectLatest { allTags ->
-                _tags.value = allTags.map { it.toUI() }
             }
         }
     }
@@ -119,8 +112,7 @@ class NoteDetailViewModel @Inject constructor(
             viewModelScope.launch {
                 _events.emit(
                     NoteDetailEvents.ShowToast(
-                        messageRes = R.string.empty_note_error,
-                        type = ToastType.ERROR
+                        messageRes = R.string.empty_note_error, type = ToastType.ERROR
                     )
                 )
             }
@@ -144,8 +136,7 @@ class NoteDetailViewModel @Inject constructor(
                     // e.message
                     _events.emit(
                         NoteDetailEvents.ShowToast(
-                            messageRes = R.string.fail_to_save_note,
-                            type = ToastType.ERROR
+                            messageRes = R.string.fail_to_save_note, type = ToastType.ERROR
                         )
                     )
                 }
@@ -169,8 +160,7 @@ class NoteDetailViewModel @Inject constructor(
             viewModelScope.launch {
                 _events.emit(
                     NoteDetailEvents.ShowToast(
-                        messageRes = R.string.invalid_note_id,
-                        type = ToastType.ERROR
+                        messageRes = R.string.invalid_note_id, type = ToastType.ERROR
                     )
                 )
             }
@@ -188,8 +178,7 @@ class NoteDetailViewModel @Inject constructor(
 //                _events.emit(NoteDetailEvents.Error("Failed to delete: ${e.message}"))
                 _events.emit(
                     NoteDetailEvents.ShowToast(
-                        messageRes = R.string.fail_to_save_note,
-                        type = ToastType.ERROR
+                        messageRes = R.string.fail_to_save_note, type = ToastType.ERROR
                     )
                 )
             }
@@ -200,16 +189,21 @@ class NoteDetailViewModel @Inject constructor(
         _events.emit(NoteDetailEvents.OpenReminderPicker)
     }
 
-    fun onTagSelected(tag: Tag) {
+    fun setTag(tag: Tag) {
         _uiState.update { it.copy(selectedTag = tag) }
         update { it.copy(tag = tag) }
     }
 
-    fun onAddTag(name: String, color: Color) {
+    fun addTag(name: String, color: Color) {
         val newTag = Tag(id = 0L, name.trim().lowercase(), color)
         if (newTag.name.equals("all", ignoreCase = true)) {
             viewModelScope.launch {
-                _events.emit(NoteDetailEvents.ShowToast(messageRes = R.string.tag_is_reserved, type = ToastType.ERROR))
+                _events.emit(
+                    NoteDetailEvents.ShowToast(
+                        messageRes = R.string.tag_is_reserved,
+                        type = ToastType.ERROR
+                    )
+                )
             }
             return
         }
@@ -218,19 +212,31 @@ class NoteDetailViewModel @Inject constructor(
         }
     }
 
-    fun onDeleteTag(tagId: Long) {
+    fun deleteTag(tagId: Long) {
         viewModelScope.launch(io) {
             runCatching {
                 tagUseCase.deleteTagById(tagId)
             }.onSuccess {
                 val cur = _uiState.value.note
                 if (cur?.tag?.id == tagId) {
-                    _uiState.update { it.copy(note = cur.copy(tag = null, timeBadge = cur.timeBadge)) }
+                    _uiState.update {
+                        it.copy(
+                            note = cur.copy(
+                                tag = null,
+                                timeBadge = cur.timeBadge
+                            )
+                        )
+                    }
                 }
             }.onFailure { e ->
                 viewModelScope.launch {
 //                    _events.emit(NoteDetailEvents.Error("Failed to delete tag: ${e.message}"))
-                    _events.emit(NoteDetailEvents.ShowToast(messageRes = R.string.fail_to_save_note, type = ToastType.ERROR))
+                    _events.emit(
+                        NoteDetailEvents.ShowToast(
+                            messageRes = R.string.fail_to_save_note,
+                            type = ToastType.ERROR
+                        )
+                    )
                 }
             }
         }

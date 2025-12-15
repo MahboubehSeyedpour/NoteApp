@@ -88,22 +88,15 @@ fun NoteDetailScreen(
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
-
-    // Sheet controls
     var showReminderSheet by remember { mutableStateOf(false) }
     var showTagSheet by remember { mutableStateOf(false) }
-
     val reminderSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val tagSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val context = LocalContext.current
-
     var showDeleteDialog by remember { mutableStateOf(false) }
-
     val requester = rememberPermissionRequester()
     var permissionError by remember { mutableStateOf<Int?>(null) }
-
     var editMode by remember { mutableStateOf(false) }
     var tagToDelete by remember { mutableStateOf<Tag?>(null) }
     var toast by remember { mutableStateOf<ToastUI?>(null) }
@@ -250,7 +243,7 @@ fun NoteDetailScreen(
                             labels = viewModel.tags.collectAsState().value,
                             horizontalGap = dimensionResource(R.dimen.list_items_h_padding),
                             verticalGap = dimensionResource(R.dimen.list_items_v_padding),
-                            onLabelClick = { tag -> viewModel.onTagSelected(tag) },
+                            onLabelClick = { tag -> viewModel.setTag(tag) },
                             trailingIcon = ImageVector.vectorResource(R.drawable.ic_add),
                             onTrailingClick = { showTagSheet = true },
                             selectedTagId = uiState.note?.tag?.id,
@@ -266,7 +259,7 @@ fun NoteDetailScreen(
                                     R.string.delete_tag_confirm, tagToDelete!!.name
                                 ),
                                 onConfirmBtnClick = {
-                                    viewModel.onDeleteTag(tagToDelete!!.id)
+                                    viewModel.deleteTag(tagToDelete!!.id)
                                     tagToDelete = null
                                 },
                                 confirmBtnText = R.string.delete,
@@ -352,10 +345,10 @@ fun NoteDetailScreen(
             containerColor = MaterialTheme.colorScheme.background
         ) {
             TagSheetContent(tags = viewModel.tags.collectAsState().value, onSelect = { tag ->
-                viewModel.onTagSelected(tag)
+                viewModel.setTag(tag)
                 showTagSheet = false
             }, onAdd = { name, color ->
-                viewModel.onAddTag(name, color)
+                viewModel.addTag(name, color)
                 showTagSheet = false
             })
         }

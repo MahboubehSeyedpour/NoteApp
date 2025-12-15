@@ -15,16 +15,16 @@ interface TagDao {
     suspend fun addTag(tagEntity: TagEntity): Long
 
     @Query("SELECT * FROM `tags`")
-    fun getAllTags(): Flow<List<TagEntity>>
+    fun getTagsStream(): Flow<List<TagEntity>>
 
     @Delete
     suspend fun deleteTag(tagEntity: TagEntity)
 
     @Query("SELECT * FROM `tags` WHERE id=:id")
-    fun getTagById(id: Long): Flow<TagEntity>
+    fun getTagStream(id: Long): Flow<TagEntity>
 
     @Query("SELECT * FROM `tags` WHERE name=:name")
-    fun getTagByName(name: String): Flow<TagEntity>
+    fun getTagStream(name: String): Flow<TagEntity>
 
     @Query("SELECT EXISTS(SELECT 1 FROM tags WHERE id = :id)")
     suspend fun existsById(id: Long): Boolean

@@ -10,7 +10,7 @@ import javax.inject.Inject
 class NoteRepositoryImpl @Inject constructor(
     private val noteDao: NoteDao
 ) : NoteRepository {
-    override fun getAllNotes(): Flow<List<NoteEntity>> = noteDao.getAllNotes()
+    override fun getNotesStream(): Flow<List<NoteEntity>> = noteDao.getNotesStream()
 
     override suspend fun addNote(noteEntity: NoteEntity): Long = noteDao.addNote(noteEntity)
 
@@ -18,14 +18,14 @@ class NoteRepositoryImpl @Inject constructor(
 
     override suspend fun deleteNote(noteEntity: NoteEntity) = noteDao.deleteNote(noteEntity)
 
-    override fun getNoteById(id: Long): Flow<NoteEntity?> = noteDao.getNoteById(id)
+    override fun getNoteStream(id: Long): Flow<NoteEntity?> = noteDao.getNoteStream(id)
 
     override suspend fun getLastNoteId(): Long? = noteDao.getLastNoteId()
 
-    override fun getAllNotesWithTag(): Flow<List<NoteTagRelation>> = noteDao.getAllNotesWithTag()
+    override fun getNotesWithTagStream(): Flow<List<NoteTagRelation>> = noteDao.getNotesWithTagStream()
 
-    override fun getNoteWithTagById(id: Long): Flow<NoteTagRelation> = noteDao.getNoteWithTagById(id)
+    override fun getNoteWithTagStream(id: Long): Flow<NoteTagRelation> = noteDao.getNoteWithTagStream(id)
 
-    override fun getNotesBetween(start: Long, end: Long): Flow<List<NoteEntity>> =
-        noteDao.getNotesBetween(start, end)
+    override fun getNotesBetweenStream(start: Long, end: Long): Flow<List<NoteEntity>> =
+        noteDao.getNotesBetweenStream(start, end)
 }

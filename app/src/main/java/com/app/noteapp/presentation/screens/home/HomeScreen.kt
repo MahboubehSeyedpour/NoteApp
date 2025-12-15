@@ -84,24 +84,20 @@ fun HomeScreen(
     var confirmDeleteId by remember { mutableStateOf<Long?>(null) }
     val query by viewModel.query.collectAsState()
     val selected by viewModel.selected.collectAsState()
-    selected.isNotEmpty()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val avatar by viewModel.avatar.collectAsState()
     val lang by viewModel.language.collectAsStateWithLifecycle()
     val tags by viewModel.tags.collectAsStateWithLifecycle()
-
     val notes by viewModel.notes.collectAsStateWithLifecycle()
     val pinnedNote = notes.filter { it.pinned }
     val others = notes.filterNot { it.pinned }
-
     val gridState = rememberLazyStaggeredGridState()
-
     val locale = LocalConfiguration.current.locales[0]
-
     var showFilterSheet by rememberSaveable { mutableStateOf(false) }
-
     val isFilterActive by viewModel.onFilter.collectAsState()
+    val rangeStart by viewModel.rangeStart.collectAsState()
+    val rangeEnd by viewModel.rangeEnd.collectAsState()
 
     LaunchedEffect(viewModel.events) {
         lifecycle.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
@@ -127,9 +123,6 @@ fun HomeScreen(
         AppCompatDelegate.setApplicationLocales(locales)
     }
 
-    val rangeStart by viewModel.rangeStart.collectAsState()
-    val rangeEnd by viewModel.rangeEnd.collectAsState()
-
     if (showFilterSheet) {
         ModalBottomSheet(
             onDismissRequest = { showFilterSheet = false },
@@ -145,9 +138,9 @@ fun HomeScreen(
                 },
                 rangeStart = rangeStart,
                 rangeEnd = rangeEnd,
-                onCustomRangeSelected = viewModel::onCustomRangeSelected,
+                onCustomRangeSelected = viewModel::filterCustomRange,
                 onlyReminder = viewModel.onlyReminder.collectAsStateWithLifecycle().value,
-                onOnlyReminderChange = viewModel::onOnlyReminderChange,
+                onOnlyReminderChange = viewModel::filterNotesWithReminder,
                 onClose = { showFilterSheet = false },
                 onDeleteAllFiltersClicked = {
                     showFilterSheet = false
@@ -187,7 +180,7 @@ fun HomeScreen(
                 viewModel.importBackup(bytes).collect { result ->
                     result.onSuccess { res ->
                         viewModel.clearFilters()
-                        viewModel.onSearchChange("")
+                        viewModel.onSearchQueryChange("")
                         Toast.makeText(
                             context,
                             "Imported: ${res.notesImported} notes, ${res.tagsImported} tags",
@@ -230,11 +223,11 @@ fun HomeScreen(
             DrawerContent(
                 currentAvatar = avatar,
                 onAvatarSelected = { type ->
-                viewModel.onAvatarSelected(type)
+                viewModel.changeAvatar(type)
                 scope.launch { drawerState.close() } },
                 currentLanguage = lang,
                 onLanguageSelected = { newLang ->
-                viewModel.onLanguageSelected(newLang)
+                viewModel.changeLanguage(newLang)
                 scope.launch { drawerState.close() } },
                 currentFont = currentFont,
                 onFontSelected = onFontSelected,
@@ -256,7 +249,7 @@ fun HomeScreen(
                     avatar = painterResource(avatar.iconRes()),
                     onAvatarClick = { scope.launch { drawerState.open() } },
                     query = query,
-                    onSearchChange = viewModel::onSearchChange,
+                    onSearchChange = viewModel::onSearchQueryChange,
                     onGridToggleClicked = viewModel::onGridToggleClicked,
                     layoutMode = layoutMode,
                     onFilterClick = { showFilterSheet = true },
@@ -279,7 +272,7 @@ fun HomeScreen(
                 }
             },
             floatingActionButton = {
-                CustomFab({ viewModel.onAddNoteClicked() })
+                CustomFab({ viewModel.addNote() })
             },
             floatingActionButtonPosition = FabPosition.End
         ) { inner ->
@@ -298,8 +291,8 @@ fun HomeScreen(
                             CustomNoteCard(
                                 note = note,
                                 isSelected = note.id in selected,
-                                onClick = { viewModel.onNoteDetailsClicked(note.id) },
-                                pinNote = { viewModel.pinNote(note.id) },
+                                onClick = { viewModel.navigateToNoteDetails(note.id) },
+                                pinNote = { viewModel.onPinNoteClicked(note.id) },
                                 deleteNote = { confirmDeleteId = note.id },
                                 noteTitleStyle = MaterialTheme.typography.titleMedium.copy(
                                     fontWeight = FontWeight.SemiBold, fontSize = 14.sp
@@ -321,8 +314,8 @@ fun HomeScreen(
                             CustomNoteCard(
                                 note = note,
                                 isSelected = note.id in selected,
-                                onClick = { viewModel.onNoteDetailsClicked(note.id) },
-                                pinNote = { viewModel.pinNote(note.id) },
+                                onClick = { viewModel.navigateToNoteDetails(note.id) },
+                                pinNote = { viewModel.onPinNoteClicked(note.id) },
                                 deleteNote = { confirmDeleteId = note.id },
                                 noteTitleStyle = MaterialTheme.typography.titleMedium.copy(
                                     fontWeight = FontWeight.SemiBold, fontSize = 14.sp
@@ -350,8 +343,8 @@ fun HomeScreen(
                             CustomNoteCard(
                                 note = note,
                                 isSelected = note.id in selected,
-                                onClick = { viewModel.onNoteDetailsClicked(note.id) },
-                                pinNote = { viewModel.pinNote(note.id) },
+                                onClick = { viewModel.navigateToNoteDetails(note.id) },
+                                pinNote = { viewModel.onPinNoteClicked(note.id) },
                                 deleteNote = { confirmDeleteId = note.id },
                                 noteTitleStyle = MaterialTheme.typography.titleMedium.copy(
                                     fontWeight = FontWeight.SemiBold, fontSize = 14.sp
@@ -375,8 +368,8 @@ fun HomeScreen(
                             CustomNoteCard(
                                 note = note,
                                 isSelected = note.id in selected,
-                                onClick = { viewModel.onNoteDetailsClicked(note.id) },
-                                pinNote = { viewModel.pinNote(note.id) },
+                                onClick = { viewModel.navigateToNoteDetails(note.id) },
+                                pinNote = { viewModel.onPinNoteClicked(note.id) },
                                 deleteNote = { confirmDeleteId = note.id },
                                 noteTitleStyle = MaterialTheme.typography.titleMedium.copy(
                                     fontWeight = FontWeight.SemiBold, fontSize = 14.sp

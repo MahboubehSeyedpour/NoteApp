@@ -37,7 +37,7 @@ class NotesBackupRepositoryImpl @Inject constructor(
 ) : NotesBackupRepository {
 
     override suspend fun exportBackupJsonBytes(): ByteArray = withContext(Dispatchers.IO) {
-        val notes = noteRepository.getAllNotes().first()
+        val notes = noteRepository.getNotesStream().first()
         val tags = tagRepository.getAllTags().first()
 
         val dto = NotesBackupDto(
@@ -86,7 +86,7 @@ class NotesBackupRepositoryImpl @Inject constructor(
                         val tagEntity = tag.toTagEntity()
                         val newId = insertTagWithIdConflictResolution(tagEntity)
                         if(newId == -1L) { // tag exists
-                            tagIdMap[tag.id]= tagDao.getTagByName(tagEntity.name).first().id
+                            tagIdMap[tag.id]= tagDao.getTagStream(tagEntity.name).first().id
                         } else {
                             tagIdMap[tag.id] = newId
                         }

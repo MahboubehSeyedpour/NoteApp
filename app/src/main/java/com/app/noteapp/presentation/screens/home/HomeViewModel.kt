@@ -81,6 +81,11 @@ class HomeViewModel @Inject constructor(
     private val _onFilter = MutableStateFlow(false)
     val onFilter: StateFlow<Boolean> = _onFilter
 
+    private val _selectedTagId = MutableStateFlow<Long>(ALL_TAG_ID)
+    val selectedTagId: StateFlow<Long> = _selectedTagId
+
+    private val zoneId: ZoneId = ZoneId.systemDefault()
+
     val language = languageUseCase().stateIn(
         viewModelScope, SharingStarted.WhileSubscribed(5_000), AppLanguage.FA
     )
@@ -97,45 +102,32 @@ class HomeViewModel @Inject constructor(
             listOf(ALL_TAG) + withoutAll
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), listOf(ALL_TAG))
 
-
-    private val _selectedTagId = MutableStateFlow<Long>(ALL_TAG_ID)
-    val selectedTagId: StateFlow<Long> = _selectedTagId
-
-    private val zoneId: ZoneId = ZoneId.systemDefault()
-
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val filteredNotes: Flow<List<NoteEntity>> =
-        combine(
-            _timeFilter,
-            _rangeStart,
-            _rangeEnd,
-            _onFilter
-        ) { filter, start, end, onFilter ->
-            if (!onFilter) {
-                null
-            } else {
-                rangeFor(filter, start, end, zoneId)
-            }
-        }.flatMapLatest { range: TimeRange? ->
-            if (range == null) {
-                // no effective date restriction
-                noteUseCase.getAllNotes()
-            } else {
-                noteUseCase.getNotesBetween(range.start, range.endExclusive)
-            }
+    private val filteredNotes: Flow<List<NoteEntity>> = combine(
+        _timeFilter, _rangeStart, _rangeEnd, _onFilter
+    ) { filter, start, end, onFilter ->
+        if (!onFilter) {
+            null
+        } else {
+            rangeFor(filter, start, end, zoneId)
         }
+    }.flatMapLatest { range: TimeRange? ->
+        if (range == null) {
+            noteUseCase.getAllNotes()
+        } else {
+            noteUseCase.getNotesBetween(range.start, range.endExclusive)
+        }
+    }
 
     private val _notes: Flow<List<Note>> = filteredNotes.map { all ->
-        all
-            .sortedByDescending {
-                it.createdAt
+        all.sortedByDescending {
+            it.createdAt
+        }.map { entity ->
+            val tagUi = entity.tagId?.let { tid ->
+                tagUseCase.getTag(tid).firstOrNull()?.toUI()
             }
-            .map { entity ->
-                val tagUi = entity.tagId?.let { tid ->
-                    tagUseCase.getTag(tid).firstOrNull()?.toUI()
-                }
-                entity.toUI(tagUi)
-            }
+            entity.toUI(tagUi)
+        }
     }
 
     private val baseFilters: Flow<Triple<List<Note>, String, Long>> =
@@ -144,67 +136,32 @@ class HomeViewModel @Inject constructor(
         }
 
     val notes: StateFlow<List<Note>> = combine(
-        baseFilters,
-        onlyReminder
+        baseFilters, onlyReminder
     ) { (list, q, tagId), onlyReminder ->
 
         val term = q.trim().lowercase()
 
         val byQuery = if (term.isBlank()) list else list.filter { n ->
-            n.title.lowercase().contains(term) ||
-                    (n.description ?: "").lowercase().contains(term)
+            n.title.lowercase().contains(term) || (n.description ?: "").lowercase().contains(term)
         }
 
         val byTag = if (tagId == ALL_TAG_ID) byQuery
         else byQuery.filter { it.tag?.id == tagId }
 
-        val byReminder =
-            if (!onlyReminder) byTag
-            else byTag.filter { it.reminderAt != null }
+        val byReminder = if (!onlyReminder) byTag
+        else byTag.filter { it.reminderAt != null }
 
-        byReminder.sortedWith(
-            compareByDescending<Note> { it.pinned }
-                .thenByDescending { it.createdAt }
-        )
+        byReminder.sortedWith(compareByDescending<Note> { it.pinned }.thenByDescending { it.createdAt })
     }.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5_000),
-        emptyList()
+        viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList()
     )
 
-
-
-    fun onAvatarSelected(type: AvatarType) {
-        viewModelScope.launch(io) {
-            avatarUseCase(type)
-        }
-    }
-
-    fun onSearchChange(newQuery: String) {
-        _query.value = newQuery
-    }
-
-    fun clearFilters() {
-        _selectedTagId.value = ALL_TAG_ID
-        _onlyReminder.value = false
-        _timeFilter.value = TimeFilter.ALL
-        _rangeStart.value = null
-        _rangeEnd.value = null
-        _onFilter.value = false
-    }
-
-
-    fun onNoteDetailsClicked(noteId: Long) = viewModelScope.launch {
-        _events.emit(HomeEvents.NavigateToNoteDetailScreen(noteId))
-    }
-
-    fun onAddNoteClicked() = viewModelScope.launch {
+    fun addNote() = viewModelScope.launch {
         _events.emit(HomeEvents.NavigateToNoteDetailScreen(null))
     }
 
-    fun onGridToggleClicked() {
+    fun onGridToggleClicked() =
         _layoutMode.update { mode -> if (mode == LayoutMode.LIST) LayoutMode.GRID else LayoutMode.LIST }
-    }
 
     fun deleteNote(id: Long) {
         viewModelScope.launch(io) {
@@ -219,7 +176,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun pinNote(id: Long) {
+    fun onPinNoteClicked(id: Long) {
         viewModelScope.launch(io) {
             runCatching {
                 val current = notes.firstOrNull()
@@ -248,18 +205,24 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun onLanguageSelected(lang: AppLanguage) {
-        viewModelScope.launch { languageUseCase(lang) }
+    suspend fun exportNotesBytes(): ByteArray = exportNotesUseCase()
+
+    fun importBackup(bytes: ByteArray): Flow<Result<ImportResult>> = flow {
+        emit(runCatching { importNotesUseCase(bytes) })
+    }.flowOn(io)
+
+    // ============================================= navigation =============================================
+    fun navigateToNoteDetails(noteId: Long) = viewModelScope.launch {
+        _events.emit(HomeEvents.NavigateToNoteDetailScreen(noteId))
     }
 
-    fun onOnlyReminderChange(enabled: Boolean) {
-        _onlyReminder.value = enabled
+    // ============================================= search & filter =============================================
+    fun onSearchQueryChange(newQuery: String) {
+        _query.value = newQuery
     }
+
     fun onFilterClicked(
-        tagId: Long?,
-        rangeStart: Long?,
-        rangeEnd: Long?,
-        onlyReminders: Boolean
+        tagId: Long?, rangeStart: Long?, rangeEnd: Long?, onlyReminders: Boolean
     ) {
         // 1) Tag
         _selectedTagId.value = tagId ?: ALL_TAG_ID
@@ -282,17 +245,29 @@ class HomeViewModel @Inject constructor(
         _onFilter.value = true
     }
 
-    fun onCustomRangeSelected(start: Long?, end: Long?) {
+    fun filterCustomRange(start: Long?, end: Long?) {
         _timeFilter.value = TimeFilter.CUSTOM_RANGE
         _rangeStart.value = start
         _rangeEnd.value = end
     }
 
-    suspend fun exportNotesBytes(): ByteArray = exportNotesUseCase()
+    fun filterNotesWithReminder(enabled: Boolean) {
+        _onlyReminder.value = enabled
+    }
 
-    fun importBackup(bytes: ByteArray): Flow<Result<ImportResult>> = flow {
-        emit(runCatching { importNotesUseCase(bytes) })
-    }.flowOn(io)
+    fun clearFilters() {
+        _selectedTagId.value = ALL_TAG_ID
+        _onlyReminder.value = false
+        _timeFilter.value = TimeFilter.ALL
+        _rangeStart.value = null
+        _rangeEnd.value = null
+        _onFilter.value = false
+    }
+
+    // ============================================= settings =============================================\
+    fun changeAvatar(type: AvatarType) = viewModelScope.launch(io) { avatarUseCase(type) }
+
+    fun changeLanguage(lang: AppLanguage) = viewModelScope.launch { languageUseCase(lang) }
 
 }
 
