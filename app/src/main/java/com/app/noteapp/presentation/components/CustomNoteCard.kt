@@ -32,12 +32,12 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import com.app.noteapp.R
-import com.app.noteapp.domain.common_model.Note
+import com.app.noteapp.presentation.model.NoteUiModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CustomNoteCard(
-    note: Note,
+    note: NoteUiModel,
     isSelected: Boolean,
     onClick: () -> Unit,
     pinNote: () -> Unit,

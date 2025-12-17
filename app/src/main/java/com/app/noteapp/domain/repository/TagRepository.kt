@@ -1,11 +1,11 @@
 package com.app.noteapp.domain.repository
 
-import com.app.noteapp.data.local.entity.TagEntity
+import com.app.noteapp.domain.common_model.Tag
 import kotlinx.coroutines.flow.Flow
 
 interface TagRepository {
-    fun getAllTags(): Flow<List<TagEntity>>
-    suspend fun addTag(tagEntity: TagEntity): Long
-    suspend fun deleteTag(tagEntity: TagEntity)
-    fun getTagById(id: Long): Flow<TagEntity>
+    fun getAllTags(): Flow<List<Tag>>
+    suspend fun addTag(tag: Tag): Long
+    suspend fun deleteTag(tag: Tag)
+    fun getTagById(id: Long): Flow<Tag>
 }

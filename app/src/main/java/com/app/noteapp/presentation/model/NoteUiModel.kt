@@ -1,9 +1,9 @@
-package com.app.noteapp.domain.common_model
+package com.app.noteapp.presentation.model
 
 import androidx.compose.runtime.Immutable
 
 @Immutable
-data class Note(
+data class NoteUiModel(
     val id: Long = 0,
     val title: String = "",
     val description: String? = "",
@@ -11,7 +11,6 @@ data class Note(
     val reminderAt: Long? = null,
     val createdAt: Long = 0L,
     val pinned: Boolean = false,
-    val tagId: Long? = null,
-    val tag: Tag? = null,
-    val reminderTag: Tag? = null
+    val tag: TagUiModel? = null,
+    val reminderTag: TagUiModel? = null
 )

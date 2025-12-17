@@ -48,7 +48,7 @@ class NotesBackupRepositoryImpl @Inject constructor(
                 TagBackupDto(
                     id = t.id,
                     name = t.name,
-                    colorArgb = t.colorArgb,
+                    colorArgb = t.color,
                 )
             },
             notes = notes.map { n ->

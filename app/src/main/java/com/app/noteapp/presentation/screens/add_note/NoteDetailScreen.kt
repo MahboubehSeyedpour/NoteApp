@@ -63,7 +63,6 @@ import com.app.noteapp.core.permissions.PermissionRequest
 import com.app.noteapp.core.permissions.PermissionResult
 import com.app.noteapp.core.permissions.awaitPermission
 import com.app.noteapp.core.permissions.rememberPermissionRequester
-import com.app.noteapp.domain.common_model.Tag
 import com.app.noteapp.presentation.components.CircularIconButton
 import com.app.noteapp.presentation.components.CustomAlertDialog
 import com.app.noteapp.presentation.components.NoteAppButton
@@ -73,6 +72,7 @@ import com.app.noteapp.presentation.components.TagsList
 import com.app.noteapp.presentation.components.ToastHost
 import com.app.noteapp.presentation.components.showDateTimePicker
 import com.app.noteapp.presentation.model.DialogType
+import com.app.noteapp.presentation.model.TagUiModel
 import com.app.noteapp.presentation.model.ToastUI
 import com.app.noteapp.presentation.theme.AppTheme
 import kotlinx.coroutines.flow.collectLatest
@@ -98,7 +98,7 @@ fun NoteDetailScreen(
     val requester = rememberPermissionRequester()
     var permissionError by remember { mutableStateOf<Int?>(null) }
     var editMode by remember { mutableStateOf(false) }
-    var tagToDelete by remember { mutableStateOf<Tag?>(null) }
+    var tagToDelete by remember { mutableStateOf<TagUiModel?>(null) }
     var toast by remember { mutableStateOf<ToastUI?>(null) }
 
     suspend fun ensureReminderPermissions(
@@ -430,7 +430,7 @@ fun ReminderSheetContent(
 
 @Composable
 fun TagSheetContent(
-    tags: List<Tag>, onSelect: (Tag) -> Unit, onAdd: (String, Color) -> Unit
+    tags: List<TagUiModel>, onSelect: (TagUiModel) -> Unit, onAdd: (String, Color) -> Unit
 ) {
     var newName by remember { mutableStateOf("") }
     val preset = listOf(

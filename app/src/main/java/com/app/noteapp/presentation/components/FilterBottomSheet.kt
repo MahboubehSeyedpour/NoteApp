@@ -29,13 +29,14 @@ import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.unit.sp
 import com.app.noteapp.R
 import com.app.noteapp.domain.common_model.Tag
+import com.app.noteapp.presentation.model.TagUiModel
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Composable
 fun NotesFilterSheet(
-    tags: List<Tag>,
+    tags: List<TagUiModel>,
     selectedTagId: Long?,
     onFilterClicked: (Long?, Long?, Long?, Boolean) -> Unit,
     onDeleteAllFiltersClicked: () -> Unit,

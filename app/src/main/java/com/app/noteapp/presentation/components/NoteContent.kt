@@ -35,14 +35,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.sp
 import com.app.noteapp.R
-import com.app.noteapp.domain.common_model.Note
+import com.app.noteapp.presentation.model.NoteUiModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
 fun NoteContent(
-    note: Note,
+    note: NoteUiModel,
     onTitleChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
     modifier: Modifier = Modifier,

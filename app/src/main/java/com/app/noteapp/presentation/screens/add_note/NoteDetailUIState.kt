@@ -1,11 +1,12 @@
 package com.app.noteapp.presentation.screens.add_note
 
-import com.app.noteapp.domain.common_model.Note
-import com.app.noteapp.domain.common_model.Tag
+import com.app.noteapp.data.local.entity.TagEntity
+import com.app.noteapp.presentation.model.NoteUiModel
+import com.app.noteapp.presentation.model.TagUiModel
 
 data class NoteDetailUIState(
     val isLoading: Boolean = false,
-    val note: Note? = null,
-    val selectedTag: Tag? = null,
+    val note: NoteUiModel? = null,
+    val selectedTag: TagUiModel? = null,
     val reminderAtMillis: Long? = null
 )

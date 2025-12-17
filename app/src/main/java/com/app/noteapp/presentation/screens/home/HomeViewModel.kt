@@ -6,14 +6,10 @@ import androidx.lifecycle.viewModelScope
 import com.app.noteapp.core.enums.LayoutMode
 import com.app.noteapp.core.time.TimeRange
 import com.app.noteapp.core.time.rangeFor
-import com.app.noteapp.data.local.entity.NoteEntity
-import com.app.noteapp.data.mapper.toDomain
-import com.app.noteapp.data.mapper.toUI
 import com.app.noteapp.di.IoDispatcher
 import com.app.noteapp.domain.backup_model.ImportResult
 import com.app.noteapp.domain.common_model.AppLanguage
 import com.app.noteapp.domain.common_model.AvatarType
-import com.app.noteapp.domain.common_model.Note
 import com.app.noteapp.domain.common_model.Tag
 import com.app.noteapp.domain.usecase.AvatarTypeUseCase
 import com.app.noteapp.domain.usecase.ExportNotesUseCase
@@ -21,6 +17,11 @@ import com.app.noteapp.domain.usecase.ImportNotesUseCase
 import com.app.noteapp.domain.usecase.LanguageUseCase
 import com.app.noteapp.domain.usecase.NoteUseCase
 import com.app.noteapp.domain.usecase.TagUseCase
+import com.app.noteapp.presentation.mapper.toNote
+import com.app.noteapp.presentation.mapper.toNoteUiModel
+import com.app.noteapp.presentation.mapper.toTagUiMapper
+import com.app.noteapp.presentation.model.NoteUiModel
+import com.app.noteapp.presentation.model.TagUiModel
 import com.app.noteapp.presentation.theme.ReminderTagColor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -96,14 +97,16 @@ class HomeViewModel @Inject constructor(
         initialValue = AvatarType.MALE
     )
 
-    val tags: StateFlow<List<Tag>> =
-        tagUseCase.getAllTags().map { list -> list.map { it.toUI() } }.map { ui ->
-            val withoutAll = ui.filterNot { it.id == ALL_TAG_ID || it.name.equals("all", true) }
-            listOf(ALL_TAG) + withoutAll
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), listOf(ALL_TAG))
+    val tags: StateFlow<List<TagUiModel>> =
+        tagUseCase.getAllTags()
+            .map { list -> list.map { it.toTagUiMapper() }}
+            .map { ui ->
+                val withoutAll = ui.filterNot { it.id == ALL_TAG_ID || it.name.equals("all", true) }
+                listOf(ALL_TAG) + withoutAll
+            }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), listOf(ALL_TAG))
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val filteredNotes: Flow<List<NoteEntity>> = combine(
+    private val filteredNotes: Flow<List<NoteUiModel>> = combine(
         _timeFilter, _rangeStart, _rangeEnd, _onFilter
     ) { filter, start, end, onFilter ->
         if (!onFilter) {
@@ -113,29 +116,22 @@ class HomeViewModel @Inject constructor(
         }
     }.flatMapLatest { range: TimeRange? ->
         if (range == null) {
-            noteUseCase.getAllNotes()
+            noteUseCase.getAllNotes().map { list -> list.map { it.toNoteUiModel() } }
         } else {
             noteUseCase.getNotesBetween(range.start, range.endExclusive)
+                .map { list -> list.map { it.toNoteUiModel() } }
         }
     }
 
-    private val _notes: Flow<List<Note>> = filteredNotes.map { all ->
-        all.sortedByDescending {
-            it.createdAt
-        }.map { entity ->
-            val tagUi = entity.tagId?.let { tid ->
-                tagUseCase.getTag(tid).firstOrNull()?.toUI()
-            }
-            entity.toUI(tagUi)
-        }
-    }
+    private val _notes: Flow<List<NoteUiModel>> =
+        filteredNotes.map { all -> all.sortedByDescending { it.createdAt } }
 
-    private val baseFilters: Flow<Triple<List<Note>, String, Long>> =
+    private val baseFilters: Flow<Triple<List<NoteUiModel>, String, Long>> =
         combine(_notes, _query, selectedTagId) { list, q, tagId ->
             Triple(list, q, tagId)
         }
 
-    val notes: StateFlow<List<Note>> = combine(
+    val notes: StateFlow<List<NoteUiModel>> = combine(
         baseFilters, onlyReminder
     ) { (list, q, tagId), onlyReminder ->
 
@@ -151,7 +147,7 @@ class HomeViewModel @Inject constructor(
         val byReminder = if (!onlyReminder) byTag
         else byTag.filter { it.reminderAt != null }
 
-        byReminder.sortedWith(compareByDescending<Note> { it.pinned }.thenByDescending { it.createdAt })
+        byReminder.sortedWith(compareByDescending<NoteUiModel> { it.pinned }.thenByDescending { it.createdAt })
     }.stateIn(
         viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList()
     )
@@ -184,7 +180,7 @@ class HomeViewModel @Inject constructor(
 
                 // Unpin previously pinned note (if different)
                 if (currentlyPinned != null && currentlyPinned.id != id) {
-                    noteUseCase.update(currentlyPinned.copy(pinned = false).toDomain())
+                    noteUseCase.update(currentlyPinned.copy(pinned = false).toNote())
                 }
 
                 // Pin target
@@ -195,7 +191,7 @@ class HomeViewModel @Inject constructor(
 
                 // If user taps pin on already pinned note, unpin it
                 if (currentlyPinned != null && currentlyPinned.id == id) {
-                    noteUseCase.update(currentlyPinned.copy(pinned = false).toDomain())
+                    noteUseCase.update(currentlyPinned.copy(pinned = false).toNote())
                 }
             }.onFailure {
                 viewModelScope.launch {
@@ -272,7 +268,7 @@ class HomeViewModel @Inject constructor(
 }
 
 const val ALL_TAG_ID: Long = -1L
-val ALL_TAG = Tag(
+val ALL_TAG = TagUiModel(
     id = ALL_TAG_ID, name = "All", color = Color(ReminderTagColor.value)
 )
 

@@ -1,10 +1,8 @@
 package com.app.noteapp.domain.usecase
 
-import android.content.Context
-import com.app.noteapp.data.local.entity.NoteEntity
 import com.app.noteapp.di.IoDispatcher
+import com.app.noteapp.domain.common_model.Note
 import com.app.noteapp.domain.repository.NoteRepository
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
@@ -13,20 +11,19 @@ import javax.inject.Inject
 
 class NoteUseCase @Inject constructor(
     private val noteRepository: NoteRepository,
-    @ApplicationContext private val context: Context,
     @IoDispatcher private val io: CoroutineDispatcher
 ) {
 
-    fun getAllNotes(): Flow<List<NoteEntity>> = noteRepository.getNotesStream()
+    fun getAllNotes(): Flow<List<Note>> = noteRepository.getNotesStream()
 
-    suspend fun addOrUpdateNote(note: NoteEntity) {
+    suspend fun addOrUpdateNote(note: Note) {
         withContext(io) {
             if (note.id == 0L) noteRepository.addNote(note)
             else noteRepository.updateNote(note)
         }
     }
 
-    suspend fun update(note: NoteEntity) = withContext(io) {
+    suspend fun update(note: Note) = withContext(io) {
         noteRepository.updateNote(note)
     }
 
@@ -37,10 +34,8 @@ class NoteUseCase @Inject constructor(
         }
     }
 
-    fun getNoteById(id: Long): Flow<NoteEntity?> = noteRepository.getNoteStream(id)
+    fun getNoteById(id: Long): Flow<Note?> = noteRepository.getNoteStream(id)
 
-    suspend fun getLastNoteId(): Long? = noteRepository.getLastNoteId()
-
-    fun getNotesBetween(start: Long, end: Long): Flow<List<NoteEntity>> =
+    fun getNotesBetween(start: Long, end: Long): Flow<List<Note>> =
         noteRepository.getNotesBetweenStream(start, end)
 }

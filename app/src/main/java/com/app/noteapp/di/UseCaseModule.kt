@@ -22,7 +22,7 @@ object UseCaseModule {
         @ApplicationContext context: Context,
         @IoDispatcher io: CoroutineDispatcher
     ): NoteUseCase =
-        NoteUseCase(noteRepository, context, io)
+        NoteUseCase(noteRepository, io)
 
     @Provides
     fun provideTagUseCase(
@@ -30,5 +30,5 @@ object UseCaseModule {
         @ApplicationContext context: Context,
         @IoDispatcher io: CoroutineDispatcher
     ): TagUseCase =
-        TagUseCase(tagRepository, context, io)
+        TagUseCase(tagRepository, io)
 }

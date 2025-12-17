@@ -7,17 +7,17 @@ import androidx.lifecycle.viewModelScope
 import com.app.noteapp.R
 import com.app.noteapp.core.time.combineToEpochMillis
 import com.app.noteapp.core.time.formatReminderEpoch
-import com.app.noteapp.data.mapper.toDomain
-import com.app.noteapp.data.mapper.toUI
 import com.app.noteapp.di.IoDispatcher
-import com.app.noteapp.domain.common_model.Note
-import com.app.noteapp.domain.common_model.Tag
 import com.app.noteapp.domain.reminders.ReminderScheduler
 import com.app.noteapp.domain.usecase.NoteUseCase
 import com.app.noteapp.domain.usecase.TagUseCase
+import com.app.noteapp.presentation.mapper.toNote
+import com.app.noteapp.presentation.mapper.toNoteUiModel
+import com.app.noteapp.presentation.mapper.toTag
+import com.app.noteapp.presentation.mapper.toTagUiMapper
+import com.app.noteapp.presentation.model.NoteUiModel
+import com.app.noteapp.presentation.model.TagUiModel
 import com.app.noteapp.presentation.model.ToastType
-import com.app.noteapp.presentation.screens.home.ALL_TAG
-import com.app.noteapp.presentation.screens.home.ALL_TAG_ID
 import com.app.noteapp.presentation.theme.ReminderTagColor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -26,8 +26,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -47,11 +45,12 @@ class NoteDetailViewModel @Inject constructor(
 
     private val noteId: Long? = savedStateHandle["id"]
 
-    val tags: StateFlow<List<Tag>> =
-        tagUseCase.getAllTags().map { list -> list.map { it.toUI() }
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), listOf())
+    val tags: StateFlow<List<TagUiModel>> =
+        tagUseCase.getAllTags().map { list -> list.map { it.toTagUiMapper() } }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), listOf())
 
-    private val _uiState = MutableStateFlow(NoteDetailUIState(isLoading = false, note = Note()))
+    private val _uiState =
+        MutableStateFlow(NoteDetailUIState(isLoading = false, note = NoteUiModel()))
     val uiState: StateFlow<NoteDetailUIState> = _uiState
 
     private val _events = MutableSharedFlow<NoteDetailEvents>()
@@ -61,11 +60,7 @@ class NoteDetailViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             if (noteId != null && noteId != 0L) {
-                noteUseCase.getNoteById(noteId).map {
-                    if (it?.tagId == null) it?.toUI(null) else it.toUI(
-                        tagUseCase.getTag(it.tagId).first().toUI()
-                    )
-                }.collect { ui ->
+                noteUseCase.getNoteById(noteId).map { it?.toNoteUiModel() }.collect { ui ->
                     _uiState.update { it.copy(isLoading = false, note = ui) }
                 }
             }
@@ -81,7 +76,7 @@ class NoteDetailViewModel @Inject constructor(
         val epoch = combineToEpochMillis(dateMillis, hour, minute, zoneId)
         val formatted = formatReminderEpoch(epoch, zoneId)
 
-        val reminderTag = Tag(
+        val reminderTag = TagUiModel(
             id = -100L, name = formatted, color = Color(ReminderTagColor.value)
         )
 
@@ -97,12 +92,12 @@ class NoteDetailViewModel @Inject constructor(
     fun onClearReminder() =
         mutate { it.copy(reminderAt = null, timeBadge = null, reminderTag = null) }
 
-    private inline fun mutate(block: (Note) -> Note) {
+    private inline fun mutate(block: (NoteUiModel) -> NoteUiModel) {
         val cur = _uiState.value.note ?: return
         _uiState.update { it.copy(note = block(cur)) }
     }
 
-    private inline fun update(block: (Note) -> Note) {
+    private inline fun update(block: (NoteUiModel) -> NoteUiModel) {
         val current = _uiState.value.note ?: return
         _uiState.update { it.copy(note = block(current)) }
     }
@@ -121,11 +116,8 @@ class NoteDetailViewModel @Inject constructor(
             viewModelScope.launch(io) {
                 runCatching {
                     scheduler.cancel(ui.id)              // cancel previous
-                    if (noteId == null || noteId == 0L) {
-                        noteUseCase.addOrUpdateNote(ui.toDomain())
-                    } else {
-                        noteUseCase.addOrUpdateNote(ui.toDomain())
-                    }
+                    val note = ui.toNote()
+                    noteUseCase.addOrUpdateNote(note)
                     ui.reminderAt?.let {
                         scheduler.schedule(ui.id, it, ui.title, ui.description)
                     }
@@ -189,26 +181,25 @@ class NoteDetailViewModel @Inject constructor(
         _events.emit(NoteDetailEvents.OpenReminderPicker)
     }
 
-    fun setTag(tag: Tag) {
+    fun setTag(tag: TagUiModel) {
         _uiState.update { it.copy(selectedTag = tag) }
         update { it.copy(tag = tag) }
     }
 
     fun addTag(name: String, color: Color) {
-        val newTag = Tag(id = 0L, name.trim().lowercase(), color)
+        val newTag = TagUiModel(id = 0L, name.trim().lowercase(), color)
         if (newTag.name.equals("all", ignoreCase = true)) {
             viewModelScope.launch {
                 _events.emit(
                     NoteDetailEvents.ShowToast(
-                        messageRes = R.string.tag_is_reserved,
-                        type = ToastType.ERROR
+                        messageRes = R.string.tag_is_reserved, type = ToastType.ERROR
                     )
                 )
             }
             return
         }
         viewModelScope.launch(io) {
-            tagUseCase.addTag(newTag.toDomain())
+            tagUseCase.addTag(newTag.toTag())
         }
     }
 
@@ -222,8 +213,7 @@ class NoteDetailViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             note = cur.copy(
-                                tag = null,
-                                timeBadge = cur.timeBadge
+                                tag = null, timeBadge = cur.timeBadge
                             )
                         )
                     }
@@ -233,8 +223,7 @@ class NoteDetailViewModel @Inject constructor(
 //                    _events.emit(NoteDetailEvents.Error("Failed to delete tag: ${e.message}"))
                     _events.emit(
                         NoteDetailEvents.ShowToast(
-                            messageRes = R.string.fail_to_save_note,
-                            type = ToastType.ERROR
+                            messageRes = R.string.fail_to_save_note, type = ToastType.ERROR
                         )
                     )
                 }

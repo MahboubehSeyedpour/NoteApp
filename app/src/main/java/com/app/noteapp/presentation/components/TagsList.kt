@@ -29,13 +29,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.app.noteapp.R
-import com.app.noteapp.domain.common_model.Tag
+import com.app.noteapp.presentation.model.TagUiModel
 
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun TagsList(
-    labels: List<Tag>,
+    labels: List<TagUiModel>,
     modifier: Modifier = Modifier,
     cornerRadius: Dp = dimensionResource(R.dimen.tag_corner_round),
     horizontalGap: Dp = dimensionResource(R.dimen.dp_0),
@@ -44,14 +44,14 @@ fun TagsList(
         horizontal = dimensionResource(R.dimen.tag_h_padding),
         vertical = dimensionResource(R.dimen.tag_v_padding)
     ),
-    onLabelClick: ((Tag) -> Unit)? = null,
+    onLabelClick: ((TagUiModel) -> Unit)? = null,
     trailingIcon: ImageVector? = null,
     onTrailingClick: (() -> Unit)? = null,
     trailingContent: (@Composable (() -> Unit))? = null,
     selectedTagId: Long? = null,
     selectedBorderWidth: Dp = dimensionResource(R.dimen.item_selected_border_width),
     editMode: Boolean = false,
-    onDeleteClick: ((Tag) -> Unit)? = null,
+    onDeleteClick: ((TagUiModel) -> Unit)? = null,
 ) {
     FlowRow(
         modifier = modifier.fillMaxWidth(),

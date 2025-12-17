@@ -20,8 +20,9 @@ interface NoteDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertForImport(noteEntity: NoteEntity): Long
 
-    @Query("SELECT * FROM `notes`")
-    fun getNotesStream(): Flow<List<NoteEntity>>
+    @Transaction
+    @Query("SELECT * FROM notes ORDER BY created_at DESC")
+    fun getNotesStream(): Flow<List<NoteTagRelation>>
 
     @Update
     suspend fun updateNote(noteEntity: NoteEntity)
@@ -29,24 +30,12 @@ interface NoteDao {
     @Delete
     suspend fun deleteNote(noteEntity: NoteEntity)
 
-    @Query("SELECT * FROM `notes` WHERE id=:id")
-    fun getNoteStream(id: Long): Flow<NoteEntity?>
+    @Transaction
+    @Query("SELECT * FROM notes WHERE id=:id")
+    fun getNoteStream(id: Long): Flow<NoteTagRelation?>
 
     @Query("SELECT id FROM `notes` ORDER BY id DESC LIMIT 1")
     fun getLastNoteId(): Long?
-
-    @Transaction
-    @Query("SELECT * FROM notes ORDER BY created_at DESC")
-    fun getNotesWithTagStream(): Flow<List<NoteTagRelation>>
-
-    @Transaction
-    @Query("SELECT * FROM notes WHERE id=:id")
-    fun getNoteWithTagStream(id: Long): Flow<NoteTagRelation>
-
-
-    @Transaction
-    @Query("SELECT * FROM notes WHERE id=:tagId ORDER BY created_at DESC")
-    fun getNotesByTagStream(tagId: Long): Flow<List<NoteTagRelation>>
 
     @Query("""
     SELECT * FROM notes
