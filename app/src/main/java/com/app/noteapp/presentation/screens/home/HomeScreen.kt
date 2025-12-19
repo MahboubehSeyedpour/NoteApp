@@ -31,7 +31,6 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -76,29 +75,26 @@ fun HomeScreen(
     navController: NavController,
     currentFont: AppFont,
     onFontSelected: (AppFont) -> Unit,
-    viewModel: HomeViewModel = hiltViewModel()) {
+    viewModel: HomeViewModel = hiltViewModel()
+) {
 
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val context = LocalContext.current
-    val layoutMode by viewModel.layoutMode.collectAsState()
+
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val pinnedNotes = remember(uiState.notes) { uiState.notes.filter { it.pinned } }
+    val otherNotes = remember(uiState.notes) { uiState.notes.filterNot { it.pinned } }
+
     var confirmDeleteId by remember { mutableStateOf<Long?>(null) }
-    val query by viewModel.query.collectAsState()
-    val selected by viewModel.selected.collectAsState()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    val avatar by viewModel.avatar.collectAsState()
-    val lang by viewModel.language.collectAsStateWithLifecycle()
-    val tags by viewModel.tags.collectAsStateWithLifecycle()
-    val notes by viewModel.notes.collectAsStateWithLifecycle()
-    val pinnedNote = notes.filter { it.pinned }
-    val others = notes.filterNot { it.pinned }
+
     val gridState = rememberLazyStaggeredGridState()
     val locale = LocalConfiguration.current.locales[0]
     var showFilterSheet by rememberSaveable { mutableStateOf(false) }
-    val isFilterActive by viewModel.onFilter.collectAsState()
-    val rangeStart by viewModel.rangeStart.collectAsState()
-    val rangeEnd by viewModel.rangeEnd.collectAsState()
 
+
+    // ---------------------- Events ----------------------
     LaunchedEffect(viewModel.events) {
         lifecycle.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
             viewModel.events.collectLatest { event ->
@@ -115,14 +111,18 @@ fun HomeScreen(
         }
     }
 
-    LaunchedEffect(lang) {
-        val locales = when (lang) {
+
+    // ---------------------- Locale ----------------------
+    LaunchedEffect(uiState.language) {
+        val locales = when (uiState.language) {
             AppLanguage.FA -> LocaleListCompat.forLanguageTags("fa")
             AppLanguage.EN -> LocaleListCompat.forLanguageTags("en")
         }
         AppCompatDelegate.setApplicationLocales(locales)
     }
 
+
+    // ---------------------- Filter sheet ----------------------
     if (showFilterSheet) {
         ModalBottomSheet(
             onDismissRequest = { showFilterSheet = false },
@@ -130,16 +130,16 @@ fun HomeScreen(
             containerColor = MaterialTheme.colorScheme.background
         ) {
             NotesFilterSheet(
-                tags = tags,
-                selectedTagId = viewModel.selectedTagId.collectAsState().value,
+                tags = uiState.tags,
+                selectedTagId = uiState.selectedTagId,
                 onFilterClicked = { tagId, rangeStart, rangeEnd, onlyReminders ->
                     showFilterSheet = false
                     viewModel.onFilterClicked(tagId, rangeStart, rangeEnd, onlyReminders)
                 },
-                rangeStart = rangeStart,
-                rangeEnd = rangeEnd,
+                rangeStart = uiState.rangeStart,
+                rangeEnd = uiState.rangeEnd,
                 onCustomRangeSelected = viewModel::filterCustomRange,
-                onlyReminder = viewModel.onlyReminder.collectAsStateWithLifecycle().value,
+                onlyReminder = uiState.onlyReminder,
                 onOnlyReminderChange = viewModel::filterNotesWithReminder,
                 onClose = { showFilterSheet = false },
                 onDeleteAllFiltersClicked = {
@@ -149,6 +149,7 @@ fun HomeScreen(
         }
     }
 
+    // ---------------------- Confirm delete dialog ----------------------
     if (confirmDeleteId != null) {
         CustomAlertDialog(
             type = DialogType.ERROR,
@@ -167,6 +168,7 @@ fun HomeScreen(
     }
 
 
+    // ---------------------- Import launcher ----------------------
     val importLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocument()
     ) { uri ->
@@ -187,7 +189,8 @@ fun HomeScreen(
                             Toast.LENGTH_SHORT
                         ).show()
                     }.onFailure { e ->
-                        Toast.makeText(context, "Import failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Import failed: ${e.message}", Toast.LENGTH_SHORT)
+                            .show()
                     }
                 }
             }.onFailure { e ->
@@ -196,6 +199,7 @@ fun HomeScreen(
         }
     }
 
+    // ---------------------- Export launcher ----------------------
     val exportLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/json")
     ) { uri ->
@@ -221,23 +225,29 @@ fun HomeScreen(
         drawerState = drawerState,
         drawerContent = {
             DrawerContent(
-                currentAvatar = avatar,
+                currentAvatar = uiState.avatar,
                 onAvatarSelected = { type ->
-                viewModel.changeAvatar(type)
-                scope.launch { drawerState.close() } },
-                currentLanguage = lang,
+                    viewModel.changeAvatar(type)
+                    scope.launch { drawerState.close() }
+                },
+                currentLanguage = uiState.language,
                 onLanguageSelected = { newLang ->
-                viewModel.changeLanguage(newLang)
-                scope.launch { drawerState.close() } },
+                    viewModel.changeLanguage(newLang)
+                    scope.launch { drawerState.close() }
+                },
                 currentFont = currentFont,
                 onFontSelected = onFontSelected,
                 onExportClicked = {
-                        exportLauncher.launch("noteapp-backup-${System.currentTimeMillis()}.json")
-                        scope.launch { drawerState.close() }
+                    exportLauncher.launch("noteapp-backup-${System.currentTimeMillis()}.json")
+                    scope.launch { drawerState.close() }
                 },
-                onImportClicked = {importLauncher.launch(arrayOf("application/json")) }
+                onImportClicked = {
+                    importLauncher.launch(arrayOf("application/json"))
+                    scope.launch { drawerState.close() }
+                }
             )
-        }) {
+        }
+    ) {
         Scaffold(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background)
@@ -246,14 +256,14 @@ fun HomeScreen(
             containerColor = MaterialTheme.colorScheme.background,
             topBar = {
                 TopBar(
-                    avatar = painterResource(avatar.iconRes()),
+                    avatar = painterResource(uiState.avatar.iconRes()),
                     onAvatarClick = { scope.launch { drawerState.open() } },
-                    query = query,
+                    query = uiState.searchQuery,
                     onSearchChange = viewModel::onSearchQueryChange,
                     onGridToggleClicked = viewModel::onGridToggleClicked,
-                    layoutMode = layoutMode,
+                    layoutMode = uiState.layoutMode,
                     onFilterClick = { showFilterSheet = true },
-                    isFilterActive = isFilterActive
+                    isFilterActive = uiState.isFilterActive
                 )
             },
             bottomBar = {
@@ -265,19 +275,18 @@ fun HomeScreen(
 
                     Text(
                         modifier = Modifier.fillMaxWidth(),
-                        text = notes.size.toLocalizedDigits(locale).plus(" ")
+                        text = uiState.notes.size.toLocalizedDigits(locale)
+                            .plus(" ")
                             .plus(stringResource(R.string.notes)),
                         textAlign = TextAlign.Center
                     )
                 }
             },
-            floatingActionButton = {
-                CustomFab({ viewModel.addNote() })
-            },
+            floatingActionButton = { CustomFab ({ viewModel.addNote() } ) },
             floatingActionButtonPosition = FabPosition.End
         ) { inner ->
 
-            when (layoutMode) {
+            when (uiState.layoutMode) {
                 LayoutMode.LIST -> {
                     LazyColumn(
                         modifier = Modifier
@@ -287,10 +296,11 @@ fun HomeScreen(
                         contentPadding = PaddingValues(bottom = dimensionResource(R.dimen.list_items_v_padding)),
                         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_items_v_padding))
                     ) {
-                        items(pinnedNote, key = { it.id }) { note ->
+
+                        items(items =pinnedNotes, key = { it.id }) { note ->
                             CustomNoteCard(
                                 note = note,
-                                isSelected = note.id in selected,
+                                isSelected = note.id in uiState.selectedIds,
                                 onClick = { viewModel.navigateToNoteDetails(note.id) },
                                 pinNote = { viewModel.onPinNoteClicked(note.id) },
                                 deleteNote = { confirmDeleteId = note.id },
@@ -301,7 +311,7 @@ fun HomeScreen(
                             )
                         }
 
-                        if (pinnedNote.isNotEmpty() && others.isNotEmpty()) {
+                        if (pinnedNotes.isNotEmpty() && otherNotes.isNotEmpty()) {
                             item(key = "pinned-divider") {
                                 HorizontalDivider(
                                     modifier = Modifier.padding(vertical = dimensionResource(R.dimen.v_space)),
@@ -310,10 +320,10 @@ fun HomeScreen(
                             }
                         }
 
-                        items(others, key = { it.id }) { note ->
+                        items(otherNotes, key = { it.id }) { note ->
                             CustomNoteCard(
                                 note = note,
-                                isSelected = note.id in selected,
+                                isSelected = note.id in uiState.selectedIds,
                                 onClick = { viewModel.navigateToNoteDetails(note.id) },
                                 pinNote = { viewModel.onPinNoteClicked(note.id) },
                                 deleteNote = { confirmDeleteId = note.id },
@@ -339,10 +349,10 @@ fun HomeScreen(
                         contentPadding = PaddingValues(bottom = dimensionResource(R.dimen.list_items_v_padding))
                     ) {
 
-                        items(pinnedNote, key = { it.id }) { note ->
+                        items(items =pinnedNotes, key = { it.id }) { note ->
                             CustomNoteCard(
                                 note = note,
-                                isSelected = note.id in selected,
+                                isSelected = note.id in uiState.selectedIds,
                                 onClick = { viewModel.navigateToNoteDetails(note.id) },
                                 pinNote = { viewModel.onPinNoteClicked(note.id) },
                                 deleteNote = { confirmDeleteId = note.id },
@@ -353,9 +363,10 @@ fun HomeScreen(
                             )
                         }
 
-                        if (pinnedNote.isNotEmpty() && others.isNotEmpty()) {
+                        if (pinnedNotes.isNotEmpty() && otherNotes.isNotEmpty()) {
                             item(
-                                key = "pinned-divider", span = StaggeredGridItemSpan.FullLine
+                                key = "pinned-divider",
+                                span = StaggeredGridItemSpan.FullLine
                             ) {
                                 HorizontalDivider(
                                     modifier = Modifier.padding(vertical = dimensionResource(R.dimen.v_space)),
@@ -364,10 +375,10 @@ fun HomeScreen(
                             }
                         }
 
-                        items(others, key = { it.id }) { note ->
+                        items(items = otherNotes, key = { it.id }) { note ->
                             CustomNoteCard(
                                 note = note,
-                                isSelected = note.id in selected,
+                                isSelected = note.id in uiState.selectedIds,
                                 onClick = { viewModel.navigateToNoteDetails(note.id) },
                                 pinNote = { viewModel.onPinNoteClicked(note.id) },
                                 deleteNote = { confirmDeleteId = note.id },
@@ -383,3 +394,4 @@ fun HomeScreen(
         }
     }
 }
+

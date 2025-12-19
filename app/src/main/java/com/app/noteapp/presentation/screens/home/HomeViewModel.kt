@@ -10,14 +10,13 @@ import com.app.noteapp.di.IoDispatcher
 import com.app.noteapp.domain.backup_model.ImportResult
 import com.app.noteapp.domain.common_model.AppLanguage
 import com.app.noteapp.domain.common_model.AvatarType
-import com.app.noteapp.domain.common_model.Tag
+import com.app.noteapp.domain.common_model.Note
 import com.app.noteapp.domain.usecase.AvatarTypeUseCase
 import com.app.noteapp.domain.usecase.ExportNotesUseCase
 import com.app.noteapp.domain.usecase.ImportNotesUseCase
 import com.app.noteapp.domain.usecase.LanguageUseCase
 import com.app.noteapp.domain.usecase.NoteUseCase
 import com.app.noteapp.domain.usecase.TagUseCase
-import com.app.noteapp.presentation.mapper.toNote
 import com.app.noteapp.presentation.mapper.toNoteUiModel
 import com.app.noteapp.presentation.mapper.toTagUiMapper
 import com.app.noteapp.presentation.model.NoteUiModel
@@ -33,6 +32,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
@@ -58,116 +58,103 @@ class HomeViewModel @Inject constructor(
     private val _events = MutableSharedFlow<HomeEvents>()
     val events = _events.asSharedFlow()
 
-    private val _layoutMode = MutableStateFlow(LayoutMode.LIST)
-    val layoutMode: StateFlow<LayoutMode> = _layoutMode
-
-    private val _query = MutableStateFlow("")
-    val query: StateFlow<String> = _query
-
-    private val _selected = MutableStateFlow<Set<Long>>(emptySet())
-    val selected: StateFlow<Set<Long>> = _selected
-
-    private val _timeFilter = MutableStateFlow(TimeFilter.ALL)
-    val timeFilter: StateFlow<TimeFilter> = _timeFilter
-
-    private val _rangeStart = MutableStateFlow<Long?>(null) // epoch millis
-    val rangeStart: StateFlow<Long?> = _rangeStart
-
-    private val _rangeEnd = MutableStateFlow<Long?>(null)
-    val rangeEnd: StateFlow<Long?> = _rangeEnd
-
-    private val _onlyReminder = MutableStateFlow(false)
-    val onlyReminder: StateFlow<Boolean> = _onlyReminder
-
-    private val _onFilter = MutableStateFlow(false)
-    val onFilter: StateFlow<Boolean> = _onFilter
-
-    private val _selectedTagId = MutableStateFlow<Long>(ALL_TAG_ID)
-    val selectedTagId: StateFlow<Long> = _selectedTagId
-
     private val zoneId: ZoneId = ZoneId.systemDefault()
 
-    val language = languageUseCase().stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5_000), AppLanguage.FA
+    private val localState = MutableStateFlow(
+        HomeUiState(
+            layoutMode = LayoutMode.LIST,
+            searchQuery = "",
+            selectedTagId = ALL_TAG_ID,
+            onlyReminder = false,
+            timeFilter = TimeFilter.ALL,
+            rangeStart = null,
+            rangeEnd = null,
+            selectedIds = emptySet(),
+            language = AppLanguage.FA,
+            avatar = AvatarType.MALE,
+            tags = listOf(ALL_TAG),
+            notes = emptyList()
+        )
     )
 
-    val avatar: StateFlow<AvatarType> = avatarUseCase().stateIn(
+    private val tagsFlow: Flow<List<TagUiModel>> =
+        tagUseCase.getAllTags().map { list -> list.map { it.toTagUiMapper() } }.map { ui ->
+                val withoutAll = ui.filterNot { it.id == ALL_TAG_ID || it.name.equals("all", true) }
+                listOf(ALL_TAG) + withoutAll
+            }
+
+    // -------- base state: local + (language/avatar/tags) --------
+    private val baseState: StateFlow<HomeUiState> =
+        combine(localState, languageUseCase(), avatarUseCase(), tagsFlow) { s, lang, avatar, tags ->
+            s.copy(
+                language = lang, avatar = avatar, tags = tags
+            )
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = localState.value
+        )
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val notesFlow: Flow<List<NoteUiModel>> = baseState.map { s ->
+            if (!s.isFilterActive) null
+            else rangeFor(s.timeFilter, s.rangeStart, s.rangeEnd, zoneId)
+        }.distinctUntilChanged().flatMapLatest { range: TimeRange? ->
+            val src: Flow<List<Note>> = if (range == null) {
+                noteUseCase.getAllNotes()
+            } else {
+                noteUseCase.getNotesBetween(range.start, range.endExclusive)
+            }
+
+            src.map { list -> list.map { it.toNoteUiModel() } }
+        }.combine(baseState) { list, s ->
+            val term = s.searchQuery.trim().lowercase()
+
+            val byQuery = if (term.isBlank()) list
+            else list.filter { n ->
+                n.title.lowercase().contains(term) || n.description.orEmpty().lowercase()
+                    .contains(term)
+            }
+
+            val byTag = if (s.selectedTagId == ALL_TAG_ID) byQuery
+            else byQuery.filter { it.tag?.id == s.selectedTagId }
+
+            val byReminder = if (!s.onlyReminder) byTag
+            else byTag.filter { it.reminderAt != null }
+
+            byReminder.sortedWith(compareByDescending<NoteUiModel> { it.pinned }.thenByDescending { it.createdAt })
+        }
+
+    val uiState: StateFlow<HomeUiState> = combine(baseState, notesFlow) { s, notes ->
+        s.copy(notes = notes)
+    }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = AvatarType.MALE
+        initialValue = baseState.value
     )
 
     val tags: StateFlow<List<TagUiModel>> =
-        tagUseCase.getAllTags()
-            .map { list -> list.map { it.toTagUiMapper() }}
-            .map { ui ->
+        tagUseCase.getAllTags().map { list -> list.map { it.toTagUiMapper() } }.map { ui ->
                 val withoutAll = ui.filterNot { it.id == ALL_TAG_ID || it.name.equals("all", true) }
                 listOf(ALL_TAG) + withoutAll
             }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), listOf(ALL_TAG))
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private val filteredNotes: Flow<List<NoteUiModel>> = combine(
-        _timeFilter, _rangeStart, _rangeEnd, _onFilter
-    ) { filter, start, end, onFilter ->
-        if (!onFilter) {
-            null
-        } else {
-            rangeFor(filter, start, end, zoneId)
-        }
-    }.flatMapLatest { range: TimeRange? ->
-        if (range == null) {
-            noteUseCase.getAllNotes().map { list -> list.map { it.toNoteUiModel() } }
-        } else {
-            noteUseCase.getNotesBetween(range.start, range.endExclusive)
-                .map { list -> list.map { it.toNoteUiModel() } }
-        }
-    }
-
-    private val _notes: Flow<List<NoteUiModel>> =
-        filteredNotes.map { all -> all.sortedByDescending { it.createdAt } }
-
-    private val baseFilters: Flow<Triple<List<NoteUiModel>, String, Long>> =
-        combine(_notes, _query, selectedTagId) { list, q, tagId ->
-            Triple(list, q, tagId)
-        }
-
-    val notes: StateFlow<List<NoteUiModel>> = combine(
-        baseFilters, onlyReminder
-    ) { (list, q, tagId), onlyReminder ->
-
-        val term = q.trim().lowercase()
-
-        val byQuery = if (term.isBlank()) list else list.filter { n ->
-            n.title.lowercase().contains(term) || (n.description ?: "").lowercase().contains(term)
-        }
-
-        val byTag = if (tagId == ALL_TAG_ID) byQuery
-        else byQuery.filter { it.tag?.id == tagId }
-
-        val byReminder = if (!onlyReminder) byTag
-        else byTag.filter { it.reminderAt != null }
-
-        byReminder.sortedWith(compareByDescending<NoteUiModel> { it.pinned }.thenByDescending { it.createdAt })
-    }.stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList()
-    )
 
     fun addNote() = viewModelScope.launch {
         _events.emit(HomeEvents.NavigateToNoteDetailScreen(null))
     }
 
-    fun onGridToggleClicked() =
-        _layoutMode.update { mode -> if (mode == LayoutMode.LIST) LayoutMode.GRID else LayoutMode.LIST }
+    fun onGridToggleClicked() {
+        localState.update { s ->
+            s.copy(layoutMode = if (s.layoutMode == LayoutMode.LIST) LayoutMode.GRID else LayoutMode.LIST)
+        }
+    }
 
     fun deleteNote(id: Long) {
         viewModelScope.launch(io) {
             runCatching {
-                val note = noteUseCase.getNoteById(id).firstOrNull()
-                note?.let { noteUseCase.deleteById(it.id) }
+                noteUseCase.deleteById(id)
             }.onFailure {
-                viewModelScope.launch {
-                    _events.emit(HomeEvents.Error("Failed to delete: ${it.message}"))
-                }
+                _events.emit(HomeEvents.Error("Failed to delete: ${it.message}"))
             }
         }
     }
@@ -175,37 +162,36 @@ class HomeViewModel @Inject constructor(
     fun onPinNoteClicked(id: Long) {
         viewModelScope.launch(io) {
             runCatching {
-                val current = notes.firstOrNull()
-                val currentlyPinned = current?.firstOrNull { it.pinned }
+                // Snapshot from state (UI list)
+                val currentNotes = uiState.value.notes
+                val pinnedId = currentNotes.firstOrNull { it.pinned }?.id
+                val togglingOff = (pinnedId == id)
 
-                // Unpin previously pinned note (if different)
-                if (currentlyPinned != null && currentlyPinned.id != id) {
-                    noteUseCase.update(currentlyPinned.copy(pinned = false).toNote())
+                // Unpin existing pinned note (if any)
+                if (pinnedId != null) {
+                    val pinnedDomain = noteUseCase.getNoteById(pinnedId).firstOrNull()
+                    if (pinnedDomain != null) {
+                        noteUseCase.update(pinnedDomain.copy(pinned = false))
+                    }
                 }
 
-                // Pin target
-                val target = noteUseCase.getNoteById(id).firstOrNull()
-                target?.let {
-                    noteUseCase.update(it.copy(pinned = true))
-                }
-
-                // If user taps pin on already pinned note, unpin it
-                if (currentlyPinned != null && currentlyPinned.id == id) {
-                    noteUseCase.update(currentlyPinned.copy(pinned = false).toNote())
+                // Pin target unless toggling off
+                if (!togglingOff) {
+                    val target = noteUseCase.getNoteById(id).firstOrNull()
+                    if (target != null) {
+                        noteUseCase.update(target.copy(pinned = true))
+                    }
                 }
             }.onFailure {
-                viewModelScope.launch {
-                    _events.emit(HomeEvents.Error("Failed to pin: ${it.message}"))
-                }
+                _events.emit(HomeEvents.Error("Failed to pin: ${it.message}"))
             }
         }
     }
 
     suspend fun exportNotesBytes(): ByteArray = exportNotesUseCase()
 
-    fun importBackup(bytes: ByteArray): Flow<Result<ImportResult>> = flow {
-        emit(runCatching { importNotesUseCase(bytes) })
-    }.flowOn(io)
+    fun importBackup(bytes: ByteArray): Flow<Result<ImportResult>> =
+        flow { emit(runCatching { importNotesUseCase(bytes) }) }.flowOn(io)
 
     // ============================================= navigation =============================================
     fun navigateToNoteDetails(noteId: Long) = viewModelScope.launch {
@@ -214,51 +200,43 @@ class HomeViewModel @Inject constructor(
 
     // ============================================= search & filter =============================================
     fun onSearchQueryChange(newQuery: String) {
-        _query.value = newQuery
+        localState.update { it.copy(searchQuery = newQuery) }
     }
 
-    fun onFilterClicked(
-        tagId: Long?, rangeStart: Long?, rangeEnd: Long?, onlyReminders: Boolean
-    ) {
-        // 1) Tag
-        _selectedTagId.value = tagId ?: ALL_TAG_ID
+    fun onFilterClicked(tagId: Long?, rangeStart: Long?, rangeEnd: Long?, onlyReminders: Boolean) {
+        localState.update { s ->
+            val normalizedTagId = tagId ?: ALL_TAG_ID
+            val validRange = (rangeStart != null && rangeEnd != null && rangeStart <= rangeEnd)
 
-        // 2) Reminder only
-        _onlyReminder.value = onlyReminders
-
-        // 3) Time range
-        if (rangeStart != null && rangeEnd != null && rangeStart <= rangeEnd) {
-            _timeFilter.value = TimeFilter.CUSTOM_RANGE
-            _rangeStart.value = rangeStart
-            _rangeEnd.value = rangeEnd
-        } else {
-            // No valid range -> fall back to ALL
-            _timeFilter.value = TimeFilter.ALL
-            _rangeStart.value = null
-            _rangeEnd.value = null
+            s.copy(
+                selectedTagId = normalizedTagId,
+                onlyReminder = onlyReminders,
+                timeFilter = if (validRange) TimeFilter.CUSTOM_RANGE else TimeFilter.ALL,
+                rangeStart = if (validRange) rangeStart else null,
+                rangeEnd = if (validRange) rangeEnd else null
+            )
         }
-
-        _onFilter.value = true
     }
 
     fun filterCustomRange(start: Long?, end: Long?) {
-        _timeFilter.value = TimeFilter.CUSTOM_RANGE
-        _rangeStart.value = start
-        _rangeEnd.value = end
+        localState.update { s ->
+            s.copy(timeFilter = TimeFilter.CUSTOM_RANGE, rangeStart = start, rangeEnd = end)
+        }
     }
 
     fun filterNotesWithReminder(enabled: Boolean) {
-        _onlyReminder.value = enabled
+        localState.update { it.copy(onlyReminder = enabled) }
     }
 
-    fun clearFilters() {
-        _selectedTagId.value = ALL_TAG_ID
-        _onlyReminder.value = false
-        _timeFilter.value = TimeFilter.ALL
-        _rangeStart.value = null
-        _rangeEnd.value = null
-        _onFilter.value = false
-    }
+    fun clearFilters() = localState.update {
+            it.copy(
+                selectedTagId = ALL_TAG_ID,
+                onlyReminder = false,
+                timeFilter = TimeFilter.ALL,
+                rangeStart = null,
+                rangeEnd = null
+            )
+        }
 
     // ============================================= settings =============================================\
     fun changeAvatar(type: AvatarType) = viewModelScope.launch(io) { avatarUseCase(type) }
