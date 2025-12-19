@@ -39,8 +39,8 @@ import com.app.noteapp.presentation.model.NoteUiModel
 fun CustomNoteCard(
     note: NoteUiModel,
     isSelected: Boolean,
-    onClick: () -> Unit,
-    pinNote: () -> Unit,
+    onNoteClicked: () -> Unit,
+    onNotePinned: () -> Unit,
     deleteNote: () -> Unit,
     noteTitleStyle: TextStyle,
     noteBodyStyle: TextStyle,
@@ -48,7 +48,7 @@ fun CustomNoteCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() },
+            .clickable { onNoteClicked() },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
             contentColor = MaterialTheme.colorScheme.onSurface
@@ -74,7 +74,7 @@ fun CustomNoteCard(
                         verticalGap = dimensionResource(R.dimen.list_items_v_padding),
                     )
 
-                    MenuButton(pinNote, deleteNote)
+                    MenuButton(onNotePinned, deleteNote)
                 }
 
                 Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
@@ -105,7 +105,7 @@ fun CustomNoteCard(
                             text = note.title,
                             style = noteTitleStyle
                         )
-                        MenuButton(pinNote, deleteNote)
+                        MenuButton(onNotePinned, deleteNote)
                     }
                     Text(
                         modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.list_items_h_padding)),
