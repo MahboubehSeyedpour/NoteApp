@@ -84,20 +84,56 @@ class NotesBackupRepositoryImpl @Inject constructor(
 
                     for (tag in imported.tags) {
                         val tagEntity = tag.toTagEntity()
-                        val newId = insertTagWithIdConflictResolution(tagEntity)
-                        if(newId == -1L) { // tag exists
-                            tagIdMap[tag.id]= tagDao.getTagStream(tagEntity.name).first().id
-                        } else {
-                            tagIdMap[tag.id] = newId
-                        }
+
+                        // check name collision (no DB constraint, so we do it manually)
+                        // TODO: Add DB constraints
+                        val nameExists = tagDao.getTagByName(tagEntity.name) != null
+                        val finalName = if (nameExists) resolveImportedTagName(tagEntity.name) else tagEntity.name
+
+                        // check id collision: if id exists, force new id
+                        val idExists = tagDao.getTagById(tagEntity.id) != null
+
+                        val toInsert = tagEntity.copy(
+                            id = if (idExists) 0 else tagEntity.id,
+                            name = finalName
+                        )
+
+                        val newId = tagDao.addTag(toInsert) // must be normal insert; returns new rowId
+                        if (newId <= 0) error("Failed to insert imported tag: ${toInsert.name}")
+
+                        tagIdMap[tagEntity.id] = newId
                         tagsImported++
+
+//                        val newId = insertTag(tagEntity)
+//                        if(newId == -1L) { // tag exists
+//                            tagIdMap[tag.id]= tagDao.getTagStream(tagEntity.name).first().id
+//                        } else {
+//                            tagIdMap[tag.id] = newId
+//                        }
+//                        tagsImported++
                     }
 
                     for (note in imported.notes) {
                         val newTagId = note.tagId?.let { old -> tagIdMap[old] ?: old }
                         val noteEntity = note.toNoteEntity().copy(tagId = newTagId)
-                        insertNoteWithIdConflictResolution(noteEntity)
+
+                        val existing = noteDao.getNoteById(noteEntity.id)
+
+                        val finalNote =
+                            if (existing == null) {
+                                noteEntity
+                            } else {
+                                noteEntity.copy(id = 0)
+                            }
+
+                        val newNoteId = noteDao.addNote(finalNote)
+
+                        if (newNoteId <= 0) error("Failed to insert imported note: title=${finalNote.title}")
+
                         notesImported++
+
+//                        insertNoteWithIdConflictResolution(noteEntity)
+//                        notesImported++
                     }
 
                     ImportResult(
@@ -110,7 +146,25 @@ class NotesBackupRepositoryImpl @Inject constructor(
             }
         }
 
-    private suspend fun insertTagWithIdConflictResolution(tag: TagEntity): Long = tagDao.addTag(tag)
+    private suspend fun resolveImportedTagName(base: String): String {
+        val trimmed = base.trim()
+        if (trimmed.isEmpty()) return "Imported Tag"
+
+        // 1) Try "X (imported)"
+        val first = "$trimmed (imported)"
+        if (tagDao.getTagByName(first) == null) return first
+
+        // 2) Try "X (imported 2..N)"
+        var i = 2
+        while (true) {
+            val candidate = "$trimmed (imported $i)"
+            if (tagDao.getTagByName(candidate) == null) return candidate
+            i++
+        }
+    }
+
+
+    private suspend fun insertTag(tag: TagEntity): Long = tagDao.addTag(tag)
 
     private suspend fun insertNoteWithIdConflictResolution(note: NoteEntity): Long =
         noteDao.addNote(note)

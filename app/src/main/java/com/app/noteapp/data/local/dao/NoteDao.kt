@@ -43,8 +43,8 @@ interface NoteDao {
 """)
     fun getNotesBetweenStream(start: Long, end: Long): Flow<List<NoteEntity>>
 
-    @Query("SELECT EXISTS(SELECT 1 FROM notes WHERE id = :id)")
-    suspend fun existsById(id: Long): Boolean
+    @Query("SELECT * FROM notes WHERE id = :id")
+    suspend fun getNoteById(id: Long): NoteTagRelation?
 
     @Query("SELECT id FROM notes")
     suspend fun getAllIds(): List<Long>

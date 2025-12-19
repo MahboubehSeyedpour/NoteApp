@@ -26,9 +26,12 @@ interface TagDao {
     @Query("SELECT * FROM `tags` WHERE name=:name")
     fun getTagStream(name: String): Flow<TagEntity>
 
-    @Query("SELECT EXISTS(SELECT 1 FROM tags WHERE id = :id)")
-    suspend fun existsById(id: Long): Boolean
+    @Query("SELECT * FROM tags WHERE id = :id")
+    suspend fun getTagById(id: Long): TagEntity?
 
     @Query("SELECT id FROM tags")
     suspend fun getAllIds(): List<Long>
+
+    @Query("SELECT * FROM tags WHERE name = :name LIMIT 1")
+    suspend fun getTagByName(name: String): TagEntity?
 }
