@@ -28,7 +28,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -46,7 +45,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.core.os.LocaleListCompat
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -57,7 +55,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import com.app.noteapp.R
 import com.app.noteapp.core.enums.LayoutMode
-import com.app.noteapp.core.extensions.toLocalizedDigits
 import com.app.noteapp.domain.common_model.AppFont
 import com.app.noteapp.domain.common_model.AppLanguage
 import com.app.noteapp.presentation.components.CustomAlertDialog
@@ -248,6 +245,8 @@ fun HomeScreen(
             containerColor = MaterialTheme.colorScheme.background,
             topBar = {
                 TopBar(
+                    notesSize = uiState.notes.size,
+                    locale = locale,
                     avatar = painterResource(uiState.avatar.iconRes()),
                     onAvatarClick = { scope.launch { drawerState.open() } },
                     query = uiState.searchQuery,
@@ -258,21 +257,6 @@ fun HomeScreen(
                     onSortClick = { },
                     isFilterActive = uiState.isFilterActive
                 )
-            },
-            bottomBar = {
-                Column {
-                    HorizontalDivider(
-                        modifier = Modifier.padding(bottom = dimensionResource(R.dimen.btm_sheet_v_padding)),
-                        color = MaterialTheme.colorScheme.primary
-                    )
-
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = uiState.notes.size.toLocalizedDigits(locale).plus(" ")
-                            .plus(stringResource(R.string.notes)),
-                        textAlign = TextAlign.Center
-                    )
-                }
             },
             floatingActionButton = { CustomFab({ viewModel.addNote() }) },
             floatingActionButtonPosition = FabPosition.End

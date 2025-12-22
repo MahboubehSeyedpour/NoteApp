@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -35,14 +36,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.style.TextAlign
 import com.app.noteapp.R
 import com.app.noteapp.core.enums.LayoutMode
+import com.app.noteapp.core.extensions.toLocalizedDigits
+import java.util.Locale
 
 @Composable
 fun TopBar(
+    notesSize: Int = 0,
+    locale: Locale = LocalConfiguration.current.locales[0],
     avatar: Painter? = null,
     onAvatarClick: () -> Unit,
     query: String,
@@ -62,11 +69,21 @@ fun TopBar(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(dimensionResource(R.dimen.topbar_height)).padding(end = dimensionResource(R.dimen.icon_size)/2),
+                .height(dimensionResource(R.dimen.topbar_height))
+                .padding(end = dimensionResource(R.dimen.icon_size) / 2),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Avatar(avatar, onAvatarClick)
+            Row (verticalAlignment = Alignment.CenterVertically) {
+                Avatar(avatar, onAvatarClick)
+                Spacer(Modifier.width(dimensionResource(R.dimen.h_space)))
+                Text(
+                    text = notesSize.toLocalizedDigits(locale).plus(" ")
+                        .plus(stringResource(R.string.notes)),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.labelLarge
+                )
+            }
             Text(text = stringResource(R.string.app_name))
         }
 
@@ -190,9 +207,8 @@ fun Actions(
         ) {
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                LabelCircularIconButton (
-                    label = stringResource(R.string.sort),
-                    onClick = onSortClick, icon = {
+                LabelCircularIconButton(
+                    label = stringResource(R.string.sort), onClick = onSortClick, icon = {
                         Icon(
                             imageVector = ImageVector.vectorResource(R.drawable.ic_arrow_down),
                             contentDescription = stringResource(R.string.sort)
