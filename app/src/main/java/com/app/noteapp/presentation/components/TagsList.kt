@@ -40,7 +40,6 @@ fun TagsList(
     modifier: Modifier = Modifier,
     cornerRadius: Dp = dimensionResource(R.dimen.tag_corner_round),
     horizontalGap: Dp = dimensionResource(R.dimen.dp_0),
-    verticalGap: Dp = dimensionResource(R.dimen.dp_0),
     labelPadding: PaddingValues = PaddingValues(
         horizontal = dimensionResource(R.dimen.tag_h_padding),
         vertical = dimensionResource(R.dimen.tag_v_padding)
@@ -56,8 +55,6 @@ fun TagsList(
 ) {
     FlowRow(
         modifier = modifier.fillMaxWidth(),
-//        horizontalArrangement = Arrangement.spacedBy(horizontalGap),
-//        verticalArrangement = Arrangement.spacedBy(verticalGap)
         horizontalArrangement = Arrangement.SpaceBetween, verticalArrangement = Arrangement.Center
     ) {
 

@@ -191,7 +191,7 @@ fun Actions(
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 LabelCircularIconButton (
-                    label = R.string.sort,
+                    label = stringResource(R.string.sort),
                     onClick = onSortClick, icon = {
                         Icon(
                             imageVector = ImageVector.vectorResource(R.drawable.ic_arrow_down),

@@ -249,7 +249,6 @@ fun NoteDetailScreen(
                         TagsList(
                             labels = viewModel.tags.collectAsState().value,
                             horizontalGap = dimensionResource(R.dimen.list_items_h_padding),
-                            verticalGap = dimensionResource(R.dimen.list_items_v_padding),
                             onLabelClick = { tag -> viewModel.setTag(tag) },
                             trailingIcon = ImageVector.vectorResource(R.drawable.ic_add),
                             onTrailingClick = { showTagSheet = true },

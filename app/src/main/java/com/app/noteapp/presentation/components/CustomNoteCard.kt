@@ -1,15 +1,22 @@
 package com.app.noteapp.presentation.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -25,12 +32,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import com.app.noteapp.R
 import com.app.noteapp.presentation.model.NoteUiModel
 
@@ -58,65 +67,92 @@ fun CustomNoteCard(
         )
     ) {
 
-        Column(modifier = Modifier.padding(dimensionResource(R.dimen.card_content_padding))) {
+        Column(modifier = Modifier.fillMaxSize().padding(vertical = dimensionResource(R.dimen.v_space))) {
+
+            Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start
+            ) {
+                MenuButton(onNotePinned, deleteNote)
+
+                Text(
+                    modifier = Modifier.weight(1f),
+                    text = note.title,
+                    style = noteTitleStyle.copy(textAlign = TextAlign.Start)
+                )
+            }
+
+            Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+            Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+            Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+
+            Text(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = dimensionResource(R.dimen.icon_size)),
+                text = note.description ?: "",
+                style = noteBodyStyle,
+                maxLines = 3,
+                textAlign = TextAlign.Justify
+            )
+
+            Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+            Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+            Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
 
             if (note.tag != null) {
-
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = dimensionResource(R.dimen.icon_size)),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Start
                 ) {
-                    TagsList(
-                        labels = listOf(note.tag),
-                        modifier = Modifier.weight(1f),
-                        cornerRadius = dimensionResource(R.dimen.tag_corner_round),
-                        verticalGap = dimensionResource(R.dimen.list_items_v_padding),
-                    )
 
-                    MenuButton(onNotePinned, deleteNote)
-                }
+                    val chipShape = RoundedCornerShape(dimensionResource(R.dimen.tag_corner_round))
 
-                Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
-
-                Column(
-                    modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.Center
-                ) {
-                    Text(text = note.title, style = noteTitleStyle)
-                    Text(
-                        text = note.description ?: "",
-                        style = noteBodyStyle,
-                        maxLines = 3,
-                        textAlign = TextAlign.Justify
-                    )
-                }
-
-            } else {
-
-                Column(
-                    modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.Center
-                ) {
-                    Row(
-                        modifier = Modifier.padding(start = dimensionResource(R.dimen.list_items_h_padding)),
-                        verticalAlignment = Alignment.CenterVertically
+                    Box(
+                        modifier = Modifier
+                            .clip(chipShape)
+                            .background(note.tag.color.copy(alpha = 0.05f), chipShape)
+                            .border((-1).dp, note.tag.color.copy(alpha = 0.8f), chipShape)
+                            .padding(
+                                PaddingValues(
+                                    horizontal = dimensionResource(R.dimen.tag_h_padding),
+                                    vertical = dimensionResource(R.dimen.tag_v_padding)
+                                )
+                            ),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            modifier = Modifier.weight(1f),
-                            text = note.title,
-                            style = noteTitleStyle
-                        )
-                        MenuButton(onNotePinned, deleteNote)
-                    }
-                    Text(
-                        modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.list_items_h_padding)),
-                        text = note.description ?: "",
-                        style = noteBodyStyle,
-                        maxLines = 3,
-                        textAlign = TextAlign.Justify
-                    )
-                }
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dp_0)),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
 
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.height(dimensionResource(R.dimen.icon_size))
+                            ) {
+                                Icon(
+                                    imageVector = ImageVector.vectorResource(R.drawable.ic_hashtag),
+                                    contentDescription = null,
+                                    tint = note.tag.color.copy(alpha = 0.8f),
+                                    modifier = Modifier.size(dimensionResource(R.dimen.icon_size) / 2)
+                                )
+
+                                Spacer(Modifier.width(dimensionResource(R.dimen.h_space)/2))
+
+                                Text(
+                                    text = note.tag.name,
+                                    color = note.tag.color,
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                            }
+                        }
+                    }
+                }
             }
+
+            Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
         }
     }
 }

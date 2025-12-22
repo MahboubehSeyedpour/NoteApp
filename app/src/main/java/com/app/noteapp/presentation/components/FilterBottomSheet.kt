@@ -97,7 +97,6 @@ fun NotesFilterSheet(
             labels = tags,
             selectedTagId = selectedTagId,
             horizontalGap = dimensionResource(R.dimen.list_items_h_padding),
-            verticalGap = dimensionResource(R.dimen.list_items_v_padding),
             onLabelClick = { tag -> selectedTagId = tag.id })
 
         Spacer(Modifier.height(dimensionResource(R.dimen.btm_sheet_section_padding)))
