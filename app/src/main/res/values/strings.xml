@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">NoteApp</string>
+    <string name="app_name">NoteVia</string>
 
     <string name="dialog_delete_confirm_btn">Delete</string>
     <string name="dialog_dismiss_btn">Cancel</string>
@@ -101,5 +101,9 @@
     <string name="export_description">Backup will be saved on your device</string>
 
     <string name="import_from">Import From Backup</string>
+
+    <string name="choose_color">Choose color</string>
+
+    <string name="sort">Last Modified</string>
 
 </resources>

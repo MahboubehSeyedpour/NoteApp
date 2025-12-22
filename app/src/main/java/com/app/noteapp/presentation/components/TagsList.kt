@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color.Companion.Yellow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.vectorResource
@@ -55,15 +56,37 @@ fun TagsList(
 ) {
     FlowRow(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(horizontalGap),
-        verticalArrangement = Arrangement.spacedBy(verticalGap)
+//        horizontalArrangement = Arrangement.spacedBy(horizontalGap),
+//        verticalArrangement = Arrangement.spacedBy(verticalGap)
+        horizontalArrangement = Arrangement.SpaceBetween, verticalArrangement = Arrangement.Center
     ) {
+
+        val chipShape = RoundedCornerShape(cornerRadius)
+
+        when {
+            trailingContent != null -> trailingContent()
+            trailingIcon != null && onTrailingClick != null -> {
+                Box(
+                    modifier = Modifier.size(dimensionResource(R.dimen.ic_button_size)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = trailingIcon,
+                        contentDescription = "Add tag",
+                        modifier = Modifier
+                            .clickable { onTrailingClick() }
+                            .background(Yellow)
+                    )
+                }
+            }
+        }
+
         labels.forEach { label ->
-            val chipShape = RoundedCornerShape(cornerRadius)
+
             val isSelected = (selectedTagId != null && (label.id == selectedTagId))
+            val borderColor = label.color.copy(alpha = if (isSelected) 0.8f else 0.35f)
             val borderWidth = if (isSelected) selectedBorderWidth else (-1).dp
             val bgAlpha = if (isSelected) 0.12f else 0.05f
-            val borderColor = label.color.copy(alpha = if (isSelected) 0.8f else 0.35f)
 
             Box(
                 modifier = Modifier
@@ -74,7 +97,7 @@ fun TagsList(
                     else Modifier)
                     .padding(labelPadding), contentAlignment = Alignment.Center) {
                 Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                    horizontalArrangement = Arrangement.spacedBy(horizontalGap),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
 
@@ -105,16 +128,5 @@ fun TagsList(
             }
         }
 
-        when {
-            trailingContent != null -> trailingContent()
-            trailingIcon != null && onTrailingClick != null -> {
-                Box (modifier = Modifier.size(dimensionResource(R.dimen.ic_button_size)), contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = trailingIcon,
-                        contentDescription = "Add tag",
-                        modifier = Modifier.clickable { onTrailingClick() })
-                }
-            }
-        }
     }
 }

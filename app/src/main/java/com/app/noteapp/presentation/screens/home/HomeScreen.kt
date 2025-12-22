@@ -82,7 +82,7 @@ fun HomeScreen(
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val context = LocalContext.current
 
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.homeUiState.collectAsStateWithLifecycle()
     remember(uiState.notes) { uiState.notes.filter { it.pinned } }
     remember(uiState.notes) { uiState.notes.filterNot { it.pinned } }
 
@@ -135,7 +135,7 @@ fun HomeScreen(
                 selectedTagId = uiState.selectedTagId,
                 onFilterClicked = { tagId, rangeStart, rangeEnd, onlyReminders ->
                     showFilterSheet = false
-                    viewModel.onFilterClicked(tagId, rangeStart, rangeEnd, onlyReminders)
+                    viewModel.filterNotes(tagId, rangeStart, rangeEnd, onlyReminders)
                 },
                 rangeStart = uiState.rangeStart,
                 rangeEnd = uiState.rangeEnd,
@@ -183,7 +183,7 @@ fun HomeScreen(
                 viewModel.importBackup(bytes).collect { result ->
                     result.onSuccess { res ->
                         viewModel.clearFilters()
-                        viewModel.onSearchQueryChange("")
+                        viewModel.changeSearchQuery("")
                         Toast.makeText(
                             context,
                             "Imported: ${res.notesImported} notes, ${res.tagsImported} tags",
@@ -249,10 +249,11 @@ fun HomeScreen(
                     avatar = painterResource(uiState.avatar.iconRes()),
                     onAvatarClick = { scope.launch { drawerState.open() } },
                     query = uiState.searchQuery,
-                    onSearchChange = viewModel::onSearchQueryChange,
-                    onGridToggleClicked = viewModel::onGridToggleClicked,
+                    onSearchChange = viewModel::changeSearchQuery,
+                    onGridToggleClicked = viewModel::toggleList,
                     layoutMode = uiState.layoutMode,
                     onFilterClick = { showFilterSheet = true },
+                    onSortClick = { },
                     isFilterActive = uiState.isFilterActive
                 )
             },
@@ -279,7 +280,7 @@ fun HomeScreen(
                 inner = inner,
                 gridState = gridState,
                 onNoteClicked = { noteId -> viewModel.navigateToNoteDetails(noteId) },
-                onNotePinned = { noteId -> viewModel.onPinNoteClicked(noteId) },
+                onNotePinned = { noteId -> viewModel.pinNote(noteId) },
                 onConfirmDelete = { noteId -> confirmDeleteId = noteId })
         }
     }

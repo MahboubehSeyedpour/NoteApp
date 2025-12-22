@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,6 +22,7 @@ import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,6 +50,7 @@ fun TopBar(
     onGridToggleClicked: () -> Unit,
     layoutMode: LayoutMode,
     onFilterClick: () -> Unit,
+    onSortClick: () -> Unit,
     isFilterActive: Boolean,
 ) {
 
@@ -59,17 +62,38 @@ fun TopBar(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(dimensionResource(R.dimen.topbar_height)),
+                .height(dimensionResource(R.dimen.topbar_height)).padding(end = dimensionResource(R.dimen.icon_size)/2),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Avatar(avatar, onAvatarClick)
+            Text(text = stringResource(R.string.app_name))
+        }
+
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(dimensionResource(R.dimen.topbar_height)),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            CircularIconButton(
+                onClick = onGridToggleClicked, icon = {
+                    Icon(
+                        imageVector = when (layoutMode) {
+                            LayoutMode.LIST -> ImageVector.vectorResource(R.drawable.ic_vertical_list)
+                            LayoutMode.GRID -> ImageVector.vectorResource(R.drawable.ic_grid_list)
+                        }, contentDescription = stringResource(R.string.toggle_layout)
+                    )
+                })
+
             Actions(
                 query = query,
                 onSearchChange = onSearchChange,
-                onGridToggleClicked = onGridToggleClicked,
-                layoutMode = layoutMode,
                 onFilterClick = onFilterClick,
+                onSortClick = onSortClick,
                 isFilterActive = isFilterActive
             )
         }
@@ -103,9 +127,8 @@ fun Avatar(
 fun Actions(
     query: String,
     onSearchChange: (String) -> Unit,
-    onGridToggleClicked: () -> Unit,
-    layoutMode: LayoutMode,
     onFilterClick: () -> Unit,
+    onSortClick: () -> Unit,
     isFilterActive: Boolean,
 ) {
     var searchExpanded by rememberSaveable { mutableStateOf(false) }
@@ -165,14 +188,18 @@ fun Actions(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.End
         ) {
-            if (iconsWeight > 0f) {
-                CircularIconButton(onClick = { searchExpanded = true }, icon = {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.ic_search),
-                        contentDescription = stringResource(R.string.search_note)
-                    )
-                })
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                LabelCircularIconButton (
+                    label = R.string.sort,
+                    onClick = onSortClick, icon = {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.ic_arrow_down),
+                            contentDescription = stringResource(R.string.sort)
+                        )
+                    })
             }
+
 
             BadgedBox(
                 badge = {
@@ -192,23 +219,32 @@ fun Actions(
                     })
             }
 
-            CircularIconButton(
-                onClick = onGridToggleClicked, icon = {
+            if (iconsWeight > 0f) {
+                CircularIconButton(onClick = { searchExpanded = true }, icon = {
                     Icon(
-                        imageVector = when (layoutMode) {
-                            LayoutMode.LIST -> ImageVector.vectorResource(R.drawable.ic_vertical_list)
-                            LayoutMode.GRID -> ImageVector.vectorResource(R.drawable.ic_grid_list)
-                        }, contentDescription = stringResource(R.string.toggle_layout)
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_search),
+                        contentDescription = stringResource(R.string.search_note)
                     )
                 })
+            }
+
+//            CircularIconButton(
+//                onClick = onGridToggleClicked, icon = {
+//                    Icon(
+//                        imageVector = when (layoutMode) {
+//                            LayoutMode.LIST -> ImageVector.vectorResource(R.drawable.ic_vertical_list)
+//                            LayoutMode.GRID -> ImageVector.vectorResource(R.drawable.ic_grid_list)
+//                        }, contentDescription = stringResource(R.string.toggle_layout)
+//                    )
+//                })
         }
 
-        CircularIconButton(onClick = { /* TODO notifications */ }, icon = {
-            Icon(
-                imageVector = ImageVector.vectorResource(R.drawable.ic_notification),
-                contentDescription = stringResource(R.string.notification)
-            )
-        })
+//        CircularIconButton(onClick = { /* TODO notifications */ }, icon = {
+//            Icon(
+//                imageVector = ImageVector.vectorResource(R.drawable.ic_notification),
+//                contentDescription = stringResource(R.string.notification)
+//            )
+//        })
     }
 }
 

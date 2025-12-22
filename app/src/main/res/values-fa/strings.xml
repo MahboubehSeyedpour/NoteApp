@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">دفتر یادداشت</string>
+    <string name="app_name">نوت وایا</string>
 
     <string name="dialog_delete_confirm_btn">پاک کردن</string>
     <string name="dialog_dismiss_btn">لغو</string>
@@ -101,5 +101,8 @@
     <string name="export_description">نسخه پشتیبان روی دستگاه خودتان ذخیره میشود</string>
 
     <string name="import_from">بازیابی یادداشت از فایل</string>
+
+    <string name="choose_color">انتخاب رنگ</string>
+    <string name="sort">آخرین تغییر</string>
 
 </resources>

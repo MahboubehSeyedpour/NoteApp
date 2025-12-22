@@ -60,7 +60,7 @@ class HomeViewModel @Inject constructor(
 
     private val zoneId: ZoneId = ZoneId.systemDefault()
 
-    private val localState = MutableStateFlow(
+    private val _homeUiState = MutableStateFlow(
         HomeUiState(
             layoutMode = LayoutMode.LIST,
             searchQuery = "",
@@ -85,14 +85,14 @@ class HomeViewModel @Inject constructor(
 
     // -------- base state: local + (language/avatar/tags) --------
     private val baseState: StateFlow<HomeUiState> =
-        combine(localState, languageUseCase(), avatarUseCase(), tagsFlow) { s, lang, avatar, tags ->
+        combine(_homeUiState, languageUseCase(), avatarUseCase(), tagsFlow) { s, lang, avatar, tags ->
             s.copy(
                 language = lang, avatar = avatar, tags = tags
             )
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = localState.value
+            initialValue = _homeUiState.value
         )
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -125,7 +125,7 @@ class HomeViewModel @Inject constructor(
             byReminder.sortedWith(compareByDescending<NoteUiModel> { it.pinned }.thenByDescending { it.createdAt })
         }
 
-    val uiState: StateFlow<HomeUiState> = combine(baseState, notesFlow) { s, notes ->
+    val homeUiState: StateFlow<HomeUiState> = combine(baseState, notesFlow) { s, notes ->
         s.copy(notes = notes)
     }.stateIn(
         scope = viewModelScope,
@@ -143,8 +143,8 @@ class HomeViewModel @Inject constructor(
         _events.emit(HomeEvents.NavigateToNoteDetailScreen(null))
     }
 
-    fun onGridToggleClicked() {
-        localState.update { s ->
+    fun toggleList() {
+        _homeUiState.update { s ->
             s.copy(layoutMode = if (s.layoutMode == LayoutMode.LIST) LayoutMode.GRID else LayoutMode.LIST)
         }
     }
@@ -159,11 +159,11 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun onPinNoteClicked(id: Long) {
+    fun pinNote(id: Long) {
         viewModelScope.launch(io) {
             runCatching {
                 // Snapshot from state (UI list)
-                val currentNotes = uiState.value.notes
+                val currentNotes = homeUiState.value.notes
                 val pinnedId = currentNotes.firstOrNull { it.pinned }?.id
                 val togglingOff = (pinnedId == id)
 
@@ -199,12 +199,12 @@ class HomeViewModel @Inject constructor(
     }
 
     // ============================================= search & filter =============================================
-    fun onSearchQueryChange(newQuery: String) {
-        localState.update { it.copy(searchQuery = newQuery) }
+    fun changeSearchQuery(newQuery: String) {
+        _homeUiState.update { it.copy(searchQuery = newQuery) }
     }
 
-    fun onFilterClicked(tagId: Long?, rangeStart: Long?, rangeEnd: Long?, onlyReminders: Boolean) {
-        localState.update { s ->
+    fun filterNotes(tagId: Long?, rangeStart: Long?, rangeEnd: Long?, onlyReminders: Boolean) {
+        _homeUiState.update { s ->
             val normalizedTagId = tagId ?: ALL_TAG_ID
             val validRange = (rangeStart != null && rangeEnd != null && rangeStart <= rangeEnd)
 
@@ -219,16 +219,16 @@ class HomeViewModel @Inject constructor(
     }
 
     fun filterCustomRange(start: Long?, end: Long?) {
-        localState.update { s ->
+        _homeUiState.update { s ->
             s.copy(timeFilter = TimeFilter.CUSTOM_RANGE, rangeStart = start, rangeEnd = end)
         }
     }
 
     fun filterNotesWithReminder(enabled: Boolean) {
-        localState.update { it.copy(onlyReminder = enabled) }
+        _homeUiState.update { it.copy(onlyReminder = enabled) }
     }
 
-    fun clearFilters() = localState.update {
+    fun clearFilters() = _homeUiState.update {
             it.copy(
                 selectedTagId = ALL_TAG_ID,
                 onlyReminder = false,

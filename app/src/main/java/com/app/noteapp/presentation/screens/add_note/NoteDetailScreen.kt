@@ -4,12 +4,14 @@ import android.Manifest
 import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,6 +21,9 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -46,12 +51,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Yellow
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.unit.dp
+import androidx.core.graphics.ColorUtils
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -65,7 +73,6 @@ import com.app.noteapp.core.permissions.awaitPermission
 import com.app.noteapp.core.permissions.rememberPermissionRequester
 import com.app.noteapp.presentation.components.CircularIconButton
 import com.app.noteapp.presentation.components.CustomAlertDialog
-import com.app.noteapp.presentation.components.NoteAppButton
 import com.app.noteapp.presentation.components.NoteContent
 import com.app.noteapp.presentation.components.NoteDetailScreenTopBar
 import com.app.noteapp.presentation.components.TagsList
@@ -154,7 +161,7 @@ fun NoteDetailScreen(
                     showTagSheet = false
                 }
 
-                else -> viewModel.onBackClicked()
+                else -> viewModel.backClicked()
             }
         }
     }
@@ -189,11 +196,11 @@ fun NoteDetailScreen(
             topBar = {
                 Column {
                     NoteDetailScreenTopBar(
-                        onBack = { viewModel.onBackClicked() },
-                        onDoneClicked = { viewModel.onBackClicked() },
+                        onBack = { viewModel.backClicked() },
+                        onDoneClicked = { viewModel.backClicked() },
                         onNotificationClick = { showReminderSheet = true },
                         onShareClick = {},
-                        onDeleteClicked = { viewModel.onDeleteClicked() })
+                        onDeleteClicked = { viewModel.deleteNote() })
                     HorizontalDivider(
                         modifier = Modifier.padding(top = dimensionResource(R.dimen.screen_padding)),
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f)
@@ -322,7 +329,7 @@ fun NoteDetailScreen(
         ) {
             ReminderSheetContent(
                 reminderText = uiState.note?.reminderTag?.name,
-                onClearReminder = { viewModel.onClearReminder() },
+                onClearReminder = { viewModel.clearReminder() },
                 onPickDateTime = {
                     scope.launch {
                         val ok = ensureReminderPermissions(requester)
@@ -362,7 +369,7 @@ fun NoteDetailScreen(
             message = stringResource(R.string.delete_note_question),
             onConfirmBtnClick = {
                 showDeleteDialog = false
-                viewModel.onConfirmDelete()
+                viewModel.confirmDelete()
             },
             confirmBtnText = R.string.delete,
             onDismissButtonClick = { showDeleteDialog = false },
@@ -501,11 +508,71 @@ fun TagSheetContent(
 
         Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
 
-        NoteAppButton(
-            modifier = Modifier.fillMaxWidth(),
-            text = R.string.add_tag,
-            onClick = { if (newName.isNotBlank()) onAdd(newName.trim(), selectedColor) })
-
-        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+//        NoteAppButton(
+//            modifier = Modifier.fillMaxWidth(),
+//            text = R.string.add_tag,
+//            onClick = { if (newName.isNotBlank()) onAdd(newName.trim(), selectedColor) })
+//
+//        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
     }
 }
+
+fun generatePaletteFromSeed(
+    seed: Color,
+    count: Int = 24
+): List<Color> {
+    // Generate hues around the seed hue
+    val seedHsl = FloatArray(3)
+    ColorUtils.colorToHSL(seed.toArgb(), seedHsl)
+    val seedHue = seedHsl[0]
+
+    val colors = mutableListOf<Color>()
+    val step = 360f / count
+
+    for (i in 0 until count) {
+        val h = (seedHue + i * step) % 360f
+        val s = 0.65f
+        val l = 0.55f
+        val argb = ColorUtils.HSLToColor(floatArrayOf(h, s, l))
+        colors += Color(argb)
+    }
+
+    return colors
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun ColorPalettePicker(
+    colors: List<Color>,
+    selected: Color,
+    onSelect: (Color) -> Unit,
+    modifier: Modifier = Modifier,
+    columns: Int = 8
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(columns),
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        contentPadding = PaddingValues(vertical = 6.dp)
+    ) {
+        items(items =colors, key = { it.value.toString() }) { c ->
+            val selectedNow = c == selected
+            Box(
+                modifier = Modifier
+                    .size(if (selectedNow) 34.dp else 28.dp)
+                    .clip(CircleShape)
+                    .background(c)
+                    .border(
+                        width = if (selectedNow) 4.dp else 1.dp,
+                        color = if (selectedNow) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.outline,
+                        shape = CircleShape
+                    )
+                    .clickable { onSelect(c) }
+            )
+        }
+    }
+}
+
+

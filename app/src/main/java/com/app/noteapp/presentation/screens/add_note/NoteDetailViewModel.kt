@@ -89,7 +89,7 @@ class NoteDetailViewModel @Inject constructor(
         }
     }
 
-    fun onClearReminder() =
+    fun clearReminder() =
         mutate { it.copy(reminderAt = null, timeBadge = null, reminderTag = null) }
 
     private inline fun mutate(block: (NoteUiModel) -> NoteUiModel) {
@@ -136,17 +136,17 @@ class NoteDetailViewModel @Inject constructor(
         }
     }
 
-    fun onBackClicked() {
+    fun backClicked() {
         if (_uiState.value.note?.title?.isNotBlank() == true || _uiState.value.note?.title?.isNotEmpty() == true || _uiState.value.note?.description?.isNotBlank() == true || _uiState.value.note?.description?.isNotEmpty() == true) {
             saveNote()
         } else viewModelScope.launch { _events.emit(NoteDetailEvents.NavigateToHomeScreen) }
     }
 
-    fun onDeleteClicked() {
+    fun deleteNote() {
         viewModelScope.launch { _events.emit(NoteDetailEvents.RequestDeleteConfirm) }
     }
 
-    fun onConfirmDelete() {
+    fun confirmDelete() {
         val id = noteId
         if (id == null) {
             viewModelScope.launch {
