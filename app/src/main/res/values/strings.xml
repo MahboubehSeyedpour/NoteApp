@@ -104,6 +104,6 @@
 
     <string name="choose_color">Choose color</string>
 
-    <string name="sort">Last Modified</string>
+    <string name="sort_by_date">Date</string>
 
 </resources>

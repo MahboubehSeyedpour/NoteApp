@@ -116,7 +116,7 @@ class NoteDetailViewModel @Inject constructor(
             viewModelScope.launch(io) {
                 runCatching {
                     scheduler.cancel(ui.id)              // cancel previous
-                    val note = ui.toNote()
+                    val note = ui.copy(createdAt = System.currentTimeMillis()).toNote()
                     noteUseCase.addOrUpdateNote(note)
                     ui.reminderAt?.let {
                         scheduler.schedule(ui.id, it, ui.title, ui.description)

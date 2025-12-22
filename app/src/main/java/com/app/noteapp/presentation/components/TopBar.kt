@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -74,7 +75,7 @@ fun TopBar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Row (verticalAlignment = Alignment.CenterVertically) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Avatar(avatar, onAvatarClick)
                 Spacer(Modifier.width(dimensionResource(R.dimen.h_space)))
                 Text(
@@ -206,14 +207,19 @@ fun Actions(
             horizontalArrangement = Arrangement.End
         ) {
 
+            var changeDirection by remember { mutableStateOf(false) }
+
             Row(verticalAlignment = Alignment.CenterVertically) {
-                LabelCircularIconButton(
-                    label = stringResource(R.string.sort), onClick = onSortClick, icon = {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.ic_arrow_down),
-                            contentDescription = stringResource(R.string.sort)
-                        )
-                    })
+                LabelCircularIconButton(label = stringResource(R.string.sort_by_date), onClick = {
+                    onSortClick()
+                    changeDirection = !changeDirection
+                }, icon = {
+                    Icon(
+                        imageVector = if (changeDirection) ImageVector.vectorResource(R.drawable.ic_arrow_down) else ImageVector.vectorResource(
+                            R.drawable.ic_up
+                        ), contentDescription = stringResource(R.string.sort_by_date)
+                    )
+                })
             }
 
 

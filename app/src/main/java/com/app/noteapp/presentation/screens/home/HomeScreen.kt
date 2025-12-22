@@ -254,7 +254,7 @@ fun HomeScreen(
                     onGridToggleClicked = viewModel::toggleList,
                     layoutMode = uiState.layoutMode,
                     onFilterClick = { showFilterSheet = true },
-                    onSortClick = { },
+                    onSortClick = { viewModel.onSortByDateClicked() },
                     isFilterActive = uiState.isFilterActive
                 )
             },

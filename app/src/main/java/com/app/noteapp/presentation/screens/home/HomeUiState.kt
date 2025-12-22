@@ -4,9 +4,11 @@ import com.app.noteapp.core.enums.LayoutMode
 import com.app.noteapp.domain.common_model.AppLanguage
 import com.app.noteapp.domain.common_model.AvatarType
 import com.app.noteapp.presentation.model.NoteUiModel
+import com.app.noteapp.presentation.model.SortOrder
 import com.app.noteapp.presentation.model.TagUiModel
 
 data class HomeUiState(
+    val sortOrder: SortOrder = SortOrder.DESC,
     val layoutMode: LayoutMode = LayoutMode.LIST,
     val searchQuery: String = "",
     val selectedTagId: Long = ALL_TAG_ID,

@@ -103,6 +103,6 @@
     <string name="import_from">بازیابی یادداشت از فایل</string>
 
     <string name="choose_color">انتخاب رنگ</string>
-    <string name="sort">آخرین تغییر</string>
+    <string name="sort_by_date">جدیدترین</string>
 
 </resources>
