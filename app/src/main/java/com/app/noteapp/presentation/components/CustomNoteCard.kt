@@ -87,9 +87,7 @@ fun CustomNoteCard(
                 )
             }
 
-            Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
-            Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
-            Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+            Spacer(Modifier.height(dimensionResource(R.dimen.v_space)*3))
 
             Text(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = dimensionResource(R.dimen.icon_size)),
@@ -99,12 +97,10 @@ fun CustomNoteCard(
                 textAlign = TextAlign.Justify
             )
 
-            Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
-            Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
-            Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+            Spacer(Modifier.height(dimensionResource(R.dimen.v_space)*3))
 
             FlowRow(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = dimensionResource(R.dimen.icon_size)),
                 horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_items_h_padding)),
                 verticalArrangement = Arrangement.Center
             ) {
