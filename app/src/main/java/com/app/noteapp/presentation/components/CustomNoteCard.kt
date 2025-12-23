@@ -1,5 +1,6 @@
 package com.app.noteapp.presentation.components
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -7,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -41,6 +43,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.app.noteapp.R
 import com.app.noteapp.presentation.model.NoteUiModel
+import com.app.noteapp.presentation.model.TagUiModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -100,58 +103,72 @@ fun CustomNoteCard(
             Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
             Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
 
-            if (note.tag != null) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = dimensionResource(R.dimen.icon_size)),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Start
-                ) {
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween, verticalArrangement = Arrangement.Center
+            ) {
+                note.tag?.let {
+                    NoteTag(it, icon = R.drawable.ic_hashtag)
+                }
 
-                    val chipShape = RoundedCornerShape(dimensionResource(R.dimen.tag_corner_round))
-
-                    Box(
-                        modifier = Modifier
-                            .clip(chipShape)
-                            .background(note.tag.color.copy(alpha = 0.05f), chipShape)
-                            .border((-1).dp, note.tag.color.copy(alpha = 0.8f), chipShape)
-                            .padding(
-                                PaddingValues(
-                                    horizontal = dimensionResource(R.dimen.tag_h_padding),
-                                    vertical = dimensionResource(R.dimen.tag_v_padding)
-                                )
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dp_0)),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.height(dimensionResource(R.dimen.icon_size))
-                            ) {
-                                Icon(
-                                    imageVector = ImageVector.vectorResource(R.drawable.ic_hashtag),
-                                    contentDescription = null,
-                                    tint = note.tag.color.copy(alpha = 0.8f),
-                                    modifier = Modifier.size(dimensionResource(R.dimen.icon_size) / 2)
-                                )
-
-                                Spacer(Modifier.width(dimensionResource(R.dimen.h_space)/2))
-
-                                Text(
-                                    text = note.tag.name,
-                                    color = note.tag.color,
-                                    style = MaterialTheme.typography.labelSmall
-                                )
-                            }
-                        }
-                    }
+                note.reminderTag?.let {
+                    NoteTag(it, icon = R.drawable.ic_clock)
                 }
             }
 
             Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+        }
+    }
+}
+
+@Composable
+fun NoteTag(tagUiModel: TagUiModel, @DrawableRes icon: Int) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = dimensionResource(R.dimen.icon_size)),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start
+    ) {
+
+        val chipShape = RoundedCornerShape(dimensionResource(R.dimen.tag_corner_round))
+
+        Box(
+            modifier = Modifier
+                .clip(chipShape)
+                .background(tagUiModel.color.copy(alpha = 0.05f), chipShape)
+                .border((-1).dp, tagUiModel.color.copy(alpha = 0.8f), chipShape)
+                .padding(
+                    PaddingValues(
+                        horizontal = dimensionResource(R.dimen.tag_h_padding),
+                        vertical = dimensionResource(R.dimen.tag_v_padding)
+                    )
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dp_0)),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.height(dimensionResource(R.dimen.icon_size))
+                ) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(icon),
+                        contentDescription = null,
+                        tint = tagUiModel.color.copy(alpha = 0.8f),
+                        modifier = Modifier.size(dimensionResource(R.dimen.icon_size) / 2)
+                    )
+
+                    Spacer(Modifier.width(dimensionResource(R.dimen.h_space)/2))
+
+                    Text(
+                        text = tagUiModel.name,
+                        color = tagUiModel.color,
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                }
+            }
         }
     }
 }
