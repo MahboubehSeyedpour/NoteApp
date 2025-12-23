@@ -105,4 +105,9 @@
     <string name="choose_color">انتخاب رنگ</string>
     <string name="sort_by_date">جدیدترین</string>
 
+    <string name="text_bold">Bold</string>
+    <string name="save">ذخیره</string>
+    <string name="created_at">تاریخ ایجاد</string>
+    <string name="colon">:</string>
+
 </resources>

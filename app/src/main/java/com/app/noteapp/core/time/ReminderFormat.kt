@@ -20,6 +20,20 @@ fun formatReminderEpoch(epochMillis: Long, zoneId: ZoneId = ZoneId.systemDefault
     else base.lowercase(Locale.ENGLISH)
 }
 
+fun formatUnixMillis(
+    millis: Long,
+    zoneId: ZoneId = ZoneId.systemDefault(),
+    locale: Locale = Locale.ENGLISH
+): String {
+    val formatter = DateTimeFormatter
+        .ofPattern("EEEE, MMMM dd, yyyy", locale)
+
+    return Instant
+        .ofEpochMilli(millis)
+        .atZone(zoneId)
+        .format(formatter)
+}
+
 fun combineToEpochMillis(
     dateMillis: Long,
     hour: Int,

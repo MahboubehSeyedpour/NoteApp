@@ -105,5 +105,9 @@
     <string name="choose_color">Choose color</string>
 
     <string name="sort_by_date">Date</string>
+    <string name="text_bold">Bold</string>
+    <string name="save">Save</string>
+    <string name="created_at">created at</string>
+    <string name="colon">:</string>
 
 </resources>

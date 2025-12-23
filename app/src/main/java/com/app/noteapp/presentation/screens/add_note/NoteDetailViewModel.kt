@@ -9,6 +9,7 @@ import com.app.noteapp.core.time.combineToEpochMillis
 import com.app.noteapp.core.time.formatReminderEpoch
 import com.app.noteapp.di.IoDispatcher
 import com.app.noteapp.domain.reminders.ReminderScheduler
+import com.app.noteapp.domain.usecase.LanguageUseCase
 import com.app.noteapp.domain.usecase.NoteUseCase
 import com.app.noteapp.domain.usecase.TagUseCase
 import com.app.noteapp.presentation.mapper.toNote
@@ -39,6 +40,7 @@ class NoteDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val noteUseCase: NoteUseCase,
     private val tagUseCase: TagUseCase,
+    private val languageUseCase: LanguageUseCase,
     private val scheduler: ReminderScheduler,
     @IoDispatcher private val io: CoroutineDispatcher
 ) : ViewModel() {

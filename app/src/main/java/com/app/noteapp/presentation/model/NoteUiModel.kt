@@ -9,7 +9,7 @@ data class NoteUiModel(
     val description: String? = "",
     val timeBadge: String? = null,
     val reminderAt: Long? = null,
-    val createdAt: Long = 0L,
+    val createdAt: Long = System.currentTimeMillis(),
     val pinned: Boolean = false,
     val tag: TagUiModel? = null,
     val reminderTag: TagUiModel? = null
