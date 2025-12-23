@@ -105,7 +105,8 @@ fun CustomNoteCard(
 
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween, verticalArrangement = Arrangement.Center
+                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_items_h_padding)),
+                verticalArrangement = Arrangement.Center
             ) {
                 note.tag?.let {
                     NoteTag(it, icon = R.drawable.ic_hashtag)
@@ -124,7 +125,6 @@ fun CustomNoteCard(
 @Composable
 fun NoteTag(tagUiModel: TagUiModel, @DrawableRes icon: Int) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = dimensionResource(R.dimen.icon_size)),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start
     ) {
