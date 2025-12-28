@@ -5,6 +5,10 @@ import androidx.compose.runtime.Immutable
 @Immutable
 data class Tag(
     val id: Long,
+    val userId: Long,
     val name: String,
-    val color: Int
+    val colorArgb: Int,
+    val createdAt: Long,
+    val updatedAt: Long,
+    val deletedAt: Long?,
 )

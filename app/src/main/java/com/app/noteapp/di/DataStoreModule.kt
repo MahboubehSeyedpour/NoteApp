@@ -11,15 +11,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
-private const val PREFS_NAME = "user_prefs"
-
-// Extension on Context, must be in the same module
-private val Context.dataStore by preferencesDataStore(name = PREFS_NAME)
-private const val FONT_DATASTORE_NAME = "font_prefs"
-
-val Context.fontDataStore: DataStore<Preferences> by preferencesDataStore(
-    name = FONT_DATASTORE_NAME
-)
+private const val APP_PREFS_NAME = "app_prefs"
+private val Context.appPrefsDataStore by preferencesDataStore(name = APP_PREFS_NAME)
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -27,7 +20,7 @@ object DataStoreModule {
 
     @Provides
     @Singleton
-    fun providePreferencesDataStore(
+    fun provideAppPrefsDataStore(
         @ApplicationContext context: Context
-    ): DataStore<Preferences> = context.dataStore
+    ): DataStore<Preferences> = context.appPrefsDataStore
 }

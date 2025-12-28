@@ -1,20 +1,25 @@
 package com.app.noteapp.data.repository
 
-import com.app.noteapp.data.local.font.FontPreferences
-import com.app.noteapp.domain.common_model.AppFont
-import com.app.noteapp.domain.repository.FontRepository
-import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class FontRepositoryImpl @Inject constructor(
-    private val prefs: FontPreferences
-) : FontRepository {
-
-    override val currentFont: Flow<AppFont> = prefs.currentFont
-
-    override suspend fun setFont(font: AppFont) {
-        prefs.setFont(font)
-    }
-}
+class FontRepositoryImpl @Inject constructor()
+//    private val dataStore: DataStore<Preferences>
+//) : FontRepository {
+//
+//    private object Keys {
+//        val FONT = stringPreferencesKey("app_font")
+//    }
+//
+//    override val currentFont: Flow<AppFont> =
+//        dataStore.data.map { prefs ->
+//            AppFont.fromKey(prefs[Keys.FONT])
+//        }
+//
+//    override suspend fun setFont(font: AppFont) {
+//        dataStore.edit { prefs ->
+//            prefs[Keys.FONT] = font.key
+//        }
+//    }
+//}

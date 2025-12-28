@@ -13,10 +13,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
@@ -52,10 +49,11 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
                 }
             }
 
-            val currentFont by viewModel.currentFont.collectAsState()
+//            val currentFont by viewModel.currentFont.collectAsState()
 
             NoteAppTheme(
-                darkTheme = isSystemInDarkTheme(), dynamicColor = false, appFont = currentFont
+                darkTheme = isSystemInDarkTheme(), dynamicColor = false
+//                appFont = currentFont
             ) {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     NoteApp(
@@ -77,7 +75,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
 @Composable
 fun NoteApp(viewModel: MainViewModel, navController: NavHostController, initialNoteId: Long = 0L) {
 
-    val currentFont by viewModel.currentFont.collectAsStateWithLifecycle()
+//    val currentFont by viewModel.currentFont.collectAsStateWithLifecycle()
 
     Scaffold(containerColor = androidx.compose.ui.graphics.Color.White) { innerPadding ->
         NavHost(
@@ -90,8 +88,8 @@ fun NoteApp(viewModel: MainViewModel, navController: NavHostController, initialN
             composable(Screens.HomeScreen.route) {
                 HomeScreen(
                     navController,
-                    currentFont = currentFont,
-                    onFontSelected = viewModel::onFontSelected
+//                    currentFont = currentFont,
+//                    onFontSelected = viewModel::onFontSelected
                 )
             }
             composable(

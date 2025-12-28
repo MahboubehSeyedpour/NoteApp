@@ -35,13 +35,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.app.noteapp.R
+import com.app.noteapp.data.local.model.enums.MediaKind
+import com.app.noteapp.presentation.model.NoteBlockUiModel
 import com.app.noteapp.presentation.model.NoteUiModel
 import com.app.noteapp.presentation.model.TagUiModel
 
@@ -89,12 +94,10 @@ fun CustomNoteCard(
 
             Spacer(Modifier.height(dimensionResource(R.dimen.v_space)*3))
 
-            Text(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = dimensionResource(R.dimen.icon_size)),
-                text = note.description ?: "",
-                style = noteBodyStyle,
-                maxLines = 3,
-                textAlign = TextAlign.Justify
+
+            NotePreviewBlocks(
+                blocks = note.blocks,
+                textStyle = noteBodyStyle
             )
 
             Spacer(Modifier.height(dimensionResource(R.dimen.v_space)*3))
@@ -104,13 +107,13 @@ fun CustomNoteCard(
                 horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_items_h_padding)),
                 verticalArrangement = Arrangement.Center
             ) {
-                note.tag?.let {
-                    NoteTag(it, icon = R.drawable.ic_hashtag)
-                }
-
-                note.reminderTag?.let {
-                    NoteTag(it, icon = R.drawable.ic_clock)
-                }
+//                note.tag?.let {
+//                    NoteTag(it, icon = R.drawable.ic_hashtag)
+//                }
+//
+//                note.reminderTag?.let {
+//                    NoteTag(it, icon = R.drawable.ic_clock)
+//                }
             }
 
             Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
@@ -192,6 +195,68 @@ fun MenuButton(pinNote: () -> Unit, deleteNote: () -> Unit) {
                 menuExpanded = false
                 deleteNote()
             })
+        }
+    }
+}
+
+@Composable
+private fun NotePreviewBlocks(
+    blocks: List<NoteBlockUiModel>,
+    textStyle: TextStyle,
+) {
+    if (blocks.isEmpty()) return
+
+    val first = blocks.first()
+
+    val horizontalPadding = dimensionResource(R.dimen.icon_size)
+
+    when (first) {
+        is NoteBlockUiModel.Text -> {
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = horizontalPadding),
+                text = first.text,
+                style = textStyle,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Start
+            )
+        }
+
+        is NoteBlockUiModel.Media -> {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = horizontalPadding)
+            ) {
+
+                if (first.kind == MediaKind.IMAGE) {
+                    AsyncImage(
+                        model = first.localUri,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(160.dp)
+                            .clip(RoundedCornerShape(dimensionResource(R.dimen.tag_corner_round))),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+
+                }
+
+                val second = blocks.getOrNull(1)
+                if (second is NoteBlockUiModel.Text) {
+                    Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+                    Text(
+                        text = second.text,
+                        style = textStyle,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        textAlign = TextAlign.Start
+                    )
+                }
+            }
         }
     }
 }

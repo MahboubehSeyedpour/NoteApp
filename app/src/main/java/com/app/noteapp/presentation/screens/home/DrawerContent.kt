@@ -59,8 +59,8 @@ fun DrawerContent(
     onAvatarSelected: (AvatarType) -> Unit,
     currentLanguage: AppLanguage,
     onLanguageSelected: (AppLanguage) -> Unit,
-    currentFont: AppFont,
-    onFontSelected: (AppFont) -> Unit,
+//    currentFont: AppFont,
+//    onFontSelected: (AppFont) -> Unit,
     onExportClicked: () -> Unit,
     onImportClicked: () -> Unit,
 ) {
@@ -81,9 +81,9 @@ fun DrawerContent(
         Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
         Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
 
-        FontPickerSection(
-            selected = currentFont, onSelect = onFontSelected
-        )
+//        FontPickerSection(
+//            selected = currentFont, onSelect = onFontSelected
+//        )
 
         Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
         Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))

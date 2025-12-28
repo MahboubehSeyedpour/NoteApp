@@ -16,7 +16,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,15 +23,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.sp
 import com.app.noteapp.R
 import com.app.noteapp.presentation.model.NoteUiModel
@@ -65,16 +62,16 @@ fun NoteContent(
         }
     }
 
-    var descValue by remember { mutableStateOf(TextFieldValue(note.description.orEmpty())) }
+//    var descValue by remember { mutableStateOf(TextFieldValue(note.description.orEmpty())) }
 
-    LaunchedEffect(note.id, note.description) {
-        val newText = note.description.orEmpty()
-        if (newText != descValue.text) {
-            descValue = TextFieldValue(
-                text = newText, selection = TextRange(newText.length)
-            )
-        }
-    }
+//    LaunchedEffect(note.id, note.description) {
+//        val newText = note.description.orEmpty()
+//        if (newText != descValue.text) {
+//            descValue = TextFieldValue(
+//                text = newText, selection = TextRange(newText.length)
+//            )
+//        }
+//    }
 
     Column(
         modifier = modifier
@@ -86,11 +83,11 @@ fun NoteContent(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        TagsList(
-            labels = buildList {
-            note.tag?.let { add(it) }
-            note.reminderTag?.let { add(it) }
-        }, onLabelClick = {}, trailingIcon = null)
+//        TagsList(
+//            labels = buildList {
+//            note.tag?.let { add(it) }
+//            note.reminderTag?.let { add(it) }
+//        }, onLabelClick = {}, trailingIcon = null)
 
         OutlinedTextField(
             value = note.title,
@@ -101,7 +98,7 @@ fun NoteContent(
             ),
             placeholder = {
                 Text(
-                    text = context.getString(R.string.note_title),
+                    text = stringResource(R.string.note_title),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.headlineSmall.copy(
                         fontWeight = FontWeight.Bold, fontSize = 32.sp
@@ -119,45 +116,45 @@ fun NoteContent(
             )
         )
 
-        OutlinedTextField(
-            value = descValue,
-            onValueChange = { value ->
-                val newlineAdded =
-                    value.text.length > descValue.text.length && value.text.lastOrNull() == '\n'
-
-                descValue = value
-                onDescriptionChange(value.text)
-
-                if (newlineAdded) requestBringIntoViewIfNeeded()
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .bringIntoViewRequester(bringIntoView)
-                .onFocusChanged { state ->
-                    isDescFocused = state.isFocused
-                    if (state.isFocused) requestBringIntoViewIfNeeded()
-                },
-            textStyle = MaterialTheme.typography.headlineSmall.copy(
-                fontWeight = FontWeight.Normal, fontSize = 16.sp
-            ),
-            placeholder = {
-                Text(
-                    context.getString(R.string.note_description),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        fontWeight = FontWeight.Normal, fontSize = 16.sp
-                    )
-                )
-            },
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.Transparent,
-                disabledContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent,
-            )
-        )
+//        OutlinedTextField(
+//            value = descValue,
+//            onValueChange = { value ->
+//                val newlineAdded =
+//                    value.text.length > descValue.text.length && value.text.lastOrNull() == '\n'
+//
+//                descValue = value
+//                onDescriptionChange(value.text)
+//
+//                if (newlineAdded) requestBringIntoViewIfNeeded()
+//            },
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .bringIntoViewRequester(bringIntoView)
+//                .onFocusChanged { state ->
+//                    isDescFocused = state.isFocused
+//                    if (state.isFocused) requestBringIntoViewIfNeeded()
+//                },
+//            textStyle = MaterialTheme.typography.headlineSmall.copy(
+//                fontWeight = FontWeight.Normal, fontSize = 16.sp
+//            ),
+//            placeholder = {
+//                Text(
+//                    context.getString(R.string.note_description),
+//                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+//                    style = MaterialTheme.typography.headlineSmall.copy(
+//                        fontWeight = FontWeight.Normal, fontSize = 16.sp
+//                    )
+//                )
+//            },
+//            colors = TextFieldDefaults.colors(
+//                focusedContainerColor = Color.Transparent,
+//                disabledContainerColor = Color.Transparent,
+//                unfocusedContainerColor = Color.Transparent,
+//                focusedIndicatorColor = Color.Transparent,
+//                unfocusedIndicatorColor = Color.Transparent,
+//                disabledIndicatorColor = Color.Transparent,
+//            )
+//        )
 
         Spacer(
             Modifier

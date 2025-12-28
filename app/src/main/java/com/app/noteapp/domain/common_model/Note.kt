@@ -4,14 +4,17 @@ import androidx.compose.runtime.Immutable
 
 @Immutable
 data class Note(
-    val id: Long = 0,
-    val title: String = "",
-    val description: String? = "",
-    val timeBadge: String? = null,
-    val reminderAt: Long? = null,
-    val createdAt: Long = 0L,
-    val pinned: Boolean = false,
-    val tagId: Long? = null,
-    val tag: Tag? = null,
-    val reminderTag: Tag? = null
+    val id: Long,
+    val userId: Long,
+    val directoryId: Long?,
+    val title: String,
+    val pinned: Boolean,
+    val createdAt: Long,
+    val updatedAt: Long,
+    val deletedAt: Long?,
+
+    // aggregate relations:
+    val blocks: List<NoteBlock>,
+    val tags: List<Tag>,
+    val reminders: List<Reminder>,
 )

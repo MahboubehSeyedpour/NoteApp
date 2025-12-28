@@ -5,5 +5,7 @@ import androidx.compose.ui.graphics.Color
 
 @Immutable
 data class TagUiModel(
-    val id: Long, val name: String, val color: Color
+    val id: Long,
+    val name: String,
+    val color: Color,
 )

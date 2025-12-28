@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.app.noteapp.data.local.entity.TagEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -12,26 +13,28 @@ import kotlinx.coroutines.flow.Flow
 interface TagDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun addTag(tagEntity: TagEntity): Long
+    suspend fun addTag(tag: TagEntity): Long
 
-    @Query("SELECT * FROM `tags`")
-    fun getTagsStream(): Flow<List<TagEntity>>
+    @Update
+    suspend fun updateTag(tag: TagEntity)
 
     @Delete
-    suspend fun deleteTag(tagEntity: TagEntity)
+    suspend fun deleteTag(tag: TagEntity)
 
-    @Query("SELECT * FROM `tags` WHERE id=:id")
-    fun getTagStream(id: Long): Flow<TagEntity>
+    @Query("SELECT * FROM tags WHERE deleted_at IS NULL ORDER BY updated_at DESC")
+    fun getTagsStream(): Flow<List<TagEntity>>
 
-    @Query("SELECT * FROM `tags` WHERE name=:name")
-    fun getTagStream(name: String): Flow<TagEntity>
+    @Query("SELECT * FROM tags WHERE id=:id LIMIT 1")
+    fun getTagStream(id: Long): Flow<TagEntity?>
 
-    @Query("SELECT * FROM tags WHERE id = :id")
-    suspend fun getTagById(id: Long): TagEntity?
+    @Query("SELECT * FROM tags WHERE user_id=:userId AND name=:name LIMIT 1")
+    suspend fun getTagByName(userId: Long, name: String): TagEntity?
 
-    @Query("SELECT id FROM tags")
-    suspend fun getAllIds(): List<Long>
-
-    @Query("SELECT * FROM tags WHERE name = :name LIMIT 1")
-    suspend fun getTagByName(name: String): TagEntity?
+    @Query("""
+        SELECT COUNT(*) 
+        FROM note_tags nt
+        JOIN notes n ON n.id = nt.note_id
+        WHERE nt.tag_id = :tagId AND n.deleted_at IS NULL
+    """)
+    fun observeUsageCount(tagId: Long): Flow<Int>
 }

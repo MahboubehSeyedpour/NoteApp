@@ -109,5 +109,10 @@
     <string name="save">Save</string>
     <string name="created_at">created at</string>
     <string name="colon">:</string>
+    <string name="more">بیشتر</string>
+    <string name="text">متن</string>
+    <string name="image">تصویر</string>
+    <string name="video">ویدیو</string>
+    <string name="voice">صدا</string>
 
 </resources>

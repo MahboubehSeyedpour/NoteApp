@@ -7,18 +7,14 @@ import com.app.noteapp.core.enums.LayoutMode
 import com.app.noteapp.core.time.TimeRange
 import com.app.noteapp.core.time.rangeFor
 import com.app.noteapp.di.IoDispatcher
-import com.app.noteapp.domain.backup_model.ImportResult
 import com.app.noteapp.domain.common_model.AppLanguage
 import com.app.noteapp.domain.common_model.AvatarType
 import com.app.noteapp.domain.common_model.Note
-import com.app.noteapp.domain.usecase.AvatarTypeUseCase
 import com.app.noteapp.domain.usecase.ExportNotesUseCase
 import com.app.noteapp.domain.usecase.ImportNotesUseCase
-import com.app.noteapp.domain.usecase.LanguageUseCase
 import com.app.noteapp.domain.usecase.NoteUseCase
 import com.app.noteapp.domain.usecase.TagUseCase
-import com.app.noteapp.presentation.mapper.toNoteUiModel
-import com.app.noteapp.presentation.mapper.toTagUiMapper
+import com.app.noteapp.presentation.mapper.toUi
 import com.app.noteapp.presentation.model.NoteUiModel
 import com.app.noteapp.presentation.model.SortOrder
 import com.app.noteapp.presentation.model.TagUiModel
@@ -36,8 +32,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -49,8 +43,8 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val noteUseCase: NoteUseCase,
     private val tagUseCase: TagUseCase,
-    private val avatarUseCase: AvatarTypeUseCase,
-    private val languageUseCase: LanguageUseCase,
+//    private val avatarUseCase: AvatarTypeUseCase,
+//    private val languageUseCase: LanguageUseCase,
     private val exportNotesUseCase: ExportNotesUseCase,
     private val importNotesUseCase: ImportNotesUseCase,
     @IoDispatcher private val io: CoroutineDispatcher
@@ -80,7 +74,7 @@ class HomeViewModel @Inject constructor(
     )
 
     private val tagsFlow: Flow<List<TagUiModel>> =
-        tagUseCase.getAllTags().map { list -> list.map { it.toTagUiMapper() } }.map { ui ->
+        tagUseCase.getAllTags().map { list -> list.map { it.toUi() } }.map { ui ->
             val withoutAll = ui.filterNot { it.id == ALL_TAG_ID || it.name.equals("all", true) }
             listOf(ALL_TAG) + withoutAll
         }
@@ -88,12 +82,17 @@ class HomeViewModel @Inject constructor(
     // -------- base state: local + (language/avatar/tags) --------
     private val baseState: StateFlow<HomeUiState> = combine(
         _homeUiState,
-        languageUseCase(),
-        avatarUseCase(),
+//        languageUseCase(),
+//        avatarUseCase(),
         tagsFlow
-    ) { s, lang, avatar, tags ->
+    ) { s,
+//        lang,
+//        avatar,
+        tags ->
         s.copy(
-            language = lang, avatar = avatar, tags = tags
+//            language = lang,
+//            avatar = avatar,
+            tags = tags
         )
     }.stateIn(
         scope = viewModelScope,
@@ -112,30 +111,31 @@ class HomeViewModel @Inject constructor(
             noteUseCase.getNotesBetween(range.start, range.endExclusive)
         }
 
-        src.map { list -> list.map { it.toNoteUiModel() } }
-    }.combine(baseState) { list, s ->
-        val term = s.searchQuery.trim().lowercase()
-
-        val byQuery = if (term.isBlank()) list
-        else list.filter { n ->
-            n.title.lowercase().contains(term) || n.description.orEmpty().lowercase().contains(term)
-        }
-
-        val byTag = if (s.selectedTagId == ALL_TAG_ID) byQuery
-        else byQuery.filter { it.tag?.id == s.selectedTagId }
-
-        val byReminder = if (!s.onlyReminder) byTag
-        else byTag.filter { it.reminderAt != null }
-
-        val createdAtComparator = when (s.sortOrder) {
-            SortOrder.DESC -> compareByDescending<NoteUiModel> { it.createdAt }
-            SortOrder.ASC -> compareBy<NoteUiModel> { it.createdAt }
-        }
-
-        byReminder.sortedWith(compareByDescending<NoteUiModel> { it.pinned }.then(
-                createdAtComparator
-            ))
+        src.map { list -> list.map { it.toUi() } }
     }
+//        .combine(baseState) { list, s ->
+//        val term = s.searchQuery.trim().lowercase()
+//
+//        val byQuery = if (term.isBlank()) list
+//        else list.filter { n ->
+//            n.title.lowercase().contains(term) || n.description.orEmpty().lowercase().contains(term)
+//        }
+//
+//        val byTag = if (s.selectedTagId == ALL_TAG_ID) byQuery
+//        else byQuery.filter { it.tag?.id == s.selectedTagId }
+//
+//        val byReminder = if (!s.onlyReminder) byTag
+//        else byTag.filter { it.reminderAt != null }
+//
+//        val createdAtComparator = when (s.sortOrder) {
+//            SortOrder.DESC -> compareByDescending<NoteUiModel> { it.createdAt }
+//            SortOrder.ASC -> compareBy<NoteUiModel> { it.createdAt }
+//        }
+//
+//        byReminder.sortedWith(compareByDescending<NoteUiModel> { it.pinned }.then(
+//                createdAtComparator
+//            ))
+//    }
 
     val homeUiState: StateFlow<HomeUiState> = combine(baseState, notesFlow) { s, notes ->
         s.copy(notes = notes)
@@ -146,7 +146,7 @@ class HomeViewModel @Inject constructor(
     )
 
     val tags: StateFlow<List<TagUiModel>> =
-        tagUseCase.getAllTags().map { list -> list.map { it.toTagUiMapper() } }.map { ui ->
+        tagUseCase.getAllTags().map { list -> list.map { it.toUi() } }.map { ui ->
             val withoutAll = ui.filterNot { it.id == ALL_TAG_ID || it.name.equals("all", true) }
             listOf(ALL_TAG) + withoutAll
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), listOf(ALL_TAG))
@@ -209,10 +209,10 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    suspend fun exportNotesBytes(): ByteArray = exportNotesUseCase()
-
-    fun importBackup(bytes: ByteArray): Flow<Result<ImportResult>> =
-        flow { emit(runCatching { importNotesUseCase(bytes) }) }.flowOn(io)
+//    suspend fun exportNotesBytes(): ByteArray = exportNotesUseCase()
+//
+//    fun importBackup(bytes: ByteArray): Flow<Result<ImportResult>> =
+//        flow { emit(runCatching { importNotesUseCase(bytes) }) }.flowOn(io)
 
     // ============================================= navigation =============================================
     fun navigateToNoteDetails(noteId: Long) = viewModelScope.launch {
@@ -260,9 +260,13 @@ class HomeViewModel @Inject constructor(
     }
 
     // ============================================= settings =============================================\
-    fun changeAvatar(type: AvatarType) = viewModelScope.launch(io) { avatarUseCase(type) }
+    fun changeAvatar(type: AvatarType) = viewModelScope.launch(io) {
+//        avatarUseCase(type)
+    }
 
-    fun changeLanguage(lang: AppLanguage) = viewModelScope.launch { languageUseCase(lang) }
+    fun changeLanguage(lang: AppLanguage) = viewModelScope.launch {
+//        languageUseCase(lang)
+    }
 
 }
 

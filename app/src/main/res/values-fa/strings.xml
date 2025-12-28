@@ -109,5 +109,10 @@
     <string name="save">ذخیره</string>
     <string name="created_at">تاریخ ایجاد</string>
     <string name="colon">:</string>
+    <string name="more">more</string>
+    <string name="text">text</string>
+    <string name="image">image</string>
+    <string name="video">video</string>
+    <string name="voice">voice</string>
 
 </resources>

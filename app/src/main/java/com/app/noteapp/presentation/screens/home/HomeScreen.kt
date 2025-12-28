@@ -1,8 +1,6 @@
 package com.app.noteapp.presentation.screens.home
 
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -55,7 +53,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import com.app.noteapp.R
 import com.app.noteapp.core.enums.LayoutMode
-import com.app.noteapp.domain.common_model.AppFont
 import com.app.noteapp.domain.common_model.AppLanguage
 import com.app.noteapp.presentation.components.CustomAlertDialog
 import com.app.noteapp.presentation.components.CustomFab
@@ -73,8 +70,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     navController: NavController,
-    currentFont: AppFont,
-    onFontSelected: (AppFont) -> Unit,
+//    currentFont: AppFont,
+//    onFontSelected: (AppFont) -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
 
@@ -169,74 +166,84 @@ fun HomeScreen(
 
 
     // ---------------------- Import launcher ----------------------
-    val importLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.OpenDocument()
-    ) { uri ->
-        if (uri == null) return@rememberLauncherForActivityResult
-
-        scope.launch {
-            runCatching {
-                val bytes = context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
-                    ?: error("Failed to open input stream")
-
-                viewModel.importBackup(bytes).collect { result ->
-                    result.onSuccess { res ->
-                        viewModel.clearFilters()
-                        viewModel.changeSearchQuery("")
-                        Toast.makeText(
-                            context,
-                            "Imported: ${res.notesImported} notes, ${res.tagsImported} tags",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }.onFailure { e ->
-                        Toast.makeText(context, "Import failed: ${e.message}", Toast.LENGTH_SHORT)
-                            .show()
-                    }
-                }
-            }.onFailure { e ->
-                Toast.makeText(context, "Import failed: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
+//    val importLauncher = rememberLauncherForActivityResult(
+//        ActivityResultContracts.OpenDocument()
+//    ) { uri ->
+//        if (uri == null) return@rememberLauncherForActivityResult
+//
+//        scope.launch {
+//            runCatching {
+//                val bytes = context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+//                    ?: error("Failed to open input stream")
+//
+//                viewModel.importBackup(bytes).collect { result ->
+//                    result.onSuccess { res ->
+//                        viewModel.clearFilters()
+//                        viewModel.changeSearchQuery("")
+//                        Toast.makeText(
+//                            context,
+//                            "Imported: ${res.notesImported} notes, ${res.tagsImported} tags",
+//                            Toast.LENGTH_SHORT
+//                        ).show()
+//                    }.onFailure { e ->
+//                        Toast.makeText(context, "Import failed: ${e.message}", Toast.LENGTH_SHORT)
+//                            .show()
+//                    }
+//                }
+//            }.onFailure { e ->
+//                Toast.makeText(context, "Import failed: ${e.message}", Toast.LENGTH_SHORT).show()
+//            }
+//        }
+//    }
 
     // ---------------------- Export launcher ----------------------
-    val exportLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.CreateDocument("application/json")
-    ) { uri ->
-        if (uri == null) return@rememberLauncherForActivityResult
-
-        scope.launch {
-            runCatching {
-                val bytes = viewModel.exportNotesBytes()
-                context.contentResolver.openOutputStream(uri, "w")?.use { out ->
-                    out.write(bytes)
-                    out.flush()
-                } ?: error("Failed to open output stream")
-            }.onFailure { e ->
-                Toast.makeText(context, "Export failed: ${e.message}", Toast.LENGTH_SHORT).show()
-            }.onSuccess {
-                Toast.makeText(context, "Exported", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
+//    val exportLauncher = rememberLauncherForActivityResult(
+//        ActivityResultContracts.CreateDocument("application/json")
+//    ) { uri ->
+//        if (uri == null) return@rememberLauncherForActivityResult
+//
+//        scope.launch {
+//            runCatching {
+//                val bytes = viewModel.exportNotesBytes()
+//                context.contentResolver.openOutputStream(uri, "w")?.use { out ->
+//                    out.write(bytes)
+//                    out.flush()
+//                } ?: error("Failed to open output stream")
+//            }.onFailure { e ->
+//                Toast.makeText(context, "Export failed: ${e.message}", Toast.LENGTH_SHORT).show()
+//            }.onSuccess {
+//                Toast.makeText(context, "Exported", Toast.LENGTH_SHORT).show()
+//            }
+//        }
+//    }
 
 
     ModalNavigationDrawer(
-        drawerState = drawerState, drawerContent = {
-            DrawerContent(currentAvatar = uiState.avatar, onAvatarSelected = { type ->
-                viewModel.changeAvatar(type)
+        drawerState = drawerState,
+        drawerContent = {
+            DrawerContent(
+                currentAvatar = uiState.avatar,
+                onAvatarSelected = { type ->
+                    viewModel.changeAvatar(type)
+                    scope.launch { drawerState.close() }
+                },
+                currentLanguage = uiState.language, onLanguageSelected = { newLang ->
+                    viewModel.changeLanguage(newLang)
+                    scope.launch { drawerState.close() }
+                },
+//              currentFont = currentFont,
+//              onFontSelected = onFontSelected,
+              onExportClicked = {
+//                exportLauncher.launch("noteapp-backup-${System.currentTimeMillis()}.json")
                 scope.launch { drawerState.close() }
-            }, currentLanguage = uiState.language, onLanguageSelected = { newLang ->
-                viewModel.changeLanguage(newLang)
-                scope.launch { drawerState.close() }
-            }, currentFont = currentFont, onFontSelected = onFontSelected, onExportClicked = {
-                exportLauncher.launch("noteapp-backup-${System.currentTimeMillis()}.json")
-                scope.launch { drawerState.close() }
-            }, onImportClicked = {
-                importLauncher.launch(arrayOf("application/json"))
-                scope.launch { drawerState.close() }
-            })
-        }) {
+            },
+                onImportClicked = {
+//                  importLauncher.launch(arrayOf("application/json"))
+                    scope.launch { drawerState.close() }
+                }
+            )
+        }
+    ) {
         Scaffold(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background)

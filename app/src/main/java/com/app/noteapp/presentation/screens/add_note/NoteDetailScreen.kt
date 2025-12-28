@@ -1,8 +1,17 @@
 package com.app.noteapp.presentation.screens.add_note
 
 import android.Manifest
+import android.net.Uri
 import android.os.Build
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateDp
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -18,20 +27,23 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.relocation.BringIntoViewRequester
-import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -53,25 +65,29 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Yellow
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.core.graphics.ColorUtils
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -79,12 +95,15 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.app.noteapp.R
 import com.app.noteapp.core.permissions.PermissionRequest
 import com.app.noteapp.core.permissions.PermissionResult
 import com.app.noteapp.core.permissions.awaitPermission
 import com.app.noteapp.core.permissions.rememberPermissionRequester
 import com.app.noteapp.core.time.formatUnixMillis
+import com.app.noteapp.data.local.model.enums.MediaKind
 import com.app.noteapp.presentation.components.CircularIconButton
 import com.app.noteapp.presentation.components.CustomAlertDialog
 import com.app.noteapp.presentation.components.NoteTag
@@ -92,11 +111,10 @@ import com.app.noteapp.presentation.components.TagsList
 import com.app.noteapp.presentation.components.ToastHost
 import com.app.noteapp.presentation.components.showDateTimePicker
 import com.app.noteapp.presentation.model.DialogType
+import com.app.noteapp.presentation.model.NoteBlockUiModel
 import com.app.noteapp.presentation.model.TagUiModel
 import com.app.noteapp.presentation.model.ToastUI
 import com.app.noteapp.presentation.theme.AppTheme
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -139,6 +157,29 @@ fun NoteDetailScreen(
         return true
     }
 
+    suspend fun ensureImagePermissions(
+        requester: (PermissionRequest, (PermissionResult) -> Unit) -> Unit
+    ): Boolean {
+        return when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE -> true
+
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
+                awaitPermission(
+                    requester,
+                    PermissionRequest.Runtime(Manifest.permission.READ_MEDIA_IMAGES)
+                ) == PermissionResult.GRANTED
+            }
+
+            else -> {
+                awaitPermission(
+                    requester,
+                    PermissionRequest.Runtime(Manifest.permission.READ_EXTERNAL_STORAGE)
+                ) == PermissionResult.GRANTED
+            }
+        }
+    }
+
+
     LaunchedEffect(Unit) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.events.collectLatest { e ->
@@ -178,6 +219,15 @@ fun NoteDetailScreen(
             }
         }
     }
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            viewModel.onImagePicked(uri)
+        }
+    }
+
 
     if (permissionError != null) {
         CustomAlertDialog(
@@ -337,21 +387,60 @@ fun NoteDetailScreen(
 
                     Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
 
-                    TagsSection(tag = uiState.note?.tag, reminderTag = uiState.note?.reminderTag)
+//                    TagsSection(tag = uiState.note?.tag, reminderTag = uiState.note?.reminderTag)
 
                     Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
 
                     TitleSection(
                         title = uiState.note?.title ?: "",
                         onTitleChange = { title -> viewModel.updateTitle(title) },
-                        placeholder = context.getString(R.string.note_title)
+                        placeholder = stringResource(R.string.note_title)
                     )
 
                     BodySection(
-                        body = uiState.note?.description ?: "",
-                        onDescriptionChange = { newBody -> viewModel.updateDescription(newBody) },
-                        placeholder = context.getString(R.string.note_description)
+                        blocks = uiState.note?.blocks ?: listOf(),
+                        modifier = Modifier,
                     )
+
+                    ExpandableIconStack(
+                        modifier = Modifier.fillMaxWidth(),
+                        icons = listOf(
+                            ImageVector.vectorResource(R.drawable.ic_circle_add),    // top icon
+                            ImageVector.vectorResource(R.drawable.ic_edit),
+                            ImageVector.vectorResource(R.drawable.ic_image),
+                            ImageVector.vectorResource(R.drawable.ic_video),
+                            ImageVector.vectorResource(R.drawable.ic_mic),
+                        ),
+                        contentDescriptions = listOf(
+                            stringResource(R.string.more),
+                            stringResource(R.string.text),
+                            stringResource(R.string.image),
+                            stringResource(R.string.video),
+                            stringResource(R.string.voice)
+                        ),
+                        onIconClick = { index ->
+                            when (index) {
+                                1 -> {}
+                                2 -> {
+                                    scope.launch {
+                                        val ok = ensureImagePermissions(requester)
+                                        if (!ok) {
+                                            // همین قبلاً هم برای reminder ازش استفاده می‌کردی
+                                            permissionError = R.string.permission_required_message
+                                            return@launch
+                                        }
+
+                                        imagePickerLauncher.launch(
+                                            PickVisualMediaRequest(
+                                                ActivityResultContracts.PickVisualMedia.ImageOnly
+                                            )
+                                        )
+                                    }
+                                }
+                                3 -> {}
+                                4 -> {}
+                            }
+                        })
                 }
 
                 EditSection()
@@ -407,20 +496,20 @@ fun NoteDetailScreen(
             dragHandle = { BottomSheetDefaults.DragHandle() },
             containerColor = MaterialTheme.colorScheme.background
         ) {
-            ReminderSheetContent(
-                reminderText = uiState.note?.reminderTag?.name,
-                onClearReminder = { viewModel.clearReminder() },
-                onPickDateTime = {
-                    scope.launch {
-                        val ok = ensureReminderPermissions(requester)
-                        if (!ok) {
-                            permissionError = R.string.permission_required_message
-                            return@launch
-                        }
-                        showReminderSheet = false
-                        viewModel.openReminderPicker()
-                    }
-                })
+//            ReminderSheetContent(
+//                reminderText = uiState.note?.reminderTag?.name,
+//                onClearReminder = { viewModel.clearReminder() },
+//                onPickDateTime = {
+//                    scope.launch {
+//                        val ok = ensureReminderPermissions(requester)
+//                        if (!ok) {
+//                            permissionError = R.string.permission_required_message
+//                            return@launch
+//                        }
+//                        showReminderSheet = false
+//                        viewModel.openReminderPicker()
+//                    }
+//                })
         }
     }
 
@@ -831,75 +920,199 @@ fun TitleSection(title: String, onTitleChange: (String) -> Unit, placeholder: St
 }
 
 @Composable
-fun BodySection(body: String, onDescriptionChange: (String) -> Unit, placeholder: String) {
-
+fun BodySection(
+    blocks: List<NoteBlockUiModel>,
+    modifier: Modifier = Modifier
+) {
     val scroll = rememberScrollState()
-    val scope = rememberCoroutineScope()
-    val bringIntoView = remember { BringIntoViewRequester() }
 
-    var isDescFocused by remember { mutableStateOf(false) }
-    var bringJob by remember { mutableStateOf<Job?>(null) }
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .verticalScroll(scroll)
+            .padding(bottom = dimensionResource(R.dimen.btm_bar_height) / 2)
+    ) {
+        blocks
+            .filter { it.deletedAt == null }
+            .sortedBy { it.position }
+            .forEach { block ->
+                when (block) {
+                    is NoteBlockUiModel.Text -> TextBlockItem(block)
+                    is NoteBlockUiModel.Media -> MediaBlockItem(block)
+                }
 
-    fun requestBringIntoViewIfNeeded() {
-        if (!isDescFocused) return
-        if (bringJob?.isActive == true) bringJob?.cancel()
-
-        bringJob = scope.launch {
-            delay(250)
-            bringIntoView.bringIntoView()
-        }
+                Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+            }
     }
+}
 
-    var descValue by remember { mutableStateOf(TextFieldValue(body)) }
-
-    LaunchedEffect(body) {
-        val newText = body
-        if (newText != descValue.text) {
-            descValue = TextFieldValue(
-                text = newText, selection = TextRange(newText.length)
-            )
-        }
-    }
-
-    OutlinedTextField(
-        value = descValue,
-        onValueChange = { value ->
-            val newlineAdded =
-                value.text.length > descValue.text.length && value.text.lastOrNull() == '\n'
-
-            descValue = value
-            onDescriptionChange(value.text)
-
-            if (newlineAdded) requestBringIntoViewIfNeeded()
-        },
+@Composable
+private fun TextBlockItem(
+    block: NoteBlockUiModel.Text
+) {
+    Text(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = dimensionResource(R.dimen.btm_bar_height) / 2)
-            .verticalScroll(scroll)
-            .bringIntoViewRequester(bringIntoView)
-            .onFocusChanged { state ->
-                isDescFocused = state.isFocused
-                if (state.isFocused) requestBringIntoViewIfNeeded()
-            },
-        textStyle = MaterialTheme.typography.headlineSmall.copy(
-            fontWeight = FontWeight.Normal, fontSize = 16.sp
+            .padding(horizontal = dimensionResource(R.dimen.icon_size)),
+        text = block.text,
+        style = MaterialTheme.typography.headlineSmall.copy(
+            fontWeight = FontWeight.Normal,
+            fontSize = 16.sp
         ),
-        placeholder = {
-            Text(
-                text = placeholder,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontWeight = FontWeight.Normal, fontSize = 16.sp
-                )
-            )
-        },
-        colors = TextFieldDefaults.colors(
-            focusedContainerColor = Color.Transparent,
-            disabledContainerColor = Color.Transparent,
-            unfocusedContainerColor = Color.Transparent,
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-            disabledIndicatorColor = Color.Transparent,
-        )
+        textAlign = TextAlign.Start
     )
 }
+
+@Composable
+private fun MediaBlockItem(
+    block: NoteBlockUiModel.Media
+) {
+    val context = LocalContext.current
+
+    when (block.kind) {
+        MediaKind.IMAGE -> {
+            AsyncImage(
+                model = ImageRequest.Builder(context)
+                    .data(block.localUri)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 120.dp, max = 320.dp)
+                    .padding(horizontal = dimensionResource(R.dimen.icon_size))
+                    .clip(RoundedCornerShape(12.dp)),
+                contentScale = ContentScale.Crop
+            )
+        }
+
+        MediaKind.VIDEO -> {
+            MediaChip(
+                icon = ImageVector.vectorResource(R.drawable.ic_play),
+                label = "Video",
+                uri = block.localUri,
+                durationMs = block.durationMs
+            )
+        }
+
+        MediaKind.AUDIO -> {
+            MediaChip(
+                icon = ImageVector.vectorResource(R.drawable.ic_play),
+                label = "Audio",
+                uri = block.localUri,
+                durationMs = block.durationMs
+            )
+        }
+    }
+}
+
+@Composable
+private fun MediaChip(
+    icon: ImageVector,
+    label: String,
+    uri: String,
+    durationMs: Long?,
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = dimensionResource(R.dimen.icon_size)),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(dimensionResource(R.dimen.tag_h_padding)),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+
+                Spacer(Modifier.width(dimensionResource(R.dimen.h_space)))
+
+                Column {
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        text = uri,
+                        style = MaterialTheme.typography.labelSmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+
+            IconButton(onClick = { /* TODO: play using ExoPlayer */ }) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_play),
+                    contentDescription = null
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ExpandableIconStack(
+    modifier: Modifier = Modifier,
+    icons: List<ImageVector>,
+    contentDescriptions: List<String?> = List(icons.size) { null },
+    onIconClick: (index: Int) -> Unit,
+    iconSize: Dp = 40.dp,
+    gap: Dp = 10.dp,
+) {
+    require(icons.isNotEmpty()) { "icons must not be empty" }
+    require(contentDescriptions.size == icons.size) { "contentDescriptions size mismatch" }
+
+    var expanded by rememberSaveable { mutableStateOf(false) }
+
+    val transition = updateTransition(targetState = expanded, label = "stack")
+
+    Box(
+        modifier = modifier, contentAlignment = Alignment.CenterStart
+    ) {
+        for (i in icons.indices.reversed()) {
+
+            val offsetX by transition.animateDp(
+                label = "offset-$i", transitionSpec = {
+                    tween(
+                        durationMillis = 260, delayMillis = (i * 35), easing = FastOutSlowInEasing
+                    )
+                }) { isExpanded ->
+                if (!isExpanded) 0.dp else ((iconSize + gap) * i)
+            }
+
+            val alpha by transition.animateFloat(
+                label = "alpha-$i",
+                transitionSpec = { tween(durationMillis = 180) }) { isExpanded ->
+                if (!isExpanded && i != 0) 0f else 1f
+            }
+
+            IconButton(
+                onClick = {
+                    if (i == 0) expanded = !expanded
+                    else onIconClick(i)
+                },
+                enabled = (i == 0) || expanded,
+                modifier = Modifier
+                    .size(iconSize)
+                    .offset(x = offsetX)
+                    .zIndex((icons.size - i).toFloat())
+                    .graphicsLayer { this.alpha = alpha }) {
+                Icon(
+                    imageVector = icons[i], contentDescription = contentDescriptions[i]
+                )
+            }
+        }
+    }
+}
+
