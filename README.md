@@ -26,6 +26,10 @@ Built using **Clean Architecture**, **MVVM**, **Jetpack Compose**, and **Hilt** 
 - Unit tests and UI tests
 
 ---
+## 🏛️ ER Diagram
+
+![Database schema](screenshots/db.png)
+
 
 ## 🏛️ Architecture
 
