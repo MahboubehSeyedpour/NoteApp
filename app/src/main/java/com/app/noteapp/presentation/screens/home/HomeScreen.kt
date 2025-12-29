@@ -1,7 +1,6 @@
 package com.app.noteapp.presentation.screens.home
 
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,7 +23,6 @@ import androidx.compose.material3.FabPosition
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -44,7 +42,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import androidx.core.os.LocaleListCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -53,7 +50,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import com.app.noteapp.R
 import com.app.noteapp.core.enums.LayoutMode
-import com.app.noteapp.domain.common_model.AppLanguage
 import com.app.noteapp.presentation.components.CustomAlertDialog
 import com.app.noteapp.presentation.components.CustomFab
 import com.app.noteapp.presentation.components.CustomNoteCard
@@ -64,7 +60,6 @@ import com.app.noteapp.presentation.model.NoteUiModel
 import com.app.noteapp.presentation.model.iconRes
 import com.app.noteapp.presentation.navigation.Screens
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -100,6 +95,8 @@ fun HomeScreen(
                         route = "${Screens.NoteDetailScreen.route}?id=${event.noteId}"
                     )
 
+                    is HomeEvents.NavigateToSettingsScreen -> navController.navigate(Screens.Settings.route)
+
                     is HomeEvents.Error -> Toast.makeText(
                         context, event.message, Toast.LENGTH_SHORT
                     ).show()
@@ -110,13 +107,13 @@ fun HomeScreen(
 
 
     // ---------------------- Locale ----------------------
-    LaunchedEffect(uiState.language) {
-        val locales = when (uiState.language) {
-            AppLanguage.FA -> LocaleListCompat.forLanguageTags("fa")
-            AppLanguage.EN -> LocaleListCompat.forLanguageTags("en")
-        }
-        AppCompatDelegate.setApplicationLocales(locales)
-    }
+//    LaunchedEffect(uiState.language) {
+//        val locales = when (uiState.language) {
+//            Language.FA -> LocaleListCompat.forLanguageTags("fa")
+//            Language.EN -> LocaleListCompat.forLanguageTags("en")
+//        }
+//        AppCompatDelegate.setApplicationLocales(locales)
+//    }
 
 
     // ---------------------- Filter sheet ----------------------
@@ -218,32 +215,32 @@ fun HomeScreen(
 //    }
 
 
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = {
-            DrawerContent(
-                currentAvatar = uiState.avatar,
-                onAvatarSelected = { type ->
-                    viewModel.changeAvatar(type)
-                    scope.launch { drawerState.close() }
-                },
-                currentLanguage = uiState.language, onLanguageSelected = { newLang ->
-                    viewModel.changeLanguage(newLang)
-                    scope.launch { drawerState.close() }
-                },
-//              currentFont = currentFont,
-//              onFontSelected = onFontSelected,
-              onExportClicked = {
-//                exportLauncher.launch("noteapp-backup-${System.currentTimeMillis()}.json")
-                scope.launch { drawerState.close() }
-            },
-                onImportClicked = {
-//                  importLauncher.launch(arrayOf("application/json"))
-                    scope.launch { drawerState.close() }
-                }
-            )
-        }
-    ) {
+//    ModalNavigationDrawer(
+//        drawerState = drawerState,
+//        drawerContent = {
+//            DrawerContent(
+//                currentAvatar = uiState.avatar,
+//                onAvatarSelected = { type ->
+//                    viewModel.changeAvatar(type)
+//                    scope.launch { drawerState.close() }
+//                },
+//                currentLanguage = uiState.language, onLanguageSelected = { newLang ->
+//                    viewModel.changeLanguage(newLang)
+//                    scope.launch { drawerState.close() }
+//                },
+////              currentFont = currentFont,
+////              onFontSelected = onFontSelected,
+//              onExportClicked = {
+////                exportLauncher.launch("noteapp-backup-${System.currentTimeMillis()}.json")
+//                scope.launch { drawerState.close() }
+//            },
+//                onImportClicked = {
+////                  importLauncher.launch(arrayOf("application/json"))
+//                    scope.launch { drawerState.close() }
+//                }
+//            )
+//        }
+//    ) {
         Scaffold(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background)
@@ -255,7 +252,10 @@ fun HomeScreen(
                     notesSize = uiState.notes.size,
                     locale = locale,
                     avatar = painterResource(uiState.avatar.iconRes()),
-                    onAvatarClick = { scope.launch { drawerState.open() } },
+                    onAvatarClick = {
+                        viewModel.onAvatarClicked()
+//                        scope.launch { drawerState.open() }
+                                    },
                     query = uiState.searchQuery,
                     onSearchChange = viewModel::changeSearchQuery,
                     onGridToggleClicked = viewModel::toggleList,
@@ -276,7 +276,7 @@ fun HomeScreen(
                 onNotePinned = { noteId -> viewModel.pinNote(noteId) },
                 onConfirmDelete = { noteId -> confirmDeleteId = noteId })
         }
-    }
+//    }
 }
 
 @Composable

@@ -1,7 +1,7 @@
 package com.app.noteapp.domain.mapper
 
 import com.app.noteapp.data.local.entity.ReminderEntity
-import com.app.noteapp.domain.common_model.Reminder
+import com.app.noteapp.domain.model.common_model.Reminder
 
 fun ReminderEntity.toDomain(): Reminder =
     Reminder(

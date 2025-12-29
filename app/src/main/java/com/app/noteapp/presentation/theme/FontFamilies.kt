@@ -3,7 +3,7 @@ package com.app.noteapp.presentation.theme
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import com.app.noteapp.R
-import com.app.noteapp.domain.common_model.AppFont
+import com.app.noteapp.domain.model.preferences_model.FontPref
 
 private val IranNastaliqFontFamily = FontFamily(
     Font(R.font.iran_nastaliq),
@@ -52,13 +52,13 @@ private val BromlisFontFamily = FontFamily(
     Font(R.font.bromlis_regular),
 )
 
-fun fontFamilyFor(appFont: AppFont): FontFamily =
+fun fontFamilyFor(appFont: FontPref): FontFamily =
     when (appFont) {
-        AppFont.IRAN_NASTALIQ -> IranNastaliqFontFamily
-        AppFont.IRAN_SANS -> IranSansFontFamily
-        AppFont.PELAK -> PelakFontFamily
-        AppFont.SHABNAM -> ShabnamFontFamily
-        AppFont.BOLDING -> BoldingFontFamily
-        AppFont.SCHOOL_PLANNER -> SchoolPlannerFontFamily
-        AppFont.BROMLIS_REGULAR -> BromlisFontFamily
+        FontPref.IRAN_NASTALIQ -> IranNastaliqFontFamily
+        FontPref.IRAN_SANS -> IranSansFontFamily
+        FontPref.PELAK -> PelakFontFamily
+        FontPref.SHABNAM -> ShabnamFontFamily
+        FontPref.BOLDING -> BoldingFontFamily
+        FontPref.SCHOOL_PLANNER -> SchoolPlannerFontFamily
+        FontPref.BROMLIS_REGULAR -> BromlisFontFamily
     }

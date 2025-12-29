@@ -5,9 +5,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import com.app.noteapp.domain.common_model.AppFont
+import com.app.noteapp.domain.model.preferences_model.FontPref
 
-fun typographyFor(appFont: AppFont): Typography {
+fun typographyFor(appFont: FontPref): Typography {
     val family: FontFamily = fontFamilyFor(appFont)
 
     return Typography(

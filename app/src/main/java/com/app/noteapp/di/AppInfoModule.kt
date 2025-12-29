@@ -1,7 +1,7 @@
 package com.app.noteapp.di
 
 import android.content.Context
-import com.app.noteapp.domain.common_model.AppVersion
+import com.app.noteapp.domain.model.common_model.AppVersion
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

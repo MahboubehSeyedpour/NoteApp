@@ -2,7 +2,7 @@ package com.app.noteapp.data.mapper
 
 import com.app.noteapp.data.local.entity.DirectoryEntity
 import com.app.noteapp.data.utils.normalizeTs
-import com.app.noteapp.domain.common_model.Directory
+import com.app.noteapp.domain.model.common_model.Directory
 
 fun Directory.toEntity(
     serverId: String? = null,

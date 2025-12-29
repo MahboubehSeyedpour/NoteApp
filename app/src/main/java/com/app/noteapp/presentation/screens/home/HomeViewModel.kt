@@ -7,9 +7,9 @@ import com.app.noteapp.core.enums.LayoutMode
 import com.app.noteapp.core.time.TimeRange
 import com.app.noteapp.core.time.rangeFor
 import com.app.noteapp.di.IoDispatcher
-import com.app.noteapp.domain.common_model.AppLanguage
-import com.app.noteapp.domain.common_model.AvatarType
-import com.app.noteapp.domain.common_model.Note
+import com.app.noteapp.domain.model.common_model.Note
+import com.app.noteapp.domain.model.preferences_model.AvatarPref
+import com.app.noteapp.domain.model.preferences_model.LanguagePref
 import com.app.noteapp.domain.usecase.ExportNotesUseCase
 import com.app.noteapp.domain.usecase.ImportNotesUseCase
 import com.app.noteapp.domain.usecase.NoteUseCase
@@ -66,8 +66,8 @@ class HomeViewModel @Inject constructor(
             rangeStart = null,
             rangeEnd = null,
             selectedIds = emptySet(),
-            language = AppLanguage.FA,
-            avatar = AvatarType.MALE,
+            language = LanguagePref.FA,
+            avatar = AvatarPref.MALE,
             tags = listOf(ALL_TAG),
             notes = emptyList()
         )
@@ -260,12 +260,18 @@ class HomeViewModel @Inject constructor(
     }
 
     // ============================================= settings =============================================\
-    fun changeAvatar(type: AvatarType) = viewModelScope.launch(io) {
-//        avatarUseCase(type)
-    }
+//    fun changeAvatar(type: AvatarType) = viewModelScope.launch(io) {
+////        avatarUseCase(type)
+//    }
+//
+//    fun changeLanguage(lang: Language) = viewModelScope.launch {
+////        languageUseCase(lang)
+//    }
 
-    fun changeLanguage(lang: AppLanguage) = viewModelScope.launch {
-//        languageUseCase(lang)
+    fun onAvatarClicked(){
+        viewModelScope.launch {
+            _events.emit(HomeEvents.NavigateToSettingsScreen)
+        }
     }
 
 }

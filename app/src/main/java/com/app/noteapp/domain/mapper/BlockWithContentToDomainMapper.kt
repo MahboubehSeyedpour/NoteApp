@@ -3,7 +3,7 @@ package com.app.noteapp.domain.mapper
 import com.app.noteapp.data.local.model.enums.BlockType
 import com.app.noteapp.data.local.model.enums.MediaKind
 import com.app.noteapp.data.local.relation.BlockWithContent
-import com.app.noteapp.domain.common_model.NoteBlock
+import com.app.noteapp.domain.model.common_model.NoteBlock
 
 fun BlockWithContent.toDomain(): NoteBlock {
     val b = block

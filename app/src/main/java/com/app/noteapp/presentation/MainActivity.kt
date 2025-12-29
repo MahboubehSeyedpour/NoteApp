@@ -25,6 +25,7 @@ import androidx.navigation.navArgument
 import com.app.noteapp.presentation.navigation.Screens
 import com.app.noteapp.presentation.screens.add_note.NoteDetailScreen
 import com.app.noteapp.presentation.screens.home.HomeScreen
+import com.app.noteapp.presentation.screens.settings.SettingsScreen
 import com.app.noteapp.presentation.theme.NoteAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -100,6 +101,9 @@ fun NoteApp(viewModel: MainViewModel, navController: NavHostController, initialN
                 })
             ) {
                 NoteDetailScreen(navController)
+            }
+            composable(route = (Screens.Settings.route)) {
+                SettingsScreen(navController)
             }
         }
     }

@@ -4,7 +4,7 @@ import com.app.noteapp.data.local.dao.NoteTagDao
 import com.app.noteapp.data.local.dao.TagDao
 import com.app.noteapp.data.local.entity.NoteTagEntity
 import com.app.noteapp.data.mapper.toEntity
-import com.app.noteapp.domain.common_model.Tag
+import com.app.noteapp.domain.model.common_model.Tag
 import com.app.noteapp.domain.mapper.toDomain
 import com.app.noteapp.domain.repository.TagRepository
 import kotlinx.coroutines.flow.Flow

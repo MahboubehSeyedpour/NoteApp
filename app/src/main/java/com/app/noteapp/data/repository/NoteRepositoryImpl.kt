@@ -7,7 +7,7 @@ import com.app.noteapp.data.local.entity.NoteTagEntity
 import com.app.noteapp.data.local.model.enums.BlockType
 import com.app.noteapp.data.local.model.enums.MediaKind
 import com.app.noteapp.data.mapper.toNoteEntity
-import com.app.noteapp.domain.common_model.Note
+import com.app.noteapp.domain.model.common_model.Note
 import com.app.noteapp.domain.mapper.toDomain
 import com.app.noteapp.domain.repository.NoteRepository
 import kotlinx.coroutines.flow.Flow

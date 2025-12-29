@@ -5,7 +5,7 @@ import com.app.noteapp.data.local.entity.NoteBlockMediaEntity
 import com.app.noteapp.data.local.entity.NoteBlockTextEntity
 import com.app.noteapp.data.local.model.enums.BlockType
 import com.app.noteapp.data.utils.normalizeTs
-import com.app.noteapp.domain.common_model.NoteBlock
+import com.app.noteapp.domain.model.common_model.NoteBlock
 
 fun NoteBlock.toBlockEntity(
     serverId: String? = null,

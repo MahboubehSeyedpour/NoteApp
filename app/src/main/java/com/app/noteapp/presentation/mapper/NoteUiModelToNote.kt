@@ -1,7 +1,7 @@
 package com.app.noteapp.presentation.mapper
 
-import com.app.noteapp.domain.common_model.Note
-import com.app.noteapp.domain.common_model.NoteBlock
+import com.app.noteapp.domain.model.common_model.Note
+import com.app.noteapp.domain.model.common_model.NoteBlock
 import com.app.noteapp.presentation.model.NoteBlockUiModel
 import com.app.noteapp.presentation.model.NoteUiModel
 

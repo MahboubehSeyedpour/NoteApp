@@ -2,7 +2,7 @@ package com.app.noteapp.data.mapper
 
 import com.app.noteapp.data.local.entity.TagEntity
 import com.app.noteapp.data.utils.normalizeTs
-import com.app.noteapp.domain.common_model.Tag
+import com.app.noteapp.domain.model.common_model.Tag
 
 fun Tag.toEntity(
     serverId: String? = null,

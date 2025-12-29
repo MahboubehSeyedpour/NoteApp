@@ -1,7 +1,7 @@
 package com.app.noteapp.domain.repository
 
 import com.app.noteapp.data.local.model.enums.MediaKind
-import com.app.noteapp.domain.common_model.Note
+import com.app.noteapp.domain.model.common_model.Note
 import kotlinx.coroutines.flow.Flow
 
 interface NoteRepository {

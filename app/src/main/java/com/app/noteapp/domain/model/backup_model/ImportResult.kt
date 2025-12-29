@@ -1,4 +1,4 @@
-package com.app.noteapp.domain.backup_model
+package com.app.noteapp.domain.model.backup_model
 
 data class ImportResult(
     val tagsImported: Int,

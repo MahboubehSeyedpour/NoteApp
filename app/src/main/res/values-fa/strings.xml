@@ -109,10 +109,17 @@
     <string name="save">ذخیره</string>
     <string name="created_at">تاریخ ایجاد</string>
     <string name="colon">:</string>
-    <string name="more">more</string>
-    <string name="text">text</string>
-    <string name="image">image</string>
-    <string name="video">video</string>
-    <string name="voice">voice</string>
+    <string name="more">بیشتر</string>
+    <string name="text">متن</string>
+    <string name="image">تصویر</string>
+    <string name="video">ویدیو</string>
+    <string name="voice">صدا</string>
+
+    <string name="choose_theme">انتخاب تم</string>
+    <string name="settings_general">تنظیمات</string>
+    <string name="choose_text_scale">انتخاب اندازه فونت</string>
+    <string name="settings_theme_system">سیستم</string>
+    <string name="settings_theme_light">روشن</string>
+    <string name="settings_theme_dark">تیره</string>
 
 </resources>

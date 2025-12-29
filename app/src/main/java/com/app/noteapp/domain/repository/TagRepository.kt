@@ -1,6 +1,6 @@
 package com.app.noteapp.domain.repository
 
-import com.app.noteapp.domain.common_model.Tag
+import com.app.noteapp.domain.model.common_model.Tag
 import kotlinx.coroutines.flow.Flow
 
 interface TagRepository {

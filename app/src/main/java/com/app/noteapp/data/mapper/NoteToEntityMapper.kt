@@ -1,7 +1,7 @@
 package com.app.noteapp.data.mapper
 
 import com.app.noteapp.data.local.entity.NoteEntity
-import com.app.noteapp.domain.common_model.Note
+import com.app.noteapp.domain.model.common_model.Note
 
 fun Note.toNoteEntity(): NoteEntity {
     require(userId > 0) { "userId must be > 0" }

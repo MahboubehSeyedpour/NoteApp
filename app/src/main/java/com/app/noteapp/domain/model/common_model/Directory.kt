@@ -1,4 +1,4 @@
-package com.app.noteapp.domain.common_model
+package com.app.noteapp.domain.model.common_model
 
 import androidx.compose.runtime.Immutable
 

@@ -3,7 +3,7 @@ package com.app.noteapp.data.repository
 import com.app.noteapp.data.local.dao.NoteDao
 import com.app.noteapp.data.local.dao.TagDao
 import com.app.noteapp.data.local.database.AppDatabase
-import com.app.noteapp.domain.common_model.AppVersion
+import com.app.noteapp.domain.model.common_model.AppVersion
 import com.app.noteapp.domain.repository.NoteRepository
 import com.app.noteapp.domain.repository.NotesBackupRepository
 import com.app.noteapp.domain.repository.TagRepository

@@ -1,8 +1,7 @@
 package com.app.noteapp.di
 
-
-import com.app.noteapp.data.repository.AppPreferencesRepository
-import com.app.noteapp.data.repository.DataStoreAppPreferencesRepository
+import com.app.noteapp.data.repository.AppPreferencesRepositoryImpl
+import com.app.noteapp.domain.repository.AppPreferencesRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -16,6 +15,6 @@ abstract class PreferencesBindingModule {
     @Binds
     @Singleton
     abstract fun bindAppPreferencesRepository(
-        impl: DataStoreAppPreferencesRepository
+        impl: AppPreferencesRepositoryImpl
     ): AppPreferencesRepository
 }

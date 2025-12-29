@@ -1,9 +1,9 @@
 package com.app.noteapp.domain.mapper
 
 import com.app.noteapp.data.local.relation.NoteWithRelations
-import com.app.noteapp.domain.common_model.Note
-import com.app.noteapp.domain.common_model.Reminder
-import com.app.noteapp.domain.common_model.Tag
+import com.app.noteapp.domain.model.common_model.Note
+import com.app.noteapp.domain.model.common_model.Reminder
+import com.app.noteapp.domain.model.common_model.Tag
 
 fun NoteWithRelations.toDomain(): Note {
     return Note(

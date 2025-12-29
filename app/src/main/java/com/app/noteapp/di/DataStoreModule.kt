@@ -12,6 +12,7 @@ import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 private const val APP_PREFS_NAME = "app_prefs"
+
 private val Context.appPrefsDataStore by preferencesDataStore(name = APP_PREFS_NAME)
 
 @Module

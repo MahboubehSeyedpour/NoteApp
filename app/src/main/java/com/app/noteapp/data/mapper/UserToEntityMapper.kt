@@ -2,7 +2,7 @@ package com.app.noteapp.data.mapper
 
 import com.app.noteapp.data.local.entity.UserEntity
 import com.app.noteapp.data.utils.normalizeTs
-import com.app.noteapp.domain.common_model.User
+import com.app.noteapp.domain.model.common_model.User
 
 fun User.toEntity(
     serverId: String? = null,

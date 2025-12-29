@@ -2,7 +2,7 @@ package com.app.noteapp.data.mapper
 
 import com.app.noteapp.data.local.entity.ReminderEntity
 import com.app.noteapp.data.utils.normalizeTs
-import com.app.noteapp.domain.common_model.Reminder
+import com.app.noteapp.domain.model.common_model.Reminder
 
 fun Reminder.toEntity(
     serverId: String? = null,

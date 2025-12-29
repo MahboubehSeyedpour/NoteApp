@@ -1,8 +1,8 @@
 package com.app.noteapp.presentation.screens.home
 
 import com.app.noteapp.core.enums.LayoutMode
-import com.app.noteapp.domain.common_model.AppLanguage
-import com.app.noteapp.domain.common_model.AvatarType
+import com.app.noteapp.domain.model.preferences_model.AvatarPref
+import com.app.noteapp.domain.model.preferences_model.LanguagePref
 import com.app.noteapp.presentation.model.NoteUiModel
 import com.app.noteapp.presentation.model.SortOrder
 import com.app.noteapp.presentation.model.TagUiModel
@@ -17,8 +17,8 @@ data class HomeUiState(
     val rangeStart: Long? = null,
     val rangeEnd: Long? = null,
     val selectedIds: Set<Long> = emptySet(),
-    val language: AppLanguage = AppLanguage.FA,
-    val avatar: AvatarType = AvatarType.MALE,
+    val language: LanguagePref = LanguagePref.FA,
+    val avatar: AvatarPref = AvatarPref.MALE,
     val tags: List<TagUiModel> = listOf(ALL_TAG),
     val notes: List<NoteUiModel> = listOf()
 ) {
