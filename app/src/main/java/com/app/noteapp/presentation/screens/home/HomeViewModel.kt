@@ -10,6 +10,7 @@ import com.app.noteapp.di.IoDispatcher
 import com.app.noteapp.domain.model.common_model.Note
 import com.app.noteapp.domain.model.preferences_model.AvatarPref
 import com.app.noteapp.domain.model.preferences_model.LanguagePref
+import com.app.noteapp.domain.usecase.AppPreferencesUseCase
 import com.app.noteapp.domain.usecase.ExportNotesUseCase
 import com.app.noteapp.domain.usecase.ImportNotesUseCase
 import com.app.noteapp.domain.usecase.NoteUseCase
@@ -18,6 +19,7 @@ import com.app.noteapp.presentation.mapper.toUi
 import com.app.noteapp.presentation.model.NoteUiModel
 import com.app.noteapp.presentation.model.SortOrder
 import com.app.noteapp.presentation.model.TagUiModel
+import com.app.noteapp.presentation.screens.settings.SettingsUiState
 import com.app.noteapp.presentation.theme.ReminderTagColor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -28,6 +30,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
@@ -43,8 +46,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val noteUseCase: NoteUseCase,
     private val tagUseCase: TagUseCase,
-//    private val avatarUseCase: AvatarTypeUseCase,
-//    private val languageUseCase: LanguageUseCase,
+    private val appPreferencesUseCase: AppPreferencesUseCase,
     private val exportNotesUseCase: ExportNotesUseCase,
     private val importNotesUseCase: ImportNotesUseCase,
     @IoDispatcher private val io: CoroutineDispatcher
@@ -54,6 +56,23 @@ class HomeViewModel @Inject constructor(
     val events = _events.asSharedFlow()
 
     private val zoneId: ZoneId = ZoneId.systemDefault()
+
+    val preferencesState: StateFlow<SettingsUiState> =
+        appPreferencesUseCase()
+            .map { s ->
+                SettingsUiState(
+                    isLoading = false,
+                    themeMode = s.themeModePref,
+                    language = s.language,
+                    font = s.fontPref,
+                    avatar = s.avatar
+                )
+            }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = SettingsUiState(isLoading = true)
+            )
 
     private val _homeUiState = MutableStateFlow(
         HomeUiState(
@@ -66,90 +85,78 @@ class HomeViewModel @Inject constructor(
             rangeStart = null,
             rangeEnd = null,
             selectedIds = emptySet(),
-            language = LanguagePref.FA,
-            avatar = AvatarPref.MALE,
-            tags = listOf(ALL_TAG),
-            notes = emptyList()
         )
     )
 
-    private val tagsFlow: Flow<List<TagUiModel>> =
-        tagUseCase.getAllTags().map { list -> list.map { it.toUi() } }.map { ui ->
-            val withoutAll = ui.filterNot { it.id == ALL_TAG_ID || it.name.equals("all", true) }
-            listOf(ALL_TAG) + withoutAll
-        }
+    private val tagsFlow: StateFlow<List<TagUiModel>> =
+        tagUseCase.getAllTags()
+            .map { list -> list.map { it.toUi() } }
+            .map { ui ->
+                val withoutAll = ui.filterNot { it.id == ALL_TAG_ID || it.name.equals("all", ignoreCase = true) }
+                listOf(ALL_TAG) + withoutAll
+            }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = listOf(ALL_TAG)
+            )
 
     // -------- base state: local + (language/avatar/tags) --------
-    private val baseState: StateFlow<HomeUiState> = combine(
-        _homeUiState,
-//        languageUseCase(),
-//        avatarUseCase(),
-        tagsFlow
-    ) { s,
-//        lang,
-//        avatar,
-        tags ->
-        s.copy(
-//            language = lang,
-//            avatar = avatar,
-            tags = tags
+    private val baseState: StateFlow<HomeUiState> =
+        combine(
+            _homeUiState,
+            preferencesState,
+            tagsFlow
+        ) { s, prefs, tags ->
+            s.copy(
+                language = prefs.language,
+                avatar = prefs.avatar,
+                tags = tags
+            )
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = HomeUiState()
         )
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = _homeUiState.value
-    )
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val notesFlow: Flow<List<NoteUiModel>> = baseState.map { s ->
-        if (!s.isFilterActive) null
-        else rangeFor(s.timeFilter, s.rangeStart, s.rangeEnd, zoneId)
-    }.distinctUntilChanged().flatMapLatest { range: TimeRange? ->
-        val src: Flow<List<Note>> = if (range == null) {
-            noteUseCase.getAllNotes()
-        } else {
-            noteUseCase.getNotesBetween(range.start, range.endExclusive)
-        }
+    private val notesFlow: Flow<List<NoteUiModel>> =
+        baseState
+            .map { s ->
+                if (!s.isFilterActive) null
+                else rangeFor(s.timeFilter, s.rangeStart, s.rangeEnd, zoneId)
+            }
+            .distinctUntilChanged()
+            .flatMapLatest { range: TimeRange? ->
+                val src: Flow<List<Note>> = if (range == null) {
+                    noteUseCase.getAllNotes()
+                } else {
+                    noteUseCase.getNotesBetween(range.start, range.endExclusive)
+                }
 
-        src.map { list -> list.map { it.toUi() } }
-    }
-//        .combine(baseState) { list, s ->
-//        val term = s.searchQuery.trim().lowercase()
-//
-//        val byQuery = if (term.isBlank()) list
-//        else list.filter { n ->
-//            n.title.lowercase().contains(term) || n.description.orEmpty().lowercase().contains(term)
-//        }
-//
-//        val byTag = if (s.selectedTagId == ALL_TAG_ID) byQuery
-//        else byQuery.filter { it.tag?.id == s.selectedTagId }
-//
-//        val byReminder = if (!s.onlyReminder) byTag
-//        else byTag.filter { it.reminderAt != null }
-//
-//        val createdAtComparator = when (s.sortOrder) {
-//            SortOrder.DESC -> compareByDescending<NoteUiModel> { it.createdAt }
-//            SortOrder.ASC -> compareBy<NoteUiModel> { it.createdAt }
-//        }
-//
-//        byReminder.sortedWith(compareByDescending<NoteUiModel> { it.pinned }.then(
-//                createdAtComparator
-//            ))
-//    }
+                src.map { list -> list.map { it.toUi() } }
+            }
 
-    val homeUiState: StateFlow<HomeUiState> = combine(baseState, notesFlow) { s, notes ->
-        s.copy(notes = notes)
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = baseState.value
-    )
+    val homeUiState: StateFlow<HomeUiState> =
+        combine(
+            baseState,
+            notesFlow
+        ) { s, notes ->
+            s.copy(notes = notes)
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = baseState.value
+        )
 
     val tags: StateFlow<List<TagUiModel>> =
-        tagUseCase.getAllTags().map { list -> list.map { it.toUi() } }.map { ui ->
-            val withoutAll = ui.filterNot { it.id == ALL_TAG_ID || it.name.equals("all", true) }
-            listOf(ALL_TAG) + withoutAll
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), listOf(ALL_TAG))
+        baseState
+            .map { it.tags }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = baseState.value.tags
+            )
 
     fun onSortByDateClicked() {
         _homeUiState.update { s ->

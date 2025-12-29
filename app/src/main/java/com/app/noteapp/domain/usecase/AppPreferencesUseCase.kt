@@ -1,6 +1,7 @@
 package com.app.noteapp.domain.usecase
 
 import com.app.noteapp.domain.model.preferences_model.AppPreferences
+import com.app.noteapp.domain.model.preferences_model.AvatarPref
 import com.app.noteapp.domain.model.preferences_model.FontPref
 import com.app.noteapp.domain.model.preferences_model.LanguagePref
 import com.app.noteapp.domain.model.preferences_model.TextScalePref
@@ -29,6 +30,10 @@ class AppPreferencesUseCase @Inject constructor(
                 textScalePref = scale
             )
         }
+
+    suspend operator fun invoke(avatar: AvatarPref) {
+        repo.setAvatar(avatar)
+    }
 
     suspend operator fun invoke(lang: LanguagePref) {
         repo.setLanguage(lang)

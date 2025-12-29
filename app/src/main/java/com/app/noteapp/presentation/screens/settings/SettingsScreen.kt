@@ -1,5 +1,7 @@
 package com.app.noteapp.presentation.screens.settings
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,25 +11,35 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -36,10 +48,12 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import com.app.noteapp.R
+import com.app.noteapp.domain.model.preferences_model.AvatarPref
 import com.app.noteapp.domain.model.preferences_model.FontPref
 import com.app.noteapp.domain.model.preferences_model.LanguagePref
 import com.app.noteapp.domain.model.preferences_model.TextScalePref
 import com.app.noteapp.domain.model.preferences_model.ThemeModePref
+import com.app.noteapp.presentation.model.iconRes
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,9 +78,28 @@ fun SettingsScreen(
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(stringResource(R.string.settings_general)) })
-        }) { inner ->
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                ),
+                elevation = CardDefaults.cardElevation(
+                    defaultElevation = dimensionResource(R.dimen.card_elevation)
+                )
+            ) {
+
+                Column(modifier = Modifier.padding(vertical = dimensionResource(R.dimen.v_space))) {
+
+                    Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+
+                    AvatarPickerSection(selected = uiState.avatar, onSelect = { type -> viewModel.onAvatarSelected(type)})
+
+                    Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+                }
+            }
+        }
+    ) { inner ->
         if (uiState.isLoading) {
             Box(
                 modifier = Modifier
@@ -276,4 +309,112 @@ private fun SettingsChip(
 ) {
     FilterChip(
         selected = selected, onClick = onClick, label = { Text(label) })
+}
+
+@Composable
+fun AvatarPickerSection(
+    selected: AvatarPref,
+    onSelect: (AvatarPref) -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = dimensionResource(R.dimen.h_space),
+                vertical = dimensionResource(R.dimen.v_space)
+            )
+    ) {
+        Text(
+            text = stringResource(R.string.choose_avatar_img),
+            style = MaterialTheme.typography.titleMedium
+        )
+
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_items_h_padding))
+        ) {
+            AvatarOption(
+                type = AvatarPref.FEMALE,
+                selected = selected == AvatarPref.FEMALE,
+                onSelect = onSelect,
+                modifier = Modifier.weight(1f)
+            )
+            AvatarOption(
+                type = AvatarPref.MALE,
+                selected = selected == AvatarPref.MALE,
+                onSelect = onSelect,
+                modifier = Modifier.weight(1f)
+            )
+        }
+
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            AvatarRadio(
+                label = stringResource(R.string.female),
+                checked = selected == AvatarPref.FEMALE,
+                onChecked = { onSelect(AvatarPref.FEMALE) },
+                modifier = Modifier.weight(1f)
+            )
+            AvatarRadio(
+                label = stringResource(R.string.male),
+                checked = selected == AvatarPref.MALE,
+                onChecked = { onSelect(AvatarPref.MALE) },
+                modifier = Modifier.weight(1f)
+            )
+        }
+    }
+}
+
+@Composable
+private fun AvatarOption(
+    modifier: Modifier, type: AvatarPref, selected: Boolean, onSelect: (AvatarPref) -> Unit
+) {
+    val borderColor =
+        if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+    val borderWidth =
+        if (selected) dimensionResource(R.dimen.item_selected_border_width) else dimensionResource(R.dimen.dp_1)
+
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(dimensionResource(R.dimen.ic_corner_round)))
+            .border(
+                borderWidth,
+                borderColor,
+                RoundedCornerShape(dimensionResource(R.dimen.ic_corner_round))
+            )
+            .clickable { onSelect(type) }
+            .padding(dimensionResource(R.dimen.v_space)),
+        horizontalAlignment = Alignment.CenterHorizontally) {
+        Image(
+            painter = painterResource(type.iconRes()),
+            contentDescription = type.name,
+            modifier = Modifier
+                .size(dimensionResource(R.dimen.ic_avatar_size))
+                .clip(CircleShape)
+        )
+    }
+}
+
+@Composable
+private fun AvatarRadio(
+    modifier: Modifier, label: String, checked: Boolean, onChecked: () -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .clip(RoundedCornerShape(999.dp))
+            .clickable { onChecked() }) {
+        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
+            RadioButton(
+                selected = checked, onClick = onChecked
+            )
+        }
+        Spacer(Modifier.width(dimensionResource(R.dimen.h_space)))
+        Text(text = label, style = MaterialTheme.typography.bodyMedium)
+    }
 }
