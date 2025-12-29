@@ -9,7 +9,7 @@
     <string name="notes">یادداشت</string>
     <string name="delete_note">حذف یادداشت</string>
     <string name="delete_note_question">آیا میخواهید این یادداشت را حذف کنید؟ (این عملیات برگشت پذیر نیست)</string>
-    <string name="choose_avatar_img">انتخاب عکس آواتار</string>
+    <string name="select_avatar_img">انتخاب عکس آواتار</string>
     <string name="female">زن</string>
     <string name="male">مرد</string>
     <string name="choose_font">انتخاب فونت</string>

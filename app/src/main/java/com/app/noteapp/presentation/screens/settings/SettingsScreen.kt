@@ -332,7 +332,7 @@ fun AvatarPickerSection(
             )
     ) {
         Text(
-            text = stringResource(R.string.choose_avatar_img),
+            text = stringResource(R.string.select_avatar_img),
             style = MaterialTheme.typography.titleMedium
         )
 

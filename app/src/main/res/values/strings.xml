@@ -9,7 +9,7 @@
     <string name="notes">Notes</string>
     <string name="delete_note">Delete note</string>
     <string name="delete_note_question">Are you sure you want to delete this note? (This action can not be undone)</string>
-    <string name="choose_avatar_img">Choose Avatar Image</string>
+    <string name="select_avatar_img">Select Avatar Image</string>
     <string name="female">Female</string>
     <string name="male">Male</string>
     <string name="choose_font">Choose font</string>

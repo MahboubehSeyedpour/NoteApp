@@ -13,7 +13,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
@@ -52,8 +54,17 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
 
 //            val currentFont by viewModel.currentFont.collectAsState()
 
+            val prefs by viewModel.preferencesState.collectAsStateWithLifecycle()
+
+            LaunchedEffect(prefs.language) {
+                AppLanguageManager.applyLanguage(prefs.language)
+            }
+
             NoteAppTheme(
-                darkTheme = isSystemInDarkTheme(), dynamicColor = false
+                darkTheme = isSystemInDarkTheme(), dynamicColor = false,
+//                themeMode = prefs.themeMode,
+//                font = prefs.font,
+//                textScale = prefs.textScale,
 //                appFont = currentFont
             ) {
                 Surface(modifier = Modifier.fillMaxSize()) {
