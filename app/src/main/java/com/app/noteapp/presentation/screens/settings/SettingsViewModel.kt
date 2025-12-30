@@ -33,10 +33,11 @@ class SettingsViewModel @Inject constructor(
             .map { s ->
                 SettingsUiState(
                     isLoading = false,
-                    themeMode = s.themeModePref,
+                    themeMode = s.themeMode,
                     language = s.language,
                     font = s.fontPref,
-                    avatar = s.avatar
+                    avatar = s.avatar,
+                    textScale = s.textScale
                 )
             }
             .stateIn(

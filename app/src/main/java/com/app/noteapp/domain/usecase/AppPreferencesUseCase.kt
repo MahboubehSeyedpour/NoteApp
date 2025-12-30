@@ -26,8 +26,8 @@ class AppPreferencesUseCase @Inject constructor(
                 language = lang,
                 fontPref = font,
                 avatar = avatar,
-                themeModePref = theme,
-                textScalePref = scale
+                themeMode = theme,
+                textScale = scale
             )
         }
 

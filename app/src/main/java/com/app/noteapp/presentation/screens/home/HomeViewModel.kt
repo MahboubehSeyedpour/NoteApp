@@ -8,8 +8,6 @@ import com.app.noteapp.core.time.TimeRange
 import com.app.noteapp.core.time.rangeFor
 import com.app.noteapp.di.IoDispatcher
 import com.app.noteapp.domain.model.common_model.Note
-import com.app.noteapp.domain.model.preferences_model.AvatarPref
-import com.app.noteapp.domain.model.preferences_model.LanguagePref
 import com.app.noteapp.domain.usecase.AppPreferencesUseCase
 import com.app.noteapp.domain.usecase.ExportNotesUseCase
 import com.app.noteapp.domain.usecase.ImportNotesUseCase
@@ -30,7 +28,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
@@ -62,7 +59,7 @@ class HomeViewModel @Inject constructor(
             .map { s ->
                 SettingsUiState(
                     isLoading = false,
-                    themeMode = s.themeModePref,
+                    themeMode = s.themeMode,
                     language = s.language,
                     font = s.fontPref,
                     avatar = s.avatar

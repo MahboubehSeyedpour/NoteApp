@@ -68,7 +68,6 @@ fun NotesFilterSheet(
                 text = stringResource(R.string.filter_notes),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = Bold,
-                fontSize = 20.sp,
                 color = MaterialTheme.colorScheme.primary
             )
 
@@ -86,7 +85,6 @@ fun NotesFilterSheet(
         Text(
             text = stringResource(R.string.filter_by_tag),
             style = MaterialTheme.typography.titleMedium,
-            fontSize = 20.sp,
             color = MaterialTheme.colorScheme.primary
         )
 
@@ -104,7 +102,6 @@ fun NotesFilterSheet(
         Text(
             text = stringResource(R.string.filter_by_time),
             style = MaterialTheme.typography.titleMedium,
-            fontSize = 20.sp,
             color = MaterialTheme.colorScheme.primary
         )
 

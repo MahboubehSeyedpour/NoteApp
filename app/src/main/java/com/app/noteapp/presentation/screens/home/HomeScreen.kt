@@ -301,9 +301,9 @@ private fun PinnedHeader(
             onNotePinned = onNotePinned,
             deleteNote = onDelete,
             noteTitleStyle = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.SemiBold, fontSize = 14.sp
+                fontWeight = FontWeight.SemiBold
             ),
-            noteBodyStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+            noteBodyStyle = MaterialTheme.typography.bodyMedium,
         )
 
         if (hasOthers) {
@@ -360,9 +360,9 @@ private fun NotesContent(
                         onNotePinned = { onNotePinned(note.id) },
                         deleteNote = { onConfirmDelete(note.id) },
                         noteTitleStyle = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.SemiBold, fontSize = 14.sp
+                            fontWeight = FontWeight.SemiBold
                         ),
-                        noteBodyStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+                        noteBodyStyle = MaterialTheme.typography.bodyMedium,
                     )
                 }
             }
@@ -402,9 +402,9 @@ private fun NotesContent(
                             onNotePinned = { onNotePinned(note.id) },
                             deleteNote = { onConfirmDelete(note.id) },
                             noteTitleStyle = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.SemiBold, fontSize = 14.sp
+                                fontWeight = FontWeight.SemiBold
                             ),
-                            noteBodyStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+                            noteBodyStyle = MaterialTheme.typography.bodyMedium,
                         )
                     }
                 }

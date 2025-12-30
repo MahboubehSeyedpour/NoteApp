@@ -54,11 +54,11 @@ private val BromlisFontFamily = FontFamily(
 
 fun fontFamilyFor(appFont: FontPref): FontFamily =
     when (appFont) {
-        FontPref.IRAN_NASTALIQ -> IranNastaliqFontFamily
-        FontPref.IRAN_SANS -> IranSansFontFamily
-        FontPref.PELAK -> PelakFontFamily
-        FontPref.SHABNAM -> ShabnamFontFamily
-        FontPref.BOLDING -> BoldingFontFamily
-        FontPref.SCHOOL_PLANNER -> SchoolPlannerFontFamily
+        FontPref.IRAN_NASTALIQ   -> IranNastaliqFontFamily
+        FontPref.IRAN_SANS       -> IranSansFontFamily
+        FontPref.PELAK           -> PelakFontFamily
+        FontPref.SHABNAM         -> ShabnamFontFamily
+        FontPref.BOLDING         -> BoldingFontFamily
+        FontPref.SCHOOL_PLANNER  -> SchoolPlannerFontFamily
         FontPref.BROMLIS_REGULAR -> BromlisFontFamily
     }

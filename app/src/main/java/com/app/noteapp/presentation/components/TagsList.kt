@@ -101,9 +101,7 @@ fun TagsList(
                     Text(
                         text = label.name,
                         color = label.color,
-                        style = MaterialTheme.typography.labelMedium.copy(
-                            fontWeight = FontWeight.Medium, fontSize = 12.sp
-                        )
+                        style = MaterialTheme.typography.labelMedium
                     )
 
                     if (editMode && onDeleteClick != null) {

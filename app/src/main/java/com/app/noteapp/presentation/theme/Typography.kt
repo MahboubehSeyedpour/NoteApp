@@ -6,73 +6,84 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.app.noteapp.domain.model.preferences_model.FontPref
+import com.app.noteapp.domain.model.preferences_model.TextScalePref
 
-fun typographyFor(appFont: FontPref): Typography {
-    val family: FontFamily = fontFamilyFor(appFont)
+fun typographyFor(font: FontPref, textScale: TextScalePref): Typography {
+    val scale = when (textScale) {
+        TextScalePref.XS -> 0.85f
+        TextScalePref.S  -> 0.93f
+        TextScalePref.M  -> 1.0f
+        TextScalePref.L  -> 1.08f
+        TextScalePref.XL -> 1.16f
+    }
+
+    val family: FontFamily = fontFamilyFor(font)
+
+    fun sz(baseSp: Int) = (baseSp * scale).sp
 
     return Typography(
         displayLarge = TextStyle(
             fontFamily = family,
-            fontSize = 32.sp,
+            fontSize = sz(32),
             fontWeight = FontWeight.Bold
         ),
         displayMedium = TextStyle(
             fontFamily = family,
-            fontSize = 28.sp,
+            fontSize = sz(28),
             fontWeight = FontWeight.Bold
         ),
         displaySmall = TextStyle(
             fontFamily = family,
-            fontSize = 26.sp,
+            fontSize = sz(26),
             fontWeight = FontWeight.Bold
         ),
         headlineLarge = TextStyle(
             fontFamily = family,
-            fontSize = 32.sp,
+            fontSize = sz(32),
         ),
         headlineMedium = TextStyle(
             fontFamily = family,
-            fontSize = 28.sp,
+            fontSize = sz(28),
         ),
         headlineSmall = TextStyle(
             fontFamily = family,
-            fontSize = 26.sp,
+            fontSize = sz(26),
         ),
         titleLarge = TextStyle(
             fontFamily = family,
-            fontSize = 24.sp,
+            fontSize = sz(24),
         ),
         titleMedium = TextStyle(
             fontFamily = family,
-            fontSize = 22.sp,
+            fontSize = sz(22),
         ),
         titleSmall = TextStyle(
             fontFamily = family,
-            fontSize = 20.sp,
+            fontSize = sz(20),
         ),
         bodyLarge = TextStyle(
             fontFamily = family,
-            fontSize = 18.sp,
+            fontSize = sz(18),
         ),
         bodyMedium = TextStyle(
             fontFamily = family,
-            fontSize = 16.sp,
+            fontSize = sz(16),
         ),
         bodySmall = TextStyle(
             fontFamily = family,
-            fontSize = 14.sp,
+            fontSize = sz(14),
         ),
         labelLarge = TextStyle(
             fontFamily = family,
-            fontSize = 12.sp,
+            fontSize = sz(12),
         ),
         labelMedium = TextStyle(
             fontFamily = family,
-            fontSize = 11.sp,
+            fontSize = sz(11),
         ),
         labelSmall = TextStyle(
             fontFamily = family,
-            fontSize = 10.sp,
+            fontSize = sz(10),
         ),
     )
 }

@@ -5,7 +5,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -61,11 +60,10 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
             }
 
             NoteAppTheme(
-                darkTheme = isSystemInDarkTheme(), dynamicColor = false,
-//                themeMode = prefs.themeMode,
-//                font = prefs.font,
-//                textScale = prefs.textScale,
-//                appFont = currentFont
+                dynamicColor = false,
+                themeMode = prefs.themeMode,
+                font = prefs.font,
+                textScale = prefs.textScale,
             ) {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     NoteApp(

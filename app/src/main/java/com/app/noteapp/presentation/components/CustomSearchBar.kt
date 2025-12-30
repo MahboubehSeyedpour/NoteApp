@@ -53,14 +53,7 @@ fun CustomSearchBar(
                 )
             }
         },
-        placeholder = {
-            Text(
-                text = stringResource(R.string.search_note),
-                style = TextStyle.Default.copy (
-                    fontSize = 12.sp
-                )
-            )
-        },
+        placeholder = { Text(text = stringResource(R.string.search_note),) },
         colors = TextFieldDefaults.colors(
             focusedContainerColor = MaterialTheme.colorScheme.surface,
             unfocusedContainerColor = MaterialTheme.colorScheme.surface,

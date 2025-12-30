@@ -86,7 +86,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.core.graphics.ColorUtils
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -957,7 +956,6 @@ private fun TextBlockItem(
         text = block.text,
         style = MaterialTheme.typography.headlineSmall.copy(
             fontWeight = FontWeight.Normal,
-            fontSize = 16.sp
         ),
         textAlign = TextAlign.Start
     )

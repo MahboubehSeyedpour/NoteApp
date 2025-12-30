@@ -94,14 +94,14 @@ fun NoteContent(
             onValueChange = onTitleChange,
             modifier = Modifier.fillMaxWidth(),
             textStyle = MaterialTheme.typography.headlineSmall.copy(
-                fontWeight = FontWeight.Bold, fontSize = 32.sp
+                fontWeight = FontWeight.Bold
             ),
             placeholder = {
                 Text(
                     text = stringResource(R.string.note_title),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.headlineSmall.copy(
-                        fontWeight = FontWeight.Bold, fontSize = 32.sp
+                        fontWeight = FontWeight.Bold
                     )
                 )
             },
