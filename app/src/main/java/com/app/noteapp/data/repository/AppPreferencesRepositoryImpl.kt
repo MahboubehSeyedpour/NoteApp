@@ -38,7 +38,14 @@ class AppPreferencesRepositoryImpl  @Inject constructor(
 
     // ---- Font ----
     override val fontFlow: Flow<FontPref> =
-        dataStore.data.map { prefs -> FontPref.fromKey(prefs[Keys.FONT]) }
+        dataStore.data.map { prefs ->
+            val lang = LanguagePref.fromPref(prefs[Keys.LANGUAGE])
+            FontPref.fromKey(
+                key = prefs[Keys.FONT],
+                language = lang
+            )
+        }
+
 
     override suspend fun setFont(font: FontPref) {
         dataStore.edit { it[Keys.FONT] = font.key }

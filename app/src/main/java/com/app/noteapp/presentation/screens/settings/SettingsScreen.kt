@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -151,7 +152,7 @@ private fun SettingsContent(
         item {
             SettingsSection(title = stringResource(R.string.choose_font)) {
                 FontRow(
-                    selected = uiState.font, onSelect = onFontSelected
+                    language = uiState.language, selected = uiState.font, onSelect = onFontSelected
                 )
             }
         }
@@ -239,9 +240,12 @@ private fun LanguageRow(
 
 @Composable
 private fun FontRow(
-    selected: FontPref, onSelect: (FontPref) -> Unit
+    language: LanguagePref ,selected: FontPref, onSelect: (FontPref) -> Unit
 ) {
-    val fonts = FontPref.entries
+
+    val fonts = remember(language) {
+        FontPref.availableFor(language)
+    }
 
     Row(
         modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
@@ -261,7 +265,7 @@ private fun FontRow(
                     content = {
                         Text(
                             text = stringResource(R.string.lorem_ipsum),
-                            style = MaterialTheme.typography.labelSmall.copy(
+                            style = MaterialTheme.typography.labelMedium.copy(
                                 fontFamily = family
                             ),
                             textAlign = TextAlign.Center
@@ -271,7 +275,7 @@ private fun FontRow(
                 Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
 
                 Text(
-                    text = displayName, style = MaterialTheme.typography.labelSmall.copy(
+                    text = displayName, style = MaterialTheme.typography.labelMedium.copy(
                         fontFamily = family
                     ), textAlign = TextAlign.Center
                 )
