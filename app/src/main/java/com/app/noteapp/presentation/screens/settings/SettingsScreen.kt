@@ -1,13 +1,5 @@
 package com.app.noteapp.presentation.screens.settings
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,34 +11,25 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -60,7 +43,9 @@ import com.app.noteapp.domain.model.preferences_model.FontPref
 import com.app.noteapp.domain.model.preferences_model.LanguagePref
 import com.app.noteapp.domain.model.preferences_model.TextScalePref
 import com.app.noteapp.domain.model.preferences_model.ThemeModePref
-import com.app.noteapp.presentation.model.iconRes
+import com.app.noteapp.presentation.components.AnimatedSelectedItem
+import com.app.noteapp.presentation.components.LabeledRadioButton
+import com.app.noteapp.presentation.components.TextScaleSlider
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -71,7 +56,6 @@ fun SettingsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
-    val context = LocalContext.current
 
     LaunchedEffect(viewModel.events) {
         lifecycle.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
@@ -129,6 +113,7 @@ fun SettingsScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SettingsContent(
     uiState: SettingsUiState,
@@ -160,6 +145,17 @@ private fun SettingsContent(
             }
         }
 
+        // Text scale
+        item {
+            SettingsSection(title = stringResource(R.string.choose_text_scale)) {
+                TextScaleSlider(
+                    value = uiState.textScale,
+                    onValueChange = { scale -> onTextScaleSelected(scale) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+
         // Font
         item {
             SettingsSection(title = stringResource(R.string.choose_font)) {
@@ -174,15 +170,6 @@ private fun SettingsContent(
             SettingsSection(title = stringResource(R.string.choose_theme)) {
                 ThemeRow(
                     selected = uiState.themeMode, onSelect = onThemeModeSelected
-                )
-            }
-        }
-
-        // Text scale
-        item {
-            SettingsSection(title = stringResource(R.string.choose_text_scale)) {
-                TextScaleRow(
-                    selected = uiState.textScale, onSelect = onTextScaleSelected
                 )
             }
         }
@@ -219,12 +206,12 @@ private fun LanguageRow(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         LanguageOptionRow(
-            text = "فارسی",
+            text = stringResource(R.string.lang_fa),
             selected = selected == LanguagePref.FA,
         ) { onSelect(LanguagePref.FA) }
 
         LanguageOptionRow(
-            text = "English",
+            text = stringResource(R.string.lang_en),
             selected = selected == LanguagePref.EN,
         ) { onSelect(LanguagePref.EN) }
     }
@@ -284,31 +271,6 @@ private fun ThemeRow(
     }
 }
 
-@Composable
-private fun TextScaleRow(
-    selected: TextScalePref, onSelect: (TextScalePref) -> Unit
-) {
-    val options = listOf(
-        TextScalePref.XS,
-        TextScalePref.S,
-        TextScalePref.M,
-        TextScalePref.L,
-        TextScalePref.XL,
-    )
-
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        options.forEach { scale ->
-            FilterChip(
-                selected = selected == scale,
-                onClick = { onSelect(scale) },
-                label = { Text(scale.name) })
-        }
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SettingsChip(
@@ -342,13 +304,13 @@ fun AvatarPickerSection(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_items_h_padding))
         ) {
-            AvatarOption(
+            AnimatedSelectedItem(
                 type = AvatarPref.FEMALE,
                 selected = selected == AvatarPref.FEMALE,
                 onSelect = onSelect,
                 modifier = Modifier.weight(1f)
             )
-            AvatarOption(
+            AnimatedSelectedItem(
                 type = AvatarPref.MALE,
                 selected = selected == AvatarPref.MALE,
                 onSelect = onSelect,
@@ -361,100 +323,18 @@ fun AvatarPickerSection(
         Row(
             modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            AvatarRadio(
+            LabeledRadioButton(
                 label = stringResource(R.string.female),
                 checked = selected == AvatarPref.FEMALE,
                 onChecked = { onSelect(AvatarPref.FEMALE) },
                 modifier = Modifier.weight(1f)
             )
-            AvatarRadio(
+            LabeledRadioButton(
                 label = stringResource(R.string.male),
                 checked = selected == AvatarPref.MALE,
                 onChecked = { onSelect(AvatarPref.MALE) },
                 modifier = Modifier.weight(1f)
             )
         }
-    }
-}
-
-@Composable
-private fun AvatarOption(
-    modifier: Modifier,
-    type: AvatarPref,
-    selected: Boolean,
-    onSelect: (AvatarPref) -> Unit
-) {
-    val shape = RoundedCornerShape(dimensionResource(R.dimen.ic_corner_round))
-
-    // --- scale animation
-    val targetScale = if (selected) 1.05f else 0.9f
-    val scale by animateFloatAsState(
-        targetValue = targetScale,
-        animationSpec = spring(
-            stiffness = Spring.StiffnessMediumLow,
-            dampingRatio = Spring.DampingRatioMediumBouncy
-        ),
-        label = "avatarScale"
-    )
-
-    // --- border color animation ---
-    val targetBorderColor =
-        if (selected) MaterialTheme.colorScheme.primary
-        else MaterialTheme.colorScheme.outline
-
-    val borderColor by animateColorAsState(
-        targetValue = targetBorderColor,
-        animationSpec = tween(durationMillis = 180),
-        label = "avatarBorderColor"
-    )
-
-    // --- border width animation ---
-    val selectedBorderWidth = dimensionResource(R.dimen.item_selected_border_width)
-    val normalBorderWidth = dimensionResource(R.dimen.dp_1)
-
-    val borderWidth by animateDpAsState(
-        targetValue = if (selected) selectedBorderWidth else normalBorderWidth,
-        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-        label = "avatarBorderWidth"
-    )
-
-    Column(
-        modifier = modifier
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            }
-            .clip(shape)
-            .border(borderWidth, borderColor, shape)
-            .clickable { onSelect(type) }
-            .padding(dimensionResource(R.dimen.v_space)),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Image(
-            painter = painterResource(type.iconRes()),
-            contentDescription = type.name,
-            modifier = Modifier
-                .size(dimensionResource(R.dimen.ic_avatar_size))
-                .clip(CircleShape)
-        )
-    }
-}
-
-@Composable
-private fun AvatarRadio(
-    modifier: Modifier, label: String, checked: Boolean, onChecked: () -> Unit
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .clip(RoundedCornerShape(999.dp))
-            .clickable { onChecked() }) {
-        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
-            RadioButton(
-                selected = checked, onClick = onChecked
-            )
-        }
-        Spacer(Modifier.width(dimensionResource(R.dimen.h_space)))
-        Text(text = label, style = MaterialTheme.typography.bodyMedium)
     }
 }
