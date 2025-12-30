@@ -954,9 +954,7 @@ private fun TextBlockItem(
             .fillMaxWidth()
             .padding(horizontal = dimensionResource(R.dimen.icon_size)),
         text = block.text,
-        style = MaterialTheme.typography.headlineSmall.copy(
-            fontWeight = FontWeight.Normal,
-        ),
+        style = MaterialTheme.typography.bodyMedium,
         textAlign = TextAlign.Start
     )
 }

@@ -41,7 +41,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -300,10 +299,10 @@ private fun PinnedHeader(
             onNoteClicked = onNoteClicked,
             onNotePinned = onNotePinned,
             deleteNote = onDelete,
-            noteTitleStyle = MaterialTheme.typography.titleMedium.copy(
+            noteTitleStyle = MaterialTheme.typography.bodyMedium.copy(
                 fontWeight = FontWeight.SemiBold
             ),
-            noteBodyStyle = MaterialTheme.typography.bodyMedium,
+            noteBodyStyle = MaterialTheme.typography.bodySmall,
         )
 
         if (hasOthers) {
@@ -359,10 +358,10 @@ private fun NotesContent(
                         onNoteClicked = { onNoteClicked(note.id) },
                         onNotePinned = { onNotePinned(note.id) },
                         deleteNote = { onConfirmDelete(note.id) },
-                        noteTitleStyle = MaterialTheme.typography.titleMedium.copy(
+                        noteTitleStyle = MaterialTheme.typography.bodyMedium.copy(
                             fontWeight = FontWeight.SemiBold
                         ),
-                        noteBodyStyle = MaterialTheme.typography.bodyMedium,
+                        noteBodyStyle = MaterialTheme.typography.bodySmall,
                     )
                 }
             }
@@ -401,10 +400,10 @@ private fun NotesContent(
                             onNoteClicked = { onNoteClicked(note.id) },
                             onNotePinned = { onNotePinned(note.id) },
                             deleteNote = { onConfirmDelete(note.id) },
-                            noteTitleStyle = MaterialTheme.typography.titleMedium.copy(
+                            noteTitleStyle = MaterialTheme.typography.bodyMedium.copy(
                                 fontWeight = FontWeight.SemiBold
                             ),
-                            noteBodyStyle = MaterialTheme.typography.bodyMedium,
+                            noteBodyStyle = MaterialTheme.typography.bodySmall,
                         )
                     }
                 }
