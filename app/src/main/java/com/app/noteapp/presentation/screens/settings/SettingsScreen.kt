@@ -1,6 +1,6 @@
 package com.app.noteapp.presentation.screens.settings
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,17 +11,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,8 +28,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -46,13 +48,14 @@ import com.app.noteapp.domain.model.preferences_model.ThemeModePref
 import com.app.noteapp.presentation.components.AnimatedSelectedItem
 import com.app.noteapp.presentation.components.LabeledRadioButton
 import com.app.noteapp.presentation.components.TextScaleSlider
+import com.app.noteapp.presentation.model.iconRes
+import com.app.noteapp.presentation.theme.fontFamilyFor
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    navController: NavController,
-    viewModel: SettingsViewModel = hiltViewModel()
+    navController: NavController, viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -67,30 +70,7 @@ fun SettingsScreen(
         }
     }
 
-    Scaffold(
-        topBar = {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    contentColor = MaterialTheme.colorScheme.onSurface
-                ),
-                elevation = CardDefaults.cardElevation(
-                    defaultElevation = dimensionResource(R.dimen.card_elevation)
-                )
-            ) {
-
-                Column(modifier = Modifier.padding(vertical = dimensionResource(R.dimen.v_space))) {
-
-                    Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
-
-                    AvatarPickerSection(selected = uiState.avatar, onSelect = { type -> viewModel.onAvatarSelected(type)})
-
-                    Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
-                }
-            }
-        }
-    ) { inner ->
+    Scaffold { inner ->
         if (uiState.isLoading) {
             Box(
                 modifier = Modifier
@@ -107,6 +87,7 @@ fun SettingsScreen(
                 onFontSelected = viewModel::onFontSelected,
                 onThemeModeSelected = viewModel::onThemeModeSelected,
                 onTextScaleSelected = viewModel::onTextScaleSelected,
+                onAvatarSelected = viewModel::onAvatarSelected,
                 modifier = Modifier.padding(inner)
             )
         }
@@ -121,6 +102,7 @@ private fun SettingsContent(
     onFontSelected: (FontPref) -> Unit,
     onThemeModeSelected: (ThemeModePref) -> Unit,
     onTextScaleSelected: (TextScalePref) -> Unit,
+    onAvatarSelected: (AvatarPref) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -134,6 +116,15 @@ private fun SettingsContent(
                 text = stringResource(R.string.settings_general),
                 style = MaterialTheme.typography.titleMedium
             )
+        }
+
+        // Avatar
+        item {
+            SettingsSection(
+                title = stringResource(R.string.select_avatar_img)
+            ) {
+                AvatarRow(selected = uiState.avatar, onAvatarSelected = onAvatarSelected)
+            }
         }
 
         // Language
@@ -177,20 +168,46 @@ private fun SettingsContent(
 }
 
 @Composable
+fun AvatarRow(selected: AvatarPref, onAvatarSelected: (AvatarPref) -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        ), elevation = CardDefaults.cardElevation(
+            defaultElevation = dimensionResource(R.dimen.card_elevation)
+        )
+    ) {
+        Column(modifier = Modifier.padding(vertical = dimensionResource(R.dimen.v_space))) {
+
+            Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+
+            AvatarPickerSection(selected = selected, onSelect = { type -> onAvatarSelected(type) })
+
+            Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+        }
+    }
+}
+
+@Composable
 private fun SettingsSection(
     title: String, content: @Composable ColumnScope.() -> Unit
 ) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.primary
+    Card(
+        modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        ), elevation = CardDefaults.cardElevation(
+            defaultElevation = dimensionResource(R.dimen.card_elevation)
         )
-        Surface(
-            tonalElevation = 2.dp, modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary
+            )
             Column(
                 modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -204,33 +221,19 @@ private fun SettingsSection(
 private fun LanguageRow(
     selected: LanguagePref, onSelect: (LanguagePref) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        LanguageOptionRow(
-            text = stringResource(R.string.lang_fa),
-            selected = selected == LanguagePref.FA,
-        ) { onSelect(LanguagePref.FA) }
-
-        LanguageOptionRow(
-            text = stringResource(R.string.lang_en),
-            selected = selected == LanguagePref.EN,
-        ) { onSelect(LanguagePref.EN) }
-    }
-}
-
-@Composable
-private fun LanguageOptionRow(
-    text: String, selected: Boolean, onClick: () -> Unit
-) {
-    Row(Modifier
-        .fillMaxWidth()
-        .clickable { onClick() }
-        .padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically) {
-        RadioButton(
-            selected = selected, onClick = onClick
-        )
-        Spacer(Modifier.width(8.dp))
-        Text(text, style = MaterialTheme.typography.bodyMedium)
+    Row(
+        modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        LabeledRadioButton(
+            modifier = Modifier.weight(1f),
+            label = stringResource(R.string.lang_fa),
+            checked = selected == LanguagePref.FA,
+            onChecked = { onSelect(LanguagePref.FA) })
+        LabeledRadioButton(
+            modifier = Modifier.weight(1f),
+            label = stringResource(R.string.lang_en),
+            checked = selected == LanguagePref.EN,
+            onChecked = { onSelect(LanguagePref.EN) })
     }
 }
 
@@ -238,19 +241,41 @@ private fun LanguageOptionRow(
 private fun FontRow(
     selected: FontPref, onSelect: (FontPref) -> Unit
 ) {
-    val fonts = listOf(
-        FontPref.SHABNAM,
-        FontPref.IRAN_SANS,
-        FontPref.IRAN_NASTALIQ,
-        FontPref.PELAK,
-        FontPref.BOLDING,
-    )
+    val fonts = FontPref.entries
 
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    Row(
+        modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
+    ) {
         fonts.forEach { font ->
-            val name = font.name.replace('_', ' ')
-            SettingsChip(
-                label = name, selected = selected == font, onClick = { onSelect(font) })
+            val family = fontFamilyFor(font)
+            val displayName = font.name.replace('_', ' ')
+
+            Column(
+                modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                AnimatedSelectedItem(
+                    modifier = Modifier,
+                    value = font,
+                    selected = (selected == font),
+                    onSelect = onSelect,
+                    content = {
+                        Text(
+                            text = stringResource(R.string.lorem_ipsum),
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontFamily = family
+                            ),
+                            textAlign = TextAlign.Center
+                        )
+                    })
+
+                Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+
+                Text(
+                    text = displayName, style = MaterialTheme.typography.labelSmall.copy(
+                        fontFamily = family
+                    ), textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }
@@ -259,14 +284,19 @@ private fun FontRow(
 private fun ThemeRow(
     selected: ThemeModePref, onSelect: (ThemeModePref) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    Row(
+        modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
+    ) {
         listOf(
             ThemeModePref.SYSTEM to stringResource(R.string.settings_theme_system),
             ThemeModePref.LIGHT to stringResource(R.string.settings_theme_light),
             ThemeModePref.DARK to stringResource(R.string.settings_theme_dark),
         ).forEach { (mode, label) ->
-            SettingsChip(
-                label = label, selected = selected == mode, onClick = { onSelect(mode) })
+            LabeledRadioButton(
+                modifier = Modifier.weight(1f),
+                label = label,
+                checked = selected == mode,
+                onChecked = { onSelect(mode) })
         }
     }
 }
@@ -293,27 +323,39 @@ fun AvatarPickerSection(
                 vertical = dimensionResource(R.dimen.v_space)
             )
     ) {
-        Text(
-            text = stringResource(R.string.select_avatar_img),
-            style = MaterialTheme.typography.titleMedium
-        )
-
-        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_items_h_padding))
         ) {
-            AnimatedSelectedItem(
-                type = AvatarPref.FEMALE,
+            AnimatedSelectedItem<AvatarPref>(
+                content = {
+                    Image(
+                        painter = painterResource(AvatarPref.FEMALE.iconRes()),
+                        contentDescription = "item",
+                        modifier = Modifier
+                            .size(dimensionResource(R.dimen.ic_avatar_size))
+                            .clip(CircleShape)
+                    )
+                },
                 selected = selected == AvatarPref.FEMALE,
                 onSelect = onSelect,
+                value = AvatarPref.FEMALE,
                 modifier = Modifier.weight(1f)
             )
-            AnimatedSelectedItem(
-                type = AvatarPref.MALE,
+            AnimatedSelectedItem<AvatarPref>(
+                content = {
+                    Image(
+                        painter = painterResource(AvatarPref.MALE.iconRes()),
+                        contentDescription = "item",
+                        modifier = Modifier
+                            .size(dimensionResource(R.dimen.ic_avatar_size))
+                            .clip(CircleShape)
+                    )
+                },
                 selected = selected == AvatarPref.MALE,
                 onSelect = onSelect,
+                value = AvatarPref.MALE,
                 modifier = Modifier.weight(1f)
             )
         }
