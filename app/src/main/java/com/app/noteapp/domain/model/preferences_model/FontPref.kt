@@ -1,39 +1,50 @@
 package com.app.noteapp.domain.model.preferences_model
 
+import androidx.annotation.StringRes
+import com.app.noteapp.R
+
 enum class FontPref(
     val key: String,
-    val supportedLanguages: Set<LanguagePref>
+    val supportedLanguages: Set<LanguagePref>,
+    @StringRes val labelResId: Int
 ) {
     // -------- Persian UI fonts --------
     IRAN_NASTALIQ(
         key = "iran_nastaliq",
-        supportedLanguages = setOf(LanguagePref.FA)
+        supportedLanguages = setOf(LanguagePref.FA),
+        labelResId = R.string.font_iran_nastaliq
     ),
     IRAN_SANS(
         key = "iran_sans",
-        supportedLanguages = setOf(LanguagePref.FA)
+        supportedLanguages = setOf(LanguagePref.FA),
+        labelResId = R.string.font_iran_sans
     ),
     PELAK(
         key = "pelak",
-        supportedLanguages = setOf(LanguagePref.FA)
+        supportedLanguages = setOf(LanguagePref.FA),
+        labelResId = R.string.font_pelak
     ),
     SHABNAM(
         key = "shabnam",
-        supportedLanguages = setOf(LanguagePref.FA)
+        supportedLanguages = setOf(LanguagePref.FA),
+        labelResId = R.string.font_shabnam
     ),
 
     // -------- English UI fonts --------
     BOLDING(
         key = "bolding",
-        supportedLanguages = setOf(LanguagePref.EN)
+        supportedLanguages = setOf(LanguagePref.EN),
+        labelResId = R.string.font_bolding
     ),
     BROMLIS_REGULAR(
         key = "bromlis_regular",
-        supportedLanguages = setOf(LanguagePref.EN)
+        supportedLanguages = setOf(LanguagePref.EN),
+        labelResId = R.string.font_bromlis
     ),
     SCHOOL_PLANNER(
         key = "school_planner",
-        supportedLanguages = setOf(LanguagePref.EN)
+        supportedLanguages = setOf(LanguagePref.EN),
+        labelResId = R.string.font_school_planner
     );
 
     companion object {

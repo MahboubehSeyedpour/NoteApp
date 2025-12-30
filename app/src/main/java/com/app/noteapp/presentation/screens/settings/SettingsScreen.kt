@@ -252,13 +252,12 @@ private fun FontRow(
     ) {
         fonts.forEach { font ->
             val family = fontFamilyFor(font)
-            val displayName = font.name.replace('_', ' ')
 
             Column(
-                modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.SpaceBetween
             ) {
                 AnimatedSelectedItem(
-                    modifier = Modifier,
+                    modifier = Modifier.size(150.dp),
                     value = font,
                     selected = (selected == font),
                     onSelect = onSelect,
@@ -275,7 +274,8 @@ private fun FontRow(
                 Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
 
                 Text(
-                    text = displayName, style = MaterialTheme.typography.labelMedium.copy(
+                    text = stringResource(id = font.labelResId),
+                    style = MaterialTheme.typography.labelMedium.copy(
                         fontFamily = family
                     ), textAlign = TextAlign.Center
                 )
@@ -332,7 +332,7 @@ fun AvatarPickerSection(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_items_h_padding))
         ) {
-            AnimatedSelectedItem<AvatarPref>(
+            AnimatedSelectedItem(
                 content = {
                     Image(
                         painter = painterResource(AvatarPref.FEMALE.iconRes()),
@@ -347,7 +347,7 @@ fun AvatarPickerSection(
                 value = AvatarPref.FEMALE,
                 modifier = Modifier.weight(1f)
             )
-            AnimatedSelectedItem<AvatarPref>(
+            AnimatedSelectedItem(
                 content = {
                     Image(
                         painter = painterResource(AvatarPref.MALE.iconRes()),

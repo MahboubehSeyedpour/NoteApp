@@ -89,13 +89,13 @@
     <string name="tag_is_reserved">Tag name "All" is reserved</string>
 
     <!-- font names -->
-    <string name="iran_nastaliq">IranNastaliq</string>
-    <string name="iran_sans">IranSans</string>
-    <string name="pelak">Pelak</string>
-    <string name="shabnam">Shabnam</string>
-    <string name="boomlis">Boomlis</string>
-    <string name="school_planner">SchoolPlanner</string>
-    <string name="bolding">Bolding</string>
+    <string name="font_iran_nastaliq">Iran Nastaliq</string>
+    <string name="font_iran_sans">Iran Sans</string>
+    <string name="font_shabnam">Shabnam</string>
+    <string name="font_pelak">Pelak</string>
+    <string name="font_bolding">Bolding</string>
+    <string name="font_bromlis">Bromlis</string>
+    <string name="font_school_planner">School Planner</string>
 
     <string name="export_to">Export</string>
     <string name="export_description">Backup will be saved on your device</string>
@@ -121,6 +121,6 @@
     <string name="settings_theme_system">system</string>
     <string name="settings_theme_light">light</string>
     <string name="settings_theme_dark">dark</string>
-    <string name="lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua</string>
+    <string name="lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua Egestas purus viverra accumsan in nisl nisi Arcu cursus vitae congue mauris rhoncus aenean vel elit scelerisque</string>
 
 </resources>

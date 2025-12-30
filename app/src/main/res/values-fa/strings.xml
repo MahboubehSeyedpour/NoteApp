@@ -89,13 +89,13 @@
     <string name="tag_is_reserved">تگ "همه" رزرو شده است</string>
 
     <!-- font names -->
-    <string name="iran_nastaliq">ایران نستعلیق</string>
-    <string name="iran_sans">ایران سنس</string>
-    <string name="pelak">پلاک</string>
-    <string name="shabnam">شبنم</string>
-    <string name="boomlis">بوملیس</string>
-    <string name="school_planner">سکول پلنر</string>
-    <string name="bolding">بولدینگ</string>
+    <string name="font_iran_nastaliq">ایران نستعلیق</string>
+    <string name="font_iran_sans">ایران سنس</string>
+    <string name="font_shabnam">شبنم</string>
+    <string name="font_pelak">پلاک</string>
+    <string name="font_bolding">Bolding</string>
+    <string name="font_bromlis">Bromlis</string>
+    <string name="font_school_planner">School Planner</string>
 
     <string name="export_to">ذخیره نسخه پشتیبان</string>
     <string name="export_description">نسخه پشتیبان روی دستگاه خودتان ذخیره میشود</string>
@@ -121,6 +121,6 @@
     <string name="settings_theme_system">سیستم</string>
     <string name="settings_theme_light">روشن</string>
     <string name="settings_theme_dark">تیره</string>
-    <string name="lorem_ipsum">لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ</string>
+    <string name="lorem_ipsum">لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است</string>
 
 </resources>
