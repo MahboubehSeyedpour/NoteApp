@@ -11,7 +11,9 @@ import com.app.noteapp.di.IoDispatcher
 import com.app.noteapp.domain.reminders.ReminderScheduler
 import com.app.noteapp.domain.usecase.NoteUseCase
 import com.app.noteapp.domain.usecase.TagUseCase
+import com.app.noteapp.presentation.mapper.toDomain
 import com.app.noteapp.presentation.mapper.toUi
+import com.app.noteapp.presentation.model.NoteBlockUiModel
 import com.app.noteapp.presentation.model.NoteUiModel
 import com.app.noteapp.presentation.model.TagUiModel
 import com.app.noteapp.presentation.model.ToastType
@@ -35,7 +37,6 @@ class NoteDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val noteUseCase: NoteUseCase,
     private val tagUseCase: TagUseCase,
-//    private val languageUseCase: LanguageUseCase,
     private val scheduler: ReminderScheduler,
     @IoDispatcher private val io: CoroutineDispatcher
 ) : ViewModel() {
@@ -43,24 +44,14 @@ class NoteDetailViewModel @Inject constructor(
     private val noteId: Long? = savedStateHandle["id"]
 
     val tags: StateFlow<List<TagUiModel>> =
-        tagUseCase.getAllTags().map { list -> list.map { it.toUi() } }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), listOf())
+        tagUseCase.getAllTags()
+            .map { list -> list.map { it.toUi() } }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     private val _uiState = MutableStateFlow(
         NoteDetailUIState(
-            isLoading = false, note = NoteUiModel(
-                id = 0L,
-                userId = 0L,
-                directoryId = null,
-                title = "",
-                pinned = false,
-                createdAt = 0L,
-                updatedAt = 0L,
-                deletedAt = 0L,
-                blocks = listOf(),
-                tags = listOf(),
-                reminders = listOf(),
-            )
+            isLoading = true,
+            note = null
         )
     )
     val uiState: StateFlow<NoteDetailUIState> = _uiState
@@ -68,91 +59,165 @@ class NoteDetailViewModel @Inject constructor(
     private val _events = MutableSharedFlow<NoteDetailEvents>()
     val events = _events.asSharedFlow()
 
-
     init {
         viewModelScope.launch {
             if (noteId != null && noteId != 0L) {
-                noteUseCase.getNoteById(noteId).map { it?.toUi() }.collect { ui ->
-                    _uiState.update { it.copy(isLoading = false, note = ui) }
+                noteUseCase.getNoteById(noteId)
+                    .map { it?.toUi() }
+                    .collect { ui ->
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                note = ui
+                            )
+                        }
+                    }
+            } else {
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        note = NoteUiModel(
+                            id = 0L,
+                            userId = 0L,
+                            directoryId = null,
+                            title = "",
+                            pinned = false,
+                            createdAt = System.currentTimeMillis(),
+                            updatedAt = System.currentTimeMillis(),
+                            deletedAt = null,
+                            blocks = emptyList(),
+                            tags = emptyList(),
+                            reminders = emptyList()
+                        )
+                    )
                 }
             }
         }
     }
 
-    fun updateTitle(newTitle: String) = update { it.copy(title = newTitle) }
-//    fun updateDescription(newDesc: String) = update { it.copy(description = newDesc) }
-
-    fun setReminder(
-        dateMillis: Long, hour: Int, minute: Int, zoneId: ZoneId = ZoneId.systemDefault()
-    ) {
-//        val epoch = combineToEpochMillis(dateMillis, hour, minute, zoneId)
-//        val formatted = formatReminderEpoch(epoch, zoneId)
-//
-//        val reminderTag = TagUiModel(
-//            id = -100L, name = formatted, color = Color(ReminderTagColor.value)
-//        )
-//
-//        mutate { cur ->
-//            cur.copy(
-//                reminderAt = epoch,
-//                timeBadge = formatReminderEpoch(epoch, zoneId),
-//                reminderTag = reminderTag
-//            )
-//        }
-    }
-
-//    fun clearReminder() =
-//        mutate { it.copy(reminderAt = null, timeBadge = null, reminderTag = null) }
-
-    private inline fun mutate(block: (NoteUiModel) -> NoteUiModel) {
+    private inline fun mutateNote(block: (NoteUiModel) -> NoteUiModel) {
         val cur = _uiState.value.note ?: return
         _uiState.update { it.copy(note = block(cur)) }
     }
 
-    private inline fun update(block: (NoteUiModel) -> NoteUiModel) {
-        val current = _uiState.value.note ?: return
-        _uiState.update { it.copy(note = block(current)) }
+    // ---------- Title ----------
+
+    fun updateTitle(newTitle: String) {
+        mutateNote { it.copy(title = newTitle) }
+
+        val note = _uiState.value.note ?: return
+        if (note.id > 0) {
+            viewModelScope.launch(io) {
+                noteUseCase.update(note.toDomain())
+            }
+        }
     }
 
-    private fun saveNote() {
-//        if (_uiState.value.note?.title?.isBlank() == true || _uiState.value.note?.title?.isEmpty() == true || _uiState.value.note?.description?.isBlank() == true || _uiState.value.note?.description?.isEmpty() == true) {
-//            viewModelScope.launch {
-//                _events.emit(
-//                    NoteDetailEvents.ShowToast(
-//                        messageRes = R.string.empty_note_error, type = ToastType.ERROR
-//                    )
-//                )
-//            }
-//        } else {
-//            val ui = _uiState.value.note ?: return
-//            viewModelScope.launch(io) {
-//                runCatching {
-//                    scheduler.cancel(ui.id)              // cancel previous
-//                    val note = ui.copy(createdAt = System.currentTimeMillis()).toNote()
-//                    noteUseCase.addOrUpdateNote(note)
-//                    ui.reminderAt?.let {
-//                        scheduler.schedule(ui.id, it, ui.title, ui.description)
-//                    }
-//
-//                }.onSuccess {
-//                    _events.emit(NoteDetailEvents.NavigateToHomeScreen)
-//                }.onFailure { e ->
-//                    // e.message
-//                    _events.emit(
-//                        NoteDetailEvents.ShowToast(
-//                            messageRes = R.string.fail_to_save_note, type = ToastType.ERROR
-//                        )
-//                    )
-//                }
-//            }
-//        }
+    // ---------- Blocks: Text ----------
+
+    fun addTextBlockAtEnd(initialText: String = "") {
+        val note = _uiState.value.note ?: return
+        if (note.id <= 0L) {
+            return
+        }
+
+        viewModelScope.launch(io) {
+            noteUseCase.addTextBlock(
+                noteId = note.id,
+                position = null,
+                initialText = initialText
+            )
+        }
+    }
+
+    fun updateTextBlock(blockId: Long, newText: String) {
+        mutateNote { note ->
+            val updatedBlocks = note.blocks.map { block ->
+                when (block) {
+                    is NoteBlockUiModel.Text ->
+                        if (block.id == blockId) block.copy(text = newText) else block
+                    else -> block
+                }
+            }
+            note.copy(blocks = updatedBlocks)
+        }
+
+        // Persist
+        viewModelScope.launch(io) {
+            noteUseCase.updateTextBlock(blockId, newText)
+        }
+    }
+
+    fun deleteBlock(blockId: Long) {
+        mutateNote { note ->
+            note.copy(
+                blocks = note.blocks.filterNot { it.id == blockId }
+            )
+        }
+
+        viewModelScope.launch(io) {
+            noteUseCase.deleteBlock(blockId)
+        }
+    }
+
+    fun moveBlock(fromIndex: Int, toIndex: Int) {
+        val note = _uiState.value.note ?: return
+        val blocks = note.blocks
+        if (fromIndex !in blocks.indices || toIndex !in blocks.indices) return
+        if (fromIndex == toIndex) return
+
+        val mutable = blocks.toMutableList()
+        val block = mutable.removeAt(fromIndex)
+        mutable.add(toIndex, block)
+        mutateNote { it.copy(blocks = mutable) }
+
+        viewModelScope.launch(io) {
+            val fromPos = blocks[fromIndex].position
+            val toPos = blocks[toIndex].position
+            noteUseCase.moveBlock(
+                noteId = note.id,
+                fromPosition = fromPos,
+                toPosition = toPos
+            )
+        }
+    }
+
+    fun setReminder(
+        dateMillis: Long,
+        hour: Int,
+        minute: Int,
+        zoneId: ZoneId = ZoneId.systemDefault()
+    ) {
+        // TODO
+    }
+
+    fun saveNote(onDone: suspend () -> Unit) {
+        val note = _uiState.value.note ?: return
+        if (note.title.isBlank() && note.blocks.isEmpty()) {
+            viewModelScope.launch { onDone() }
+            return
+        }
+
+        viewModelScope.launch(io) {
+            runCatching {
+                noteUseCase.addOrUpdateNote(note.toDomain())
+            }.onSuccess {
+                onDone()
+            }.onFailure {
+                _events.emit(
+                    NoteDetailEvents.ShowToast(
+                        messageRes = R.string.fail_to_save_note,
+                        type = ToastType.ERROR
+                    )
+                )
+            }
+        }
     }
 
     fun backClicked() {
-//        if (_uiState.value.note?.title?.isNotBlank() == true || _uiState.value.note?.title?.isNotEmpty() == true || _uiState.value.note?.description?.isNotBlank() == true || _uiState.value.note?.description?.isNotEmpty() == true) {
-//            saveNote()
-//        } else
-            viewModelScope.launch { _events.emit(NoteDetailEvents.NavigateToHomeScreen) }
+        saveNote {
+            _events.emit(NoteDetailEvents.NavigateToHomeScreen)
+        }
     }
 
     fun deleteNote() {
@@ -161,11 +226,12 @@ class NoteDetailViewModel @Inject constructor(
 
     fun confirmDelete() {
         val id = noteId
-        if (id == null) {
+        if (id == null || id == 0L) {
             viewModelScope.launch {
                 _events.emit(
                     NoteDetailEvents.ShowToast(
-                        messageRes = R.string.invalid_note_id, type = ToastType.ERROR
+                        messageRes = R.string.invalid_note_id,
+                        type = ToastType.ERROR
                     )
                 )
             }
@@ -179,11 +245,11 @@ class NoteDetailViewModel @Inject constructor(
                 }
             }.onSuccess {
                 _events.emit(NoteDetailEvents.NavigateToHomeScreen)
-            }.onFailure { e ->
-//                _events.emit(NoteDetailEvents.Error("Failed to delete: ${e.message}"))
+            }.onFailure {
                 _events.emit(
                     NoteDetailEvents.ShowToast(
-                        messageRes = R.string.fail_to_save_note, type = ToastType.ERROR
+                        messageRes = R.string.fail_to_save_note,
+                        type = ToastType.ERROR
                     )
                 )
             }
@@ -195,57 +261,22 @@ class NoteDetailViewModel @Inject constructor(
     }
 
     fun setTag(tag: TagUiModel) {
-//        _uiState.update { it.copy(selectedTag = tag) }
-//        update { it.copy(tag = tag) }
+        // TODO
     }
 
     fun addTag(name: String, color: Color) {
-        val newTag = TagUiModel(id = 0L, name.trim().lowercase(), color)
-        if (newTag.name.equals("all", ignoreCase = true)) {
-            viewModelScope.launch {
-                _events.emit(
-                    NoteDetailEvents.ShowToast(
-                        messageRes = R.string.tag_is_reserved, type = ToastType.ERROR
-                    )
-                )
-            }
-            return
-        }
-        viewModelScope.launch(io) {
-//            tagUseCase.addTag(newTag.toTag())
-        }
+        // TODO
     }
 
     fun deleteTag(tagId: Long) {
-//        viewModelScope.launch(io) {
-//            runCatching {
-//                tagUseCase.deleteTagById(tagId)
-//            }.onSuccess {
-//                val cur = _uiState.value.note
-//                if (cur?.tag?.id == tagId) {
-//                    _uiState.update {
-//                        it.copy(
-//                            note = cur.copy(
-//                                tag = null, timeBadge = cur.timeBadge
-//                            )
-//                        )
-//                    }
-//                }
-//            }.onFailure { e ->
-//                viewModelScope.launch {
-////                    _events.emit(NoteDetailEvents.Error("Failed to delete tag: ${e.message}"))
-//                    _events.emit(
-//                        NoteDetailEvents.ShowToast(
-//                            messageRes = R.string.fail_to_save_note, type = ToastType.ERROR
-//                        )
-//                    )
-//                }
-//            }
-//        }
+        // TODO
     }
 
     fun onImagePicked(uri: Uri) {
         val currentNote = _uiState.value.note ?: return
+        if (currentNote.id <= 0L) {
+            return
+        }
 
         viewModelScope.launch {
             noteUseCase.appendMediaBlock(
@@ -253,11 +284,14 @@ class NoteDetailViewModel @Inject constructor(
                 kind = MediaKind.IMAGE,
                 localUri = uri.toString()
             )
-
             val updated = noteUseCase.getNoteById(currentNote.id).firstOrNull()
             if (updated != null) {
                 _uiState.update { it.copy(note = updated.toUi()) }
             }
         }
+    }
+
+    fun changeEditMode(mode: Boolean) {
+        _uiState.update { it.copy(editMode = mode) }
     }
 }

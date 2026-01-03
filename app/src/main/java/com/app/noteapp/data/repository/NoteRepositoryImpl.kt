@@ -3,12 +3,13 @@ package com.app.noteapp.data.repository
 import com.app.noteapp.data.local.dao.NoteDao
 import com.app.noteapp.data.local.entity.NoteBlockEntity
 import com.app.noteapp.data.local.entity.NoteBlockMediaEntity
+import com.app.noteapp.data.local.entity.NoteBlockTextEntity
 import com.app.noteapp.data.local.entity.NoteTagEntity
 import com.app.noteapp.data.local.model.enums.BlockType
 import com.app.noteapp.data.local.model.enums.MediaKind
 import com.app.noteapp.data.mapper.toNoteEntity
-import com.app.noteapp.domain.model.common_model.Note
 import com.app.noteapp.domain.mapper.toDomain
+import com.app.noteapp.domain.model.common_model.Note
 import com.app.noteapp.domain.repository.NoteRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -131,6 +132,96 @@ class NoteRepositoryImpl @Inject constructor(
                 durationMs = null,
                 sizeBytes = null
             )
+        )
+    }
+
+    override suspend fun insertTextBlock(
+        noteId: Long,
+        position: Int?,
+        text: String
+    ): Long {
+        require(noteId > 0) { "noteId must be > 0" }
+
+        val trimmed = text.trim()
+
+        val now = System.currentTimeMillis()
+
+        val targetPos = position ?: noteDao.getNextBlockPosition(noteId)
+
+        if (position != null) {
+            noteDao.shiftBlockPositionsRight(
+                noteId = noteId,
+                fromPositionInclusive = targetPos
+            )
+        }
+
+        val blockId = noteDao.insertBlock(
+            NoteBlockEntity(
+                id = 0,
+                noteId = noteId,
+                position = targetPos,
+                type = BlockType.TEXT,
+                createdAt = now,
+                updatedAt = now,
+                deletedAt = null,
+                serverId = null,
+                version = 0,
+                dirty = true
+            )
+        )
+
+        if (blockId <= 0) return 0L
+
+        noteDao.insertTextDetail(
+            NoteBlockTextEntity(
+                blockId = blockId,
+                text = trimmed
+            )
+        )
+
+        return blockId
+    }
+
+    override suspend fun updateTextBlock(blockId: Long, newText: String) {
+        require(blockId > 0) { "blockId must be > 0" }
+
+        val trimmed = newText.trim()
+
+        val now = System.currentTimeMillis()
+
+        noteDao.updateTextBlock(
+            blockId = blockId,
+            newText = trimmed,
+            updatedAt = now
+        )
+    }
+
+    override suspend fun deleteBlock(blockId: Long) {
+        require(blockId > 0) { "blockId must be > 0" }
+
+        val now = System.currentTimeMillis()
+        noteDao.markBlockDeleted(
+            blockId = blockId,
+            deletedAt = now
+        )
+    }
+
+    override suspend fun moveBlock(
+        noteId: Long,
+        fromPosition: Int,
+        toPosition: Int
+    ) {
+        require(noteId > 0) { "noteId must be > 0" }
+        require(fromPosition >= 0) { "fromPosition must be >= 0" }
+        require(toPosition >= 0) { "toPosition must be >= 0" }
+
+        if (fromPosition == toPosition) return
+
+        noteDao.moveBlock(
+            noteId = noteId,
+            fromPosition = fromPosition,
+            toPosition = toPosition,
+            updatedAt = System.currentTimeMillis()
         )
     }
 }

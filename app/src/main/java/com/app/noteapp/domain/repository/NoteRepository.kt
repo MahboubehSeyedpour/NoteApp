@@ -34,4 +34,23 @@ interface NoteRepository {
         kind: MediaKind,
         localUri: String
     )
+
+    suspend fun insertTextBlock(
+        noteId: Long,
+        position: Int?,
+        text: String
+    ): Long
+
+    suspend fun updateTextBlock(
+        blockId: Long,
+        newText: String
+    )
+
+    suspend fun deleteBlock(blockId: Long)
+
+    suspend fun moveBlock(
+        noteId: Long,
+        fromPosition: Int,
+        toPosition: Int
+    )
 }

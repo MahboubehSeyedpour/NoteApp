@@ -147,7 +147,6 @@ fun HomeScreen(
         CustomAlertDialog(
             type = DialogType.ERROR,
             onDismissRequest = { confirmDeleteId = null },
-            title = stringResource(R.string.delete_note),
             message = stringResource(R.string.delete_note_question),
             onConfirmBtnClick = {
                 confirmDeleteId?.let { id -> viewModel.deleteNote(id) }

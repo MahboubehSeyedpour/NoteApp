@@ -57,4 +57,35 @@ class NoteUseCase @Inject constructor(
             localUri = localUri
         )
     }
+
+    suspend fun addTextBlock(
+        noteId: Long,
+        position: Int? = null,
+        initialText: String = ""
+    ): Long = withContext(io) {
+        noteRepository.insertTextBlock(
+            noteId = noteId,
+            position = position,
+            text = initialText
+        )
+    }
+
+    suspend fun updateTextBlock(
+        blockId: Long,
+        newText: String
+    ) = withContext(io) {
+        noteRepository.updateTextBlock(blockId, newText)
+    }
+
+    suspend fun deleteBlock(blockId: Long) = withContext(io) {
+        noteRepository.deleteBlock(blockId)
+    }
+
+    suspend fun moveBlock(
+        noteId: Long,
+        fromPosition: Int,
+        toPosition: Int
+    ) = withContext(io) {
+        noteRepository.moveBlock(noteId, fromPosition, toPosition)
+    }
 }

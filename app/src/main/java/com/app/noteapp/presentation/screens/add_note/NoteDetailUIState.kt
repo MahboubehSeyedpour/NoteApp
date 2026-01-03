@@ -6,6 +6,7 @@ import com.app.noteapp.presentation.model.TagUiModel
 
 data class NoteDetailUIState(
     val isLoading: Boolean = false,
+    val editMode: Boolean = false,
     val note: NoteUiModel? = null,
     val selectedTag: TagUiModel? = null,
     val reminderAtMillis: Long? = null

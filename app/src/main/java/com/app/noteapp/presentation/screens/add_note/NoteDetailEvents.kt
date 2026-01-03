@@ -11,4 +11,5 @@ sealed interface NoteDetailEvents {
     ) : NoteDetailEvents
     data object OpenReminderPicker : NoteDetailEvents
     data object RequestDeleteConfirm : NoteDetailEvents
+    object RequestImagePermission : NoteDetailEvents
 }

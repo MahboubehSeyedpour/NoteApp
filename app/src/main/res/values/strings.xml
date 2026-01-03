@@ -123,4 +123,9 @@
     <string name="settings_theme_dark">dark</string>
     <string name="lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua Egestas purus viverra accumsan in nisl nisi Arcu cursus vitae congue mauris rhoncus aenean vel elit scelerisque</string>
 
+    <!-- permissions -->
+    <string name="externam_storage_perm">External storage is needed to import photos to note. Please grant this permission.</string>
+    <string name="permission_confirm_btn">Enable %1$</string>
+    <string name="read_external_storage">Read External storage</string>
+
 </resources>

@@ -123,4 +123,9 @@
     <string name="settings_theme_dark">تیره</string>
     <string name="lorem_ipsum">لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است</string>
 
+    <!-- permissions -->
+    <string name="externam_storage_perm">اگر میخواهید به یادداشت هایتان عکس اضافه کنید این مجوز لازم است</string>
+    <string name="permission_confirm_btn">دادن مجوز %1$s</string>
+    <string name="read_external_storage">خواندن از حافظه</string>
+
 </resources>

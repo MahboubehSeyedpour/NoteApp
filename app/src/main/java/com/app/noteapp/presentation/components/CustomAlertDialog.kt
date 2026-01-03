@@ -1,5 +1,6 @@
 package com.app.noteapp.presentation.components
 
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,14 +28,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import coil.size.Scale
 import com.app.noteapp.R
 import com.app.noteapp.presentation.model.DialogType
 
@@ -42,21 +48,24 @@ import com.app.noteapp.presentation.model.DialogType
 fun CustomAlertDialog(
     type: DialogType,
     showTopBar: Boolean,
-    title: String,
     message: String,
+    @DrawableRes image: Int? = null,
     @StringRes confirmBtnText: Int,
     @StringRes dismissBtnText: Int,
     onDismissRequest: () -> Unit,
     onConfirmBtnClick: () -> Unit,
     onDismissButtonClick: () -> Unit,
 ) {
+
+    val context = LocalContext.current
+
     val highlightColor = when (type) {
         DialogType.PERMISSION -> MaterialTheme.colorScheme.primary
         DialogType.WARNING -> MaterialTheme.colorScheme.tertiary
         DialogType.ERROR -> MaterialTheme.colorScheme.error
     }
 
-    when (type) {
+    val title = when (type) {
         DialogType.PERMISSION -> stringResource(R.string.dialog_header_permission)
         DialogType.WARNING -> stringResource(R.string.dialog_header_warning)
         DialogType.ERROR -> stringResource(R.string.dialog_header_error)
@@ -85,6 +94,18 @@ fun CustomAlertDialog(
                         highlightColor = highlightColor,
                         onDismissRequest = onDismissRequest,
                         title = title
+                    )
+                }
+
+                image?.let {
+                    AsyncImage(
+                        model = ImageRequest.Builder(context)
+                            .data(image)
+//                            .crossfade(true)
+                            .scale(Scale.FIT)
+                            .build(),
+                        contentDescription = "",
+                        modifier = Modifier.size(220.dp)
                     )
                 }
 
