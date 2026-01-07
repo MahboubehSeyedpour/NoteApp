@@ -24,8 +24,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.app.noteapp.presentation.navigation.Screens
-import com.app.noteapp.presentation.screens.add_note.NoteDetailScreen
 import com.app.noteapp.presentation.screens.home.HomeScreen
+import com.app.noteapp.presentation.screens.notedetail.NoteDetailScreen
 import com.app.noteapp.presentation.screens.settings.SettingsScreen
 import com.app.noteapp.presentation.theme.NoteAppTheme
 import dagger.hilt.android.AndroidEntryPoint

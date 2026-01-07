@@ -19,7 +19,6 @@ import com.app.noteapp.presentation.model.NoteUiModel
 import com.app.noteapp.presentation.model.SortOrder
 import com.app.noteapp.presentation.model.TagUiModel
 import com.app.noteapp.presentation.model.ToastType
-import com.app.noteapp.presentation.screens.add_note.NoteDetailEvents
 import com.app.noteapp.presentation.screens.settings.SettingsUiState
 import com.app.noteapp.presentation.theme.ReminderTagColor
 import dagger.hilt.android.lifecycle.HiltViewModel

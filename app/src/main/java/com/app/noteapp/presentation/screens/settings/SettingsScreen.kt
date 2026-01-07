@@ -45,9 +45,9 @@ import com.app.noteapp.domain.model.preferences_model.FontPref
 import com.app.noteapp.domain.model.preferences_model.LanguagePref
 import com.app.noteapp.domain.model.preferences_model.TextScalePref
 import com.app.noteapp.domain.model.preferences_model.ThemeModePref
-import com.app.noteapp.presentation.components.AnimatedSelectedItem
-import com.app.noteapp.presentation.components.LabeledRadioButton
-import com.app.noteapp.presentation.components.TextScaleSlider
+import com.app.noteapp.presentation.common.components.AnimatedSelectedItem
+import com.app.noteapp.presentation.common.components.LabeledRadioButton
+import com.app.noteapp.presentation.common.components.TextScaleSlider
 import com.app.noteapp.presentation.model.iconRes
 import com.app.noteapp.presentation.theme.fontFamilyFor
 import kotlinx.coroutines.flow.collectLatest
