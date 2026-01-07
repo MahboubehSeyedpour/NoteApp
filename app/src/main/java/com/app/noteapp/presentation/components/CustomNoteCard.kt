@@ -74,9 +74,9 @@ fun CustomNoteCard(
         )
     ) {
 
-        Column(modifier = Modifier.padding(vertical = dimensionResource(R.dimen.v_space))) {
+        Column(modifier = Modifier.padding(vertical = dimensionResource(R.dimen.v_space_min))) {
 
-            Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+            Spacer(Modifier.height(dimensionResource(R.dimen.v_space_min)))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -92,7 +92,7 @@ fun CustomNoteCard(
                 )
             }
 
-            Spacer(Modifier.height(dimensionResource(R.dimen.v_space)*3))
+            Spacer(Modifier.height(dimensionResource(R.dimen.v_space_min)*3))
 
 
             NotePreviewBlocks(
@@ -100,7 +100,7 @@ fun CustomNoteCard(
                 textStyle = noteBodyStyle
             )
 
-            Spacer(Modifier.height(dimensionResource(R.dimen.v_space)*3))
+            Spacer(Modifier.height(dimensionResource(R.dimen.v_space_min)*3))
 
             FlowRow(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = dimensionResource(R.dimen.icon_size)),
@@ -116,7 +116,7 @@ fun CustomNoteCard(
 //                }
             }
 
-            Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+            Spacer(Modifier.height(dimensionResource(R.dimen.v_space_min)))
         }
     }
 }
@@ -159,7 +159,7 @@ fun NoteTag(tagUiModel: TagUiModel, @DrawableRes icon: Int) {
                         modifier = Modifier.size(dimensionResource(R.dimen.icon_size) / 2)
                     )
 
-                    Spacer(Modifier.width(dimensionResource(R.dimen.h_space)/2))
+                    Spacer(Modifier.width(dimensionResource(R.dimen.h_space_min)/2))
 
                     Text(
                         text = tagUiModel.name,
@@ -247,7 +247,7 @@ private fun NotePreviewBlocks(
 
                 val second = blocks.getOrNull(1)
                 if (second is NoteBlockUiModel.Text) {
-                    Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+                    Spacer(Modifier.height(dimensionResource(R.dimen.v_space_min)))
                     Text(
                         text = second.text,
                         style = textStyle,

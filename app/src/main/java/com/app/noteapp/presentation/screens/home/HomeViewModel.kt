@@ -3,6 +3,7 @@ package com.app.noteapp.presentation.screens.home
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.app.noteapp.R
 import com.app.noteapp.core.enums.LayoutMode
 import com.app.noteapp.core.time.TimeRange
 import com.app.noteapp.core.time.rangeFor
@@ -17,6 +18,8 @@ import com.app.noteapp.presentation.mapper.toUi
 import com.app.noteapp.presentation.model.NoteUiModel
 import com.app.noteapp.presentation.model.SortOrder
 import com.app.noteapp.presentation.model.TagUiModel
+import com.app.noteapp.presentation.model.ToastType
+import com.app.noteapp.presentation.screens.add_note.NoteDetailEvents
 import com.app.noteapp.presentation.screens.settings.SettingsUiState
 import com.app.noteapp.presentation.theme.ReminderTagColor
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -174,12 +177,35 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun deleteNote(id: Long) {
+    fun deleteNote() = viewModelScope.launch (io){
+        _events.emit(HomeEvents.RequestDeleteConfirm)
+    }
+
+    fun confirmDelete(id: Long) {
+        if (id == 0L) {
+            viewModelScope.launch {
+                _events.emit(
+                    HomeEvents.ShowToast(
+                        messageRes = R.string.invalid_note_id,
+                        type = ToastType.ERROR
+                    )
+                )
+            }
+            return
+        }
         viewModelScope.launch(io) {
             runCatching {
-                noteUseCase.deleteById(id)
+                val note = noteUseCase.getNoteById(id).firstOrNull()
+                note?.let {
+                    noteUseCase.deleteById(note.id)
+                }
             }.onFailure {
-                _events.emit(HomeEvents.Error("Failed to delete: ${it.message}"))
+                _events.emit(
+                    HomeEvents.ShowToast(
+                        messageRes = R.string.fail_to_delete_note,
+                        type = ToastType.ERROR
+                    )
+                )
             }
         }
     }

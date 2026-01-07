@@ -25,10 +25,8 @@ import androidx.compose.ui.graphics.Color.Companion.Yellow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.app.noteapp.R
 import com.app.noteapp.presentation.model.TagUiModel
 
@@ -106,7 +104,7 @@ fun TagsList(
 
                     if (editMode && onDeleteClick != null) {
                         Box(
-                            modifier = Modifier.padding(start = dimensionResource(R.dimen.h_space))
+                            modifier = Modifier.padding(start = dimensionResource(R.dimen.h_space_min))
                         ) {
                             Icon(
                                 imageVector = ImageVector.vectorResource(R.drawable.ic_close),

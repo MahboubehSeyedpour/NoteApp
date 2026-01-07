@@ -10,8 +10,12 @@
     <dimen name="dp_14">14.dp</dimen>
 
     <!-- spacer -->
-    <dimen name="h_space">8.dp</dimen>
-    <dimen name="v_space">8.dp</dimen>
+    <dimen name="h_space_min">8.dp</dimen>
+    <dimen name="h_space_mid">16.dp</dimen>
+    <dimen name="h_space_max">24.dp</dimen>
+    <dimen name="v_space_min">8.dp</dimen>
+    <dimen name="v_space_mid">16.dp</dimen>
+    <dimen name="v_space_max">24.dp</dimen>
 
     <!-- main screen -->
     <dimen name="screen_padding">16.dp</dimen>

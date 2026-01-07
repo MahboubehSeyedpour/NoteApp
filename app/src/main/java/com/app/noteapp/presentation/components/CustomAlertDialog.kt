@@ -1,7 +1,5 @@
 package com.app.noteapp.presentation.components
 
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -42,37 +40,30 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.size.Scale
 import com.app.noteapp.R
+import com.app.noteapp.presentation.model.AppDialogSpec
 import com.app.noteapp.presentation.model.DialogType
 
 @Composable
 fun CustomAlertDialog(
-    type: DialogType,
-    showTopBar: Boolean,
-    message: String,
-    @DrawableRes image: Int? = null,
-    @StringRes confirmBtnText: Int,
-    @StringRes dismissBtnText: Int,
-    onDismissRequest: () -> Unit,
-    onConfirmBtnClick: () -> Unit,
-    onDismissButtonClick: () -> Unit,
+    spec: AppDialogSpec
 ) {
 
     val context = LocalContext.current
 
-    val highlightColor = when (type) {
+    val highlightColor = when (spec.type) {
         DialogType.PERMISSION -> MaterialTheme.colorScheme.primary
         DialogType.WARNING -> MaterialTheme.colorScheme.tertiary
         DialogType.ERROR -> MaterialTheme.colorScheme.error
     }
 
-    val title = when (type) {
+    val title = when (spec.type) {
         DialogType.PERMISSION -> stringResource(R.string.dialog_header_permission)
         DialogType.WARNING -> stringResource(R.string.dialog_header_warning)
         DialogType.ERROR -> stringResource(R.string.dialog_header_error)
     }
 
     Dialog(
-        onDismissRequest = onDismissRequest,
+        onDismissRequest = spec.onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Surface(
@@ -89,28 +80,27 @@ fun CustomAlertDialog(
         ) {
             Column(Modifier.fillMaxWidth()) {
 
-                if (showTopBar) {
+                if (spec.showTopBar) {
                     DialogTopBar(
                         highlightColor = highlightColor,
-                        onDismissRequest = onDismissRequest,
+                        onDismissRequest = spec.onDismiss,
                         title = title
                     )
                 }
 
-                image?.let {
+                spec.imageRes?.let { image ->
                     AsyncImage(
                         model = ImageRequest.Builder(context)
                             .data(image)
-//                            .crossfade(true)
                             .scale(Scale.FIT)
                             .build(),
-                        contentDescription = "",
+                        contentDescription = null,
                         modifier = Modifier.size(220.dp)
                     )
                 }
 
                 Text(
-                    text = message,
+                    text = stringResource(spec.messageRes),
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -124,18 +114,21 @@ fun CustomAlertDialog(
                     horizontalArrangement = Arrangement.End,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    TextButton(onClick = onDismissButtonClick) {
+
+                    TextButton(onClick = spec.onDismiss) {
                         Text(
-                            stringResource(dismissBtnText),
+                            stringResource(spec.dismissTextRes),
                             color = MaterialTheme.colorScheme.onSurface
                         )
                     }
-                    Spacer(Modifier.width(dimensionResource(R.dimen.h_space)))
+
+                    Spacer(Modifier.width(dimensionResource(R.dimen.h_space_min)))
+
                     Button(
-                        onClick = onConfirmBtnClick,
+                        onClick = spec.onConfirm,
                         colors = ButtonDefaults.buttonColors(containerColor = highlightColor)
                     ) {
-                        Text(stringResource(confirmBtnText))
+                        Text(stringResource(spec.confirmTextRes))
                     }
                 }
             }

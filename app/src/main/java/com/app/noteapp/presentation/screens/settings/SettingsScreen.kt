@@ -177,13 +177,13 @@ fun AvatarRow(selected: AvatarPref, onAvatarSelected: (AvatarPref) -> Unit) {
             defaultElevation = dimensionResource(R.dimen.card_elevation)
         )
     ) {
-        Column(modifier = Modifier.padding(vertical = dimensionResource(R.dimen.v_space))) {
+        Column(modifier = Modifier.padding(vertical = dimensionResource(R.dimen.v_space_min))) {
 
-            Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+            Spacer(Modifier.height(dimensionResource(R.dimen.v_space_min)))
 
             AvatarPickerSection(selected = selected, onSelect = { type -> onAvatarSelected(type) })
 
-            Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+            Spacer(Modifier.height(dimensionResource(R.dimen.v_space_min)))
         }
     }
 }
@@ -269,7 +269,7 @@ private fun FontRow(
                         )
                     })
 
-                Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+                Spacer(Modifier.height(dimensionResource(R.dimen.v_space_min)))
 
                 Text(
                     text = stringResource(id = font.labelResId),
@@ -312,8 +312,8 @@ fun AvatarPickerSection(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                horizontal = dimensionResource(R.dimen.h_space),
-                vertical = dimensionResource(R.dimen.v_space)
+                horizontal = dimensionResource(R.dimen.h_space_min),
+                vertical = dimensionResource(R.dimen.v_space_min)
             )
     ) {
 
@@ -353,7 +353,7 @@ fun AvatarPickerSection(
             )
         }
 
-        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space_min)))
 
         Row(
             modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween

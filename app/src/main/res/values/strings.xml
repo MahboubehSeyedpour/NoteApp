@@ -85,6 +85,7 @@
     <string name="delete_all_filters">Delete all filters</string>
     <string name="empty_note_error">Note must have title and description!</string>
     <string name="fail_to_save_note">Failed to save note: %1$</string>
+    <string name="fail_to_delete_note">Failed to delete note</string>
     <string name="invalid_note_id">Invalid note id</string>
     <string name="tag_is_reserved">Tag name "All" is reserved</string>
 
@@ -127,5 +128,7 @@
     <string name="externam_storage_perm">External storage is needed to import photos to note. Please grant this permission.</string>
     <string name="permission_confirm_btn">Enable %1$</string>
     <string name="read_external_storage">Read External storage</string>
+    <string name="go_to_settings">Go to Settings</string>
+    <string name="permission_denied">You have not granted this access to the app. According to Android rules, you must go to the app settings page and allow access from the app permissions section.</string>
 
 </resources>

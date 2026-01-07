@@ -39,7 +39,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -53,9 +52,12 @@ import com.app.noteapp.presentation.components.CustomAlertDialog
 import com.app.noteapp.presentation.components.CustomFab
 import com.app.noteapp.presentation.components.CustomNoteCard
 import com.app.noteapp.presentation.components.NotesFilterSheet
+import com.app.noteapp.presentation.components.ToastHost
 import com.app.noteapp.presentation.components.TopBar
+import com.app.noteapp.presentation.model.AppDialogSpec
 import com.app.noteapp.presentation.model.DialogType
 import com.app.noteapp.presentation.model.NoteUiModel
+import com.app.noteapp.presentation.model.ToastUI
 import com.app.noteapp.presentation.model.iconRes
 import com.app.noteapp.presentation.navigation.Screens
 import kotlinx.coroutines.flow.collectLatest
@@ -63,10 +65,7 @@ import kotlinx.coroutines.flow.collectLatest
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    navController: NavController,
-//    currentFont: AppFont,
-//    onFontSelected: (AppFont) -> Unit,
-    viewModel: HomeViewModel = hiltViewModel()
+    navController: NavController, viewModel: HomeViewModel = hiltViewModel()
 ) {
 
     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -77,12 +76,15 @@ fun HomeScreen(
     remember(uiState.notes) { uiState.notes.filterNot { it.pinned } }
 
     var confirmDeleteId by remember { mutableStateOf<Long?>(null) }
-    val drawerState = rememberDrawerState(DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
+    rememberDrawerState(DrawerValue.Closed)
+    rememberCoroutineScope()
 
     val gridState = rememberLazyStaggeredGridState()
     val locale = LocalConfiguration.current.locales[0]
     var showFilterSheet by rememberSaveable { mutableStateOf(false) }
+
+    var activeDialog by remember { mutableStateOf<AppDialogSpec?>(null) }
+    var toastMessage by remember { mutableStateOf<ToastUI?>(null) }
 
 
     // ---------------------- Events ----------------------
@@ -99,21 +101,48 @@ fun HomeScreen(
                     is HomeEvents.Error -> Toast.makeText(
                         context, event.message, Toast.LENGTH_SHORT
                     ).show()
+
+                    is HomeEvents.RequestDeleteConfirm -> {
+                        activeDialog = AppDialogSpec(
+                            type = DialogType.ERROR,
+                            messageRes = R.string.delete_note_question,
+                            confirmTextRes = R.string.delete,
+                            dismissTextRes = R.string.dialog_dismiss_btn,
+                            onConfirm = {
+                                viewModel.confirmDelete(confirmDeleteId ?: 0)
+                                activeDialog = null
+                            },
+                            onDismiss = {
+                                activeDialog = null
+                            })
+                    }
+
+                    is HomeEvents.ShowToast -> {
+                        toastMessage = ToastUI(
+                            message = event.messageRes, type = event.type
+                        )
+                    }
                 }
             }
         }
     }
 
+    activeDialog?.let { dialog ->
+        CustomAlertDialog(spec = dialog)
+    }
 
-    // ---------------------- Locale ----------------------
-//    LaunchedEffect(uiState.language) {
-//        val locales = when (uiState.language) {
-//            Language.FA -> LocaleListCompat.forLanguageTags("fa")
-//            Language.EN -> LocaleListCompat.forLanguageTags("en")
-//        }
-//        AppCompatDelegate.setApplicationLocales(locales)
-//    }
-
+    toastMessage?.let { t ->
+        ToastHost(
+            toast = ToastUI(
+                message = t.message, type = t.type
+            ), onDismiss = { toastMessage = null }, modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = dimensionResource(R.dimen.toast_content_h_padding),
+                    vertical = dimensionResource(R.dimen.list_items_v_padding)
+                )
+        )
+    }
 
     // ---------------------- Filter sheet ----------------------
     if (showFilterSheet) {
@@ -141,140 +170,38 @@ fun HomeScreen(
                 })
         }
     }
-
-    // ---------------------- Confirm delete dialog ----------------------
-    if (confirmDeleteId != null) {
-        CustomAlertDialog(
-            type = DialogType.ERROR,
-            onDismissRequest = { confirmDeleteId = null },
-            message = stringResource(R.string.delete_note_question),
-            onConfirmBtnClick = {
-                confirmDeleteId?.let { id -> viewModel.deleteNote(id) }
-                confirmDeleteId = null
-            },
-            confirmBtnText = R.string.dialog_delete_confirm_btn,
-            onDismissButtonClick = { confirmDeleteId = null },
-            dismissBtnText = R.string.dialog_dismiss_btn,
-            showTopBar = true
-        )
+    Scaffold(
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.background)
+            .fillMaxSize()
+            .padding(dimensionResource(R.dimen.screen_padding)),
+        containerColor = MaterialTheme.colorScheme.background,
+        topBar = {
+            TopBar(
+                notesSize = uiState.notes.size,
+                locale = locale,
+                avatar = painterResource(uiState.avatar.iconRes()),
+                onAvatarClick = { viewModel.onAvatarClicked() },
+                query = uiState.searchQuery,
+                onSearchChange = viewModel::changeSearchQuery,
+                onGridToggleClicked = viewModel::toggleList,
+                layoutMode = uiState.layoutMode,
+                onFilterClick = { showFilterSheet = true },
+                onSortClick = { viewModel.onSortByDateClicked() },
+                isFilterActive = uiState.isFilterActive
+            )
+        },
+        floatingActionButton = { CustomFab({ viewModel.addNote() }) },
+        floatingActionButtonPosition = FabPosition.End
+    ) { inner ->
+        NotesContent(
+            uiState = uiState,
+            inner = inner,
+            gridState = gridState,
+            onNoteClicked = { noteId -> viewModel.navigateToNoteDetails(noteId) },
+            onNotePinned = { noteId -> viewModel.pinNote(noteId) },
+            onConfirmDelete = { noteId -> confirmDeleteId = noteId })
     }
-
-
-    // ---------------------- Import launcher ----------------------
-//    val importLauncher = rememberLauncherForActivityResult(
-//        ActivityResultContracts.OpenDocument()
-//    ) { uri ->
-//        if (uri == null) return@rememberLauncherForActivityResult
-//
-//        scope.launch {
-//            runCatching {
-//                val bytes = context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
-//                    ?: error("Failed to open input stream")
-//
-//                viewModel.importBackup(bytes).collect { result ->
-//                    result.onSuccess { res ->
-//                        viewModel.clearFilters()
-//                        viewModel.changeSearchQuery("")
-//                        Toast.makeText(
-//                            context,
-//                            "Imported: ${res.notesImported} notes, ${res.tagsImported} tags",
-//                            Toast.LENGTH_SHORT
-//                        ).show()
-//                    }.onFailure { e ->
-//                        Toast.makeText(context, "Import failed: ${e.message}", Toast.LENGTH_SHORT)
-//                            .show()
-//                    }
-//                }
-//            }.onFailure { e ->
-//                Toast.makeText(context, "Import failed: ${e.message}", Toast.LENGTH_SHORT).show()
-//            }
-//        }
-//    }
-
-    // ---------------------- Export launcher ----------------------
-//    val exportLauncher = rememberLauncherForActivityResult(
-//        ActivityResultContracts.CreateDocument("application/json")
-//    ) { uri ->
-//        if (uri == null) return@rememberLauncherForActivityResult
-//
-//        scope.launch {
-//            runCatching {
-//                val bytes = viewModel.exportNotesBytes()
-//                context.contentResolver.openOutputStream(uri, "w")?.use { out ->
-//                    out.write(bytes)
-//                    out.flush()
-//                } ?: error("Failed to open output stream")
-//            }.onFailure { e ->
-//                Toast.makeText(context, "Export failed: ${e.message}", Toast.LENGTH_SHORT).show()
-//            }.onSuccess {
-//                Toast.makeText(context, "Exported", Toast.LENGTH_SHORT).show()
-//            }
-//        }
-//    }
-
-
-//    ModalNavigationDrawer(
-//        drawerState = drawerState,
-//        drawerContent = {
-//            DrawerContent(
-//                currentAvatar = uiState.avatar,
-//                onAvatarSelected = { type ->
-//                    viewModel.changeAvatar(type)
-//                    scope.launch { drawerState.close() }
-//                },
-//                currentLanguage = uiState.language, onLanguageSelected = { newLang ->
-//                    viewModel.changeLanguage(newLang)
-//                    scope.launch { drawerState.close() }
-//                },
-////              currentFont = currentFont,
-////              onFontSelected = onFontSelected,
-//              onExportClicked = {
-////                exportLauncher.launch("noteapp-backup-${System.currentTimeMillis()}.json")
-//                scope.launch { drawerState.close() }
-//            },
-//                onImportClicked = {
-////                  importLauncher.launch(arrayOf("application/json"))
-//                    scope.launch { drawerState.close() }
-//                }
-//            )
-//        }
-//    ) {
-        Scaffold(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.background)
-                .fillMaxSize()
-                .padding(dimensionResource(R.dimen.screen_padding)),
-            containerColor = MaterialTheme.colorScheme.background,
-            topBar = {
-                TopBar(
-                    notesSize = uiState.notes.size,
-                    locale = locale,
-                    avatar = painterResource(uiState.avatar.iconRes()),
-                    onAvatarClick = {
-                        viewModel.onAvatarClicked()
-//                        scope.launch { drawerState.open() }
-                                    },
-                    query = uiState.searchQuery,
-                    onSearchChange = viewModel::changeSearchQuery,
-                    onGridToggleClicked = viewModel::toggleList,
-                    layoutMode = uiState.layoutMode,
-                    onFilterClick = { showFilterSheet = true },
-                    onSortClick = { viewModel.onSortByDateClicked() },
-                    isFilterActive = uiState.isFilterActive
-                )
-            },
-            floatingActionButton = { CustomFab({ viewModel.addNote() }) },
-            floatingActionButtonPosition = FabPosition.End
-        ) { inner ->
-            NotesContent(
-                uiState = uiState,
-                inner = inner,
-                gridState = gridState,
-                onNoteClicked = { noteId -> viewModel.navigateToNoteDetails(noteId) },
-                onNotePinned = { noteId -> viewModel.pinNote(noteId) },
-                onConfirmDelete = { noteId -> confirmDeleteId = noteId })
-        }
-//    }
 }
 
 @Composable
@@ -305,10 +232,10 @@ private fun PinnedHeader(
         )
 
         if (hasOthers) {
-            Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+            Spacer(Modifier.height(dimensionResource(R.dimen.v_space_min)))
 
             HorizontalDivider(
-                modifier = Modifier.padding(top = dimensionResource(R.dimen.v_space)),
+                modifier = Modifier.padding(top = dimensionResource(R.dimen.v_space_min)),
                 color = MaterialTheme.colorScheme.primary
             )
         }

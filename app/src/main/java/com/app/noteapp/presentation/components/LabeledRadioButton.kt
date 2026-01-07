@@ -31,7 +31,7 @@ fun LabeledRadioButton( modifier: Modifier, label: String, checked: Boolean, onC
                 selected = checked, onClick = onChecked
             )
         }
-        Spacer(Modifier.width(dimensionResource(R.dimen.h_space)))
+        Spacer(Modifier.width(dimensionResource(R.dimen.h_space_min)))
         Text(text = label, style = MaterialTheme.typography.bodyMedium)
     }
 }

@@ -85,6 +85,7 @@
     <string name="delete_all_filters">پاک کردن همه فیلترها</string>
     <string name="empty_note_error">نوشتن عنوان و متن الزامی است!</string>
     <string name="fail_to_save_note">خطا در ذخیره یادداشت: %1$</string>
+    <string name="fail_to_delete_note">خطا در حذف یادداشت</string>
     <string name="invalid_note_id">شناسه نامعتبر</string>
     <string name="tag_is_reserved">تگ "همه" رزرو شده است</string>
 
@@ -127,5 +128,7 @@
     <string name="externam_storage_perm">اگر میخواهید به یادداشت هایتان عکس اضافه کنید این مجوز لازم است</string>
     <string name="permission_confirm_btn">دادن مجوز %1$s</string>
     <string name="read_external_storage">خواندن از حافظه</string>
+    <string name="go_to_settings">برو به تنظیمات</string>
+    <string name="permission_denied">شما مجوز این دسترسی را به برنامه نداده اید. مطابق قوانین اندروید لازم است در به صفحه تنظیمات برنامه بروید و از قسمت مجوزهای برنامه اجازه دسترسی بدهید</string>
 
 </resources>

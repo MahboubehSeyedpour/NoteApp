@@ -77,7 +77,7 @@ fun TopBar(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Avatar(avatar, onAvatarClick)
-                Spacer(Modifier.width(dimensionResource(R.dimen.h_space)))
+                Spacer(Modifier.width(dimensionResource(R.dimen.h_space_min)))
                 Text(
                     text = notesSize.toLocalizedDigits(locale).plus(" ")
                         .plus(stringResource(R.string.notes)),
@@ -88,7 +88,7 @@ fun TopBar(
             Text(text = stringResource(R.string.app_name))
         }
 
-        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space_min)))
 
         Row(
             modifier = Modifier

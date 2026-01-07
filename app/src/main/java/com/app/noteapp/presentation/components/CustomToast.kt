@@ -61,7 +61,7 @@ fun CustomToast(
                 modifier = Modifier.size(dimensionResource(R.dimen.toast_icon_size))
             )
 
-            Spacer(Modifier.width(dimensionResource(R.dimen.h_space)))
+            Spacer(Modifier.width(dimensionResource(R.dimen.h_space_min)))
 
             Text(
                 text = message,

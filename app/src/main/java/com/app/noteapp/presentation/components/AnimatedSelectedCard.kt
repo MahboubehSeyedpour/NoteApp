@@ -73,7 +73,7 @@ fun <T> AnimatedSelectedItem(
             .clip(shape)
             .border(borderWidth, borderColor, shape)
             .clickable { onSelect(value) }
-            .padding(dimensionResource(R.dimen.v_space)),
+            .padding(dimensionResource(R.dimen.v_space_min)),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         content(selected)
