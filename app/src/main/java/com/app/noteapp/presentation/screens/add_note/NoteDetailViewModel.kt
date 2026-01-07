@@ -220,8 +220,8 @@ class NoteDetailViewModel @Inject constructor(
         }
     }
 
-    fun deleteNote() {
-        viewModelScope.launch { _events.emit(NoteDetailEvents.RequestDeleteConfirm) }
+    fun deleteNote() = viewModelScope.launch (io){
+        _events.emit(NoteDetailEvents.RequestDeleteConfirm)
     }
 
     fun confirmDelete() {
@@ -248,7 +248,7 @@ class NoteDetailViewModel @Inject constructor(
             }.onFailure {
                 _events.emit(
                     NoteDetailEvents.ShowToast(
-                        messageRes = R.string.fail_to_save_note,
+                        messageRes = R.string.fail_to_delete_note,
                         type = ToastType.ERROR
                     )
                 )
@@ -272,7 +272,7 @@ class NoteDetailViewModel @Inject constructor(
         // TODO
     }
 
-    fun onImagePicked(uri: Uri) {
+    fun onImagePicked(uri: Uri?) {
         val currentNote = _uiState.value.note ?: return
         if (currentNote.id <= 0L) {
             return

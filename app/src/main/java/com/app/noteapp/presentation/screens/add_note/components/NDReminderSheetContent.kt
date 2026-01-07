@@ -38,7 +38,7 @@ fun NDReminderSheetContent(
     ) {
         Text(stringResource(R.string.add_reminder), style = MaterialTheme.typography.titleMedium)
 
-        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space_min)))
 
         // Pick date & time
         ListItem(
@@ -74,6 +74,6 @@ fun NDReminderSheetContent(
             )
         }
 
-        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space_min)))
     }
 }

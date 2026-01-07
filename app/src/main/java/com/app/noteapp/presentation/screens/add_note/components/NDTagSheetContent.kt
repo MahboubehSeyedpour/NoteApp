@@ -68,13 +68,13 @@ fun TagSheetContent(
     ) {
         Text(stringResource(R.string.tags), style = MaterialTheme.typography.titleMedium)
 
-        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space_min)))
 
         TagsList(
             labels = tags, onLabelClick = onSelect, trailingIcon = null
         )
 
-        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space_min)))
 
         OutlinedTextField(
             value = newName,
@@ -86,7 +86,7 @@ fun TagSheetContent(
                 .border(dimensionResource(R.dimen.dp_1), MaterialTheme.colorScheme.primary),
         )
 
-        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space_min)))
 
         Row(
             horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_items_h_padding)),
@@ -114,7 +114,7 @@ fun TagSheetContent(
             }
         }
 
-        Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space_min)))
 
 //        NoteAppButton(
 //            modifier = Modifier.fillMaxWidth(),

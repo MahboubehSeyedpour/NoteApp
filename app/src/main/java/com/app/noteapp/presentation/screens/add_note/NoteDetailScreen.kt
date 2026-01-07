@@ -1,9 +1,7 @@
 package com.app.noteapp.presentation.screens.add_note
 
 import android.Manifest
-import android.content.Intent
 import android.net.Uri
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -22,20 +20,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -63,6 +57,7 @@ import com.app.noteapp.presentation.components.CircularIconButton
 import com.app.noteapp.presentation.components.CustomAlertDialog
 import com.app.noteapp.presentation.components.ToastHost
 import com.app.noteapp.presentation.components.showDateTimePicker
+import com.app.noteapp.presentation.model.AppDialogSpec
 import com.app.noteapp.presentation.model.DialogType
 import com.app.noteapp.presentation.model.NoteBlockUiModel
 import com.app.noteapp.presentation.model.ToastUI
@@ -70,11 +65,9 @@ import com.app.noteapp.presentation.screens.add_note.components.NDExpandableIcon
 import com.app.noteapp.presentation.screens.add_note.components.NDMediaBlockItem
 import com.app.noteapp.presentation.screens.add_note.components.NDTextBlockItem
 import com.app.noteapp.presentation.screens.add_note.components.NDTopBar
-import com.app.noteapp.presentation.screens.add_note.components.TagSheetContent
 import com.app.noteapp.presentation.screens.permission_manager.openAppSettingsInDevice
 import com.app.noteapp.presentation.screens.permission_manager.rememberPermissionLauncher
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,15 +77,15 @@ fun NoteDetailScreen(
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
-    var showReminderSheet by remember { mutableStateOf(false) }
-    var showTagSheet by remember { mutableStateOf(false) }
-    val reminderSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val tagSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+//    var showReminderSheet by remember { mutableStateOf(false) }
+//    var showTagSheet by remember { mutableStateOf(false) }
+//    val reminderSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+//    val tagSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val context = LocalContext.current
-    var showDeleteDialog by remember { mutableStateOf(false) }
-    var permissionError by remember { mutableStateOf<Int?>(null) }
-    var toast by remember { mutableStateOf<ToastUI?>(null) }
+//    var permissionError by remember { mutableStateOf<Int?>(null) }
+    var toastMessage by remember { mutableStateOf<ToastUI?>(null) }
+    var activeDialog by remember { mutableStateOf<AppDialogSpec?>(null) }
 
     // -------------------------------- photo picker --------------------------------
     val result = remember { mutableStateOf<Uri?>(null) }
@@ -100,85 +93,159 @@ fun NoteDetailScreen(
         result.value = it
     }
 
-    val requestPermission = rememberPermissionLauncher(onGranted = {
-        // open photo picker
-        launcher.launch(
-            PickVisualMediaRequest(mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly)
-        )
-    }, onDenied = {
-        // open app setting
-        openAppSettingsInDevice(context)
-    })
-
+    val requestPermission = rememberPermissionLauncher(
+        onGranted = { launcher.launch(PickVisualMediaRequest(mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly)) },
+        onDenied = {
+//            permissionError = R.string.permission_denied
+                        }
+    )
     // --------------------------------------------------------------------------------
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(viewModel.events) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.events.collectLatest { e ->
-                when (e) {
-                    is NoteDetailEvents.NavigateToHomeScreen -> navController.popBackStack()
+            viewModel.events.collectLatest { event ->
+                when (event) {
+
+                    is NoteDetailEvents.NavigateToHomeScreen -> {
+                        navController.popBackStack()
+                    }
+
                     is NoteDetailEvents.ShowToast -> {
-                        toast = ToastUI(
-                            message = e.messageRes, type = e.type
+                        toastMessage = ToastUI(
+                            message = event.messageRes,
+                            type = event.type
                         )
                     }
 
-                    NoteDetailEvents.OpenReminderPicker -> showDateTimePicker(context) { dateMillis, hour, minute ->
-                        viewModel.setReminder(dateMillis, hour, minute)
+                    NoteDetailEvents.OpenReminderPicker -> {
+                        showDateTimePicker(context) { dateMillis, hour, minute ->
+                            viewModel.setReminder(dateMillis, hour, minute)
+                        }
                     }
 
-                    NoteDetailEvents.RequestDeleteConfirm -> showDeleteDialog = true
-                    NoteDetailEvents.RequestImagePermission -> {}
+                    NoteDetailEvents.RequestDeleteConfirm -> {
+                        activeDialog = AppDialogSpec(
+                            type = DialogType.ERROR,
+                            messageRes = R.string.delete_note_question,
+                            confirmTextRes = R.string.delete,
+                            dismissTextRes = R.string.dialog_dismiss_btn,
+                            onConfirm = {
+                                viewModel.confirmDelete()
+                                activeDialog = null
+                            },
+                            onDismiss = {
+                                activeDialog = null
+                            }
+                        )
+                    }
+
+                    NoteDetailEvents.RequestImagePermission -> {
+                        activeDialog = AppDialogSpec(
+                            type = DialogType.PERMISSION,
+                            messageRes = R.string.permission_required_message,
+                            confirmTextRes = R.string.go_to_settings,
+                            dismissTextRes = R.string.no,
+                            onConfirm = {
+                                openAppSettingsInDevice(context)
+                                activeDialog = null
+                            },
+                            onDismiss = {
+                                activeDialog = null
+                            }
+                        )
+                    }
                 }
             }
         }
     }
 
-    // Back/gesture handling: close sheet first, else delegate to VM
-    BackHandler(enabled = true) {
-        scope.launch {
-            when {
-                showReminderSheet -> {
-                    reminderSheetState.hide()
-                    showReminderSheet = false
-                }
 
-                showTagSheet -> {
-                    tagSheetState.hide()
-                    showTagSheet = false
-                }
+//    // Back/gesture handling: close sheet first, else delegate to VM
+//    BackHandler(enabled = true) {
+//        scope.launch {
+//            when {
+//                showReminderSheet -> {
+//                    reminderSheetState.hide()
+//                    showReminderSheet = false
+//                }
+//
+//                showTagSheet -> {
+//                    tagSheetState.hide()
+//                    showTagSheet = false
+//                }
+//
+//                else -> viewModel.backClicked()
+//            }
+//        }
+//    }
 
-                else -> viewModel.backClicked()
-            }
-        }
+    PickImageLauncher(context, onImagePicked = {uri -> viewModel.onImagePicked(uri) })
+
+    activeDialog?.let { dialog ->
+        CustomAlertDialog(spec = dialog)
     }
 
-    rememberLauncherForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        val uri = result.data?.data
-        if (uri != null) {
-            val contentResolver = context.contentResolver
-            val flags =
-                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-            contentResolver.takePersistableUriPermission(uri, flags)
-            viewModel.onImagePicked(uri)
-        }
-    }
-
-
-    if (permissionError != null) {
-        CustomAlertDialog(
-            type = DialogType.ERROR,
-            onDismissRequest = { permissionError = null },
-            message = stringResource(permissionError!!),
-            onConfirmBtnClick = { permissionError = null },
-            confirmBtnText = R.string.ok,
-            dismissBtnText = R.string.no,
-            onDismissButtonClick = {},
-            showTopBar = true
+    toastMessage?.let { t->
+        ToastHost(
+            toast = ToastUI(
+                message = t.message, type = t.type
+            ), onDismiss = { toastMessage = null }, modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = dimensionResource(R.dimen.toast_content_h_padding),
+                    vertical = dimensionResource(R.dimen.list_items_v_padding)
+                )
         )
     }
+
+//    if (permissionError != null) {
+//        CustomAlertDialog(
+//            type = DialogType.ERROR,
+//            onDismissRequest = { permissionError = null },
+//            message = stringResource(permissionError!!),
+//            onConfirmBtnClick = {
+//                permissionError = null
+//                openAppSettingsInDevice(context)
+//            },
+//            confirmBtnText = R.string.go_to_settings,
+//            dismissBtnText = R.string.no,
+//            onDismissButtonClick = {},
+//            showTopBar = true
+//        )
+//    }
+
+//    if (showTagSheet) {
+//        ModalBottomSheet(
+//            onDismissRequest = { showTagSheet = false },
+//            sheetState = tagSheetState,
+//            dragHandle = { BottomSheetDefaults.DragHandle() },
+//            containerColor = MaterialTheme.colorScheme.background
+//        ) {
+//            TagSheetContent(tags = viewModel.tags.collectAsState().value, onSelect = { tag ->
+//                viewModel.setTag(tag)
+//                showTagSheet = false
+//            }, onAdd = { name, color ->
+//                viewModel.addTag(name, color)
+//                showTagSheet = false
+//            })
+//        }
+//    }
+
+//    if (showDeleteDialog) {
+//        CustomAlertDialog(
+//            type = DialogType.ERROR,
+//            onDismissRequest = { showDeleteDialog = false },
+//            message = stringResource(R.string.delete_note_question),
+//            onConfirmBtnClick = {
+//                showDeleteDialog = false
+//                viewModel.confirmDelete()
+//            },
+//            confirmBtnText = R.string.delete,
+//            onDismissButtonClick = { showDeleteDialog = false },
+//            dismissBtnText = R.string.dialog_dismiss_btn,
+//            showTopBar = true
+//        )
+//    }
 
     Box(
         modifier = Modifier
@@ -186,7 +253,6 @@ fun NoteDetailScreen(
             .background(Yellow),
         contentAlignment = Alignment.BottomCenter
     ) {
-
         Scaffold(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background)
@@ -198,7 +264,7 @@ fun NoteDetailScreen(
                     editMode = uiState.editMode,
                     onChangeEditMode = { newState -> viewModel.changeEditMode(newState) },
                     saveNote = { viewModel.saveNote({}) })
-                Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+                Spacer(Modifier.height(dimensionResource(R.dimen.v_space_min)))
 //                Column {
 //                    NoteDetailScreenTopBar(
 //                        onBack = { viewModel.backClicked() },
@@ -292,15 +358,17 @@ fun NoteDetailScreen(
             ) {
 
                 Column(verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxSize()) {
-                    CreationDateSection(uiState.note?.createdAt ?: System.currentTimeMillis())
+                    Text(
+                        stringResource(R.string.created_at).plus(" ").plus(stringResource(R.string.colon)).plus(
+                            formatUnixMillis(uiState.note?.createdAt ?: System.currentTimeMillis())
+                        ), style = MaterialTheme.typography.labelLarge
+                    )
 
-                    Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+                    Spacer(Modifier.height(dimensionResource(R.dimen.v_space_min)))
 
 //                    TagsSection(tag = uiState.note?.tag, reminderTag = uiState.note?.reminderTag)
 
-                    Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
-                    Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
-                    Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+                    Spacer(Modifier.height(dimensionResource(R.dimen.v_space_max)))
 
                     TitleSection(
                         title = uiState.note?.title.orEmpty(),
@@ -309,8 +377,7 @@ fun NoteDetailScreen(
                         editMode = uiState.editMode
                     )
 
-                    Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
-                    Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+                    Spacer(Modifier.height(dimensionResource(R.dimen.v_space_mid)))
 
                     BodySection(
                         blocks = uiState.note?.blocks ?: emptyList(),
@@ -361,7 +428,7 @@ fun NoteDetailScreen(
                     }
                 }
 
-                if (uiState.editMode) EditSection()
+                if (uiState.editMode) EditToolsSection()
             }
 
 
@@ -392,88 +459,42 @@ fun NoteDetailScreen(
 //                }
 //            }
         }
-
-        toast?.let { t ->
-            ToastHost(
-                toast = ToastUI(
-                    message = t.message, type = t.type
-                ), onDismiss = { toast = null }, modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = dimensionResource(R.dimen.toast_content_h_padding),
-                        vertical = dimensionResource(R.dimen.list_items_v_padding)
-                    )
-            )
-        }
     }
 
-    if (showReminderSheet) {
-        ModalBottomSheet(
-            onDismissRequest = { showReminderSheet = false },
-            sheetState = reminderSheetState,
-            dragHandle = { BottomSheetDefaults.DragHandle() },
-            containerColor = MaterialTheme.colorScheme.background
-        ) {
-//            ReminderSheetContent(
-//                reminderText = uiState.note?.reminderTag?.name,
-//                onClearReminder = { viewModel.clearReminder() },
-//                onPickDateTime = {
-//                    scope.launch {
-//                        val ok = ensureReminderPermissions(requester)
-//                        if (!ok) {
-//                            permissionError = R.string.permission_required_message
-//                            return@launch
-//                        }
-//                        showReminderSheet = false
-//                        viewModel.openReminderPicker()
-//                    }
-//                })
-        }
-    }
-
-    if (showTagSheet) {
-        ModalBottomSheet(
-            onDismissRequest = { showTagSheet = false },
-            sheetState = tagSheetState,
-            dragHandle = { BottomSheetDefaults.DragHandle() },
-            containerColor = MaterialTheme.colorScheme.background
-        ) {
-            TagSheetContent(tags = viewModel.tags.collectAsState().value, onSelect = { tag ->
-                viewModel.setTag(tag)
-                showTagSheet = false
-            }, onAdd = { name, color ->
-                viewModel.addTag(name, color)
-                showTagSheet = false
-            })
-        }
-    }
-
-    if (showDeleteDialog) {
-        CustomAlertDialog(
-            type = DialogType.ERROR,
-            onDismissRequest = { showDeleteDialog = false },
-            message = stringResource(R.string.delete_note_question),
-            onConfirmBtnClick = {
-                showDeleteDialog = false
-                viewModel.confirmDelete()
-            },
-            confirmBtnText = R.string.delete,
-            onDismissButtonClick = { showDeleteDialog = false },
-            dismissBtnText = R.string.dialog_dismiss_btn,
-            showTopBar = true
-        )
-    }
+//    if (showReminderSheet) {
+//        ModalBottomSheet(
+//            onDismissRequest = { showReminderSheet = false },
+//            sheetState = reminderSheetState,
+//            dragHandle = { BottomSheetDefaults.DragHandle() },
+//            containerColor = MaterialTheme.colorScheme.background
+//        ) {
+////            ReminderSheetContent(
+////                reminderText = uiState.note?.reminderTag?.name,
+////                onClearReminder = { viewModel.clearReminder() },
+////                onPickDateTime = {
+////                    scope.launch {
+////                        val ok = ensureReminderPermissions(requester)
+////                        if (!ok) {
+////                            permissionError = R.string.permission_required_message
+////                            return@launch
+////                        }
+////                        showReminderSheet = false
+////                        viewModel.openReminderPicker()
+////                    }
+////                })
+//        }
+//    }
 }
 
 @Composable
-fun EditSection() {
+private fun EditToolsSection() {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
             .height(dimensionResource(R.dimen.btm_bar_height) / 2)
             .padding(
-                vertical = dimensionResource(R.dimen.v_space),
-                horizontal = dimensionResource(R.dimen.h_space)
+                vertical = dimensionResource(R.dimen.v_space_min),
+                horizontal = dimensionResource(R.dimen.h_space_min)
             ),
         shape = CircleShape,
         color = MaterialTheme.colorScheme.primary.copy(alpha = .2f),
@@ -483,7 +504,7 @@ fun EditSection() {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .padding(horizontal = dimensionResource(R.dimen.h_space) * 2)
+                .padding(horizontal = dimensionResource(R.dimen.h_space_min) * 2)
                 .horizontalScroll(rememberScrollState())
         ) {
 
@@ -497,7 +518,7 @@ fun EditSection() {
                 },
             )
 
-            Spacer(Modifier.width(dimensionResource(R.dimen.h_space)))
+            Spacer(Modifier.width(dimensionResource(R.dimen.h_space_min)))
 
 
             CircularIconButton(
@@ -510,7 +531,7 @@ fun EditSection() {
                 },
             )
 
-            Spacer(Modifier.width(dimensionResource(R.dimen.h_space)))
+            Spacer(Modifier.width(dimensionResource(R.dimen.h_space_min)))
 
             CircularIconButton(
                 onClick = {},
@@ -522,7 +543,7 @@ fun EditSection() {
                 },
             )
 
-            Spacer(Modifier.width(dimensionResource(R.dimen.h_space)))
+            Spacer(Modifier.width(dimensionResource(R.dimen.h_space_min)))
 
             CircularIconButton(
                 onClick = {},
@@ -534,7 +555,7 @@ fun EditSection() {
                 },
             )
 
-            Spacer(Modifier.width(dimensionResource(R.dimen.h_space)))
+            Spacer(Modifier.width(dimensionResource(R.dimen.h_space_min)))
 
             CircularIconButton(
                 onClick = {},
@@ -546,7 +567,7 @@ fun EditSection() {
                 },
             )
 
-            Spacer(Modifier.width(dimensionResource(R.dimen.h_space)))
+            Spacer(Modifier.width(dimensionResource(R.dimen.h_space_min)))
 
             CircularIconButton(
                 onClick = {},
@@ -558,7 +579,7 @@ fun EditSection() {
                 },
             )
 
-            Spacer(Modifier.width(dimensionResource(R.dimen.h_space)))
+            Spacer(Modifier.width(dimensionResource(R.dimen.h_space_min)))
 
             CircularIconButton(
                 onClick = {},
@@ -571,7 +592,7 @@ fun EditSection() {
             )
 
 
-            Spacer(Modifier.width(dimensionResource(R.dimen.h_space)))
+            Spacer(Modifier.width(dimensionResource(R.dimen.h_space_min)))
 
             CircularIconButton(
                 onClick = {},
@@ -587,16 +608,7 @@ fun EditSection() {
 }
 
 @Composable
-fun CreationDateSection(unixTimeInMillis: Long) {
-    Text(
-        stringResource(R.string.created_at).plus(" ").plus(stringResource(R.string.colon)).plus(
-            formatUnixMillis(unixTimeInMillis)
-        ), style = MaterialTheme.typography.labelLarge
-    )
-}
-
-@Composable
-fun TitleSection(
+private fun TitleSection(
     title: String, onTitleChange: (String) -> Unit, placeholder: String, editMode: Boolean
 ) {
     if (!editMode) {
@@ -640,7 +652,7 @@ fun TitleSection(
 }
 
 @Composable
-fun BodySection(
+private fun BodySection(
     blocks: List<NoteBlockUiModel>,
     onTextChange: (blockId: Long, newText: String) -> Unit,
     onDeleteBlock: (blockId: Long) -> Unit,
@@ -675,7 +687,7 @@ fun BodySection(
                     }
                 }
 
-                Spacer(Modifier.height(dimensionResource(R.dimen.v_space)))
+                Spacer(Modifier.height(dimensionResource(R.dimen.v_space_min)))
             }
     }
 }

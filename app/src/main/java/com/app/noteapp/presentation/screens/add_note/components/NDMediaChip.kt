@@ -54,7 +54,7 @@ fun NDMediaChip(
                     tint = MaterialTheme.colorScheme.primary
                 )
 
-                Spacer(Modifier.width(dimensionResource(R.dimen.h_space)))
+                Spacer(Modifier.width(dimensionResource(R.dimen.h_space_min)))
 
                 Column {
                     Text(
