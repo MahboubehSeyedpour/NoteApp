@@ -144,76 +144,6 @@ fun NoteDetailScreen(
         }
     }
 
-
-//    // Back/gesture handling: close sheet first, else delegate to VM
-//    BackHandler(enabled = true) {
-//        scope.launch {
-//            when {
-//                showReminderSheet -> {
-//                    reminderSheetState.hide()
-//                    showReminderSheet = false
-//                }
-//
-//                showTagSheet -> {
-//                    tagSheetState.hide()
-//                    showTagSheet = false
-//                }
-//
-//                else -> viewModel.backClicked()
-//            }
-//        }
-//    }
-
-
-//    if (permissionError != null) {
-//        CustomAlertDialog(
-//            type = DialogType.ERROR,
-//            onDismissRequest = { permissionError = null },
-//            message = stringResource(permissionError!!),
-//            onConfirmBtnClick = {
-//                permissionError = null
-//                openAppSettingsInDevice(context)
-//            },
-//            confirmBtnText = R.string.go_to_settings,
-//            dismissBtnText = R.string.no,
-//            onDismissButtonClick = {},
-//            showTopBar = true
-//        )
-//    }
-
-//    if (showTagSheet) {
-//        ModalBottomSheet(
-//            onDismissRequest = { showTagSheet = false },
-//            sheetState = tagSheetState,
-//            dragHandle = { BottomSheetDefaults.DragHandle() },
-//            containerColor = MaterialTheme.colorScheme.background
-//        ) {
-//            TagSheetContent(tags = viewModel.tags.collectAsState().value, onSelect = { tag ->
-//                viewModel.setTag(tag)
-//                showTagSheet = false
-//            }, onAdd = { name, color ->
-//                viewModel.addTag(name, color)
-//                showTagSheet = false
-//            })
-//        }
-//    }
-
-//    if (showDeleteDialog) {
-//        CustomAlertDialog(
-//            type = DialogType.ERROR,
-//            onDismissRequest = { showDeleteDialog = false },
-//            message = stringResource(R.string.delete_note_question),
-//            onConfirmBtnClick = {
-//                showDeleteDialog = false
-//                viewModel.confirmDelete()
-//            },
-//            confirmBtnText = R.string.delete,
-//            onDismissButtonClick = { showDeleteDialog = false },
-//            dismissBtnText = R.string.dialog_dismiss_btn,
-//            showTopBar = true
-//        )
-//    }
-
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -233,89 +163,7 @@ fun NoteDetailScreen(
                     saveNote = { viewModel.saveNote({}) }
                 )
                 Spacer(Modifier.height(dimensionResource(R.dimen.v_space_min)))
-//                Column {
-//                    NoteDetailScreenTopBar(
-//                        onBack = { viewModel.backClicked() },
-//                        onDoneClicked = { viewModel.backClicked() },
-//                        onNotificationClick = { showReminderSheet = true },
-//                        onShareClick = {},
-//                        onDeleteClicked = { viewModel.deleteNote() })
-//                    HorizontalDivider(
-//                        modifier = Modifier.padding(top = dimensionResource(R.dimen.screen_padding)),
-//                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f)
-//                    )
-//                }
             },
-//            bottomBar = {
-//                Box(
-//                    Modifier
-//                        .fillMaxWidth()
-//                        .height(dimensionResource(R.dimen.btm_bar_height))
-//                        .animateContentSize()
-//                        .background(MaterialTheme.colorScheme.background)
-//                ) {
-//                    HorizontalDivider(
-//                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f)
-//                    )
-//
-//                    Column(
-//                        Modifier
-//                            .fillMaxWidth()
-//                            .padding(
-//                                vertical = dimensionResource(R.dimen.btm_sheet_v_padding),
-//                                horizontal = dimensionResource(R.dimen.btm_sheet_h_padding)
-//                            ), verticalArrangement = Arrangement.SpaceBetween
-//                    ) {
-//                        Row(
-//                            Modifier
-//                                .fillMaxWidth()
-//                                .padding(bottom = dimensionResource(R.dimen.screen_padding)),
-//                            horizontalArrangement = Arrangement.SpaceBetween
-//                        ) {
-//                            Text(
-//                                stringResource(R.string.choose_tag),
-//                                color = MaterialTheme.colorScheme.onSurfaceVariant
-//                            )
-//
-//                            CircularIconButton(onClick = { editMode = !editMode }, icon = {
-//                                Icon(
-//                                    ImageVector.vectorResource(R.drawable.ic_edit),
-//                                    contentDescription = "Edit"
-//                                )
-//                            })
-//                        }
-//
-//                        TagsList(
-//                            labels = viewModel.tags.collectAsState().value,
-//                            horizontalGap = dimensionResource(R.dimen.list_items_h_padding),
-//                            onLabelClick = { tag -> viewModel.setTag(tag) },
-//                            trailingIcon = ImageVector.vectorResource(R.drawable.ic_add),
-//                            onTrailingClick = { showTagSheet = true },
-//                            selectedTagId = uiState.note?.tag?.id,
-//                            editMode = editMode,
-//                            onDeleteClick = { tag -> tagToDelete = tag })
-//
-//                        if (tagToDelete != null) {
-//                            CustomAlertDialog(
-//                                type = DialogType.ERROR,
-//                                onDismissRequest = { tagToDelete = null },
-//                                title = stringResource(R.string.delete_tag),
-//                                message = stringResource(
-//                                    R.string.delete_tag_confirm, tagToDelete!!.name
-//                                ),
-//                                onConfirmBtnClick = {
-//                                    viewModel.deleteTag(tagToDelete!!.id)
-//                                    tagToDelete = null
-//                                },
-//                                confirmBtnText = R.string.delete,
-//                                onDismissButtonClick = { tagToDelete = null },
-//                                dismissBtnText = R.string.no,
-//                                showTopBar = true
-//                            )
-//                        }
-//                    }
-//                }
-//            }
         ) { inner ->
 
             Box(
@@ -332,10 +180,6 @@ fun NoteDetailScreen(
                             formatUnixMillis(uiState.note?.createdAt ?: System.currentTimeMillis())
                         ), style = MaterialTheme.typography.labelLarge
                     )
-
-                    Spacer(Modifier.height(dimensionResource(R.dimen.v_space_min)))
-
-//                    TagsSection(tag = uiState.note?.tag, reminderTag = uiState.note?.reminderTag)
 
                     Spacer(Modifier.height(dimensionResource(R.dimen.v_space_max)))
 
@@ -403,60 +247,8 @@ fun NoteDetailScreen(
                     CustomAlertDialog(spec = dialog)
                 }
             }
-
-
-//            Column(
-//                Modifier
-//                    .padding(inner)
-//                    .fillMaxSize()
-//            ) {
-//                when {
-//                    uiState.isLoading -> Box(
-//                        Modifier.fillMaxSize(), contentAlignment = Alignment.Center
-//                    ) {
-//                        CircularProgressIndicator()
-//                    }
-//
-//                    uiState.note != null -> NoteContent(
-//                        note = uiState.note!!,
-//                        onTitleChange = viewModel::updateTitle,
-//                        onDescriptionChange = viewModel::updateDescription,
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .weight(1f)
-//                    )
-//
-//                    else -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-//                        Text(stringResource(R.string.note_init_failure))
-//                    }
-//                }
-//            }
         }
     }
-
-//    if (showReminderSheet) {
-//        ModalBottomSheet(
-//            onDismissRequest = { showReminderSheet = false },
-//            sheetState = reminderSheetState,
-//            dragHandle = { BottomSheetDefaults.DragHandle() },
-//            containerColor = MaterialTheme.colorScheme.background
-//        ) {
-////            ReminderSheetContent(
-////                reminderText = uiState.note?.reminderTag?.name,
-////                onClearReminder = { viewModel.clearReminder() },
-////                onPickDateTime = {
-////                    scope.launch {
-////                        val ok = ensureReminderPermissions(requester)
-////                        if (!ok) {
-////                            permissionError = R.string.permission_required_message
-////                            return@launch
-////                        }
-////                        showReminderSheet = false
-////                        viewModel.openReminderPicker()
-////                    }
-////                })
-//        }
-//    }
 }
 
 @Composable

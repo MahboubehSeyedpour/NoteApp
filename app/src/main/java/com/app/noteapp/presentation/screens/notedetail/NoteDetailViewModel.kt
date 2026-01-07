@@ -244,22 +244,6 @@ class NoteDetailViewModel @Inject constructor(
         }
     }
 
-//    fun openReminderPicker() = viewModelScope.launch {
-//        _events.emit(NoteDetailEvents.OpenReminderPicker)
-//    }
-
-    fun setTag(tag: TagUiModel) {
-        // TODO
-    }
-
-    fun addTag(name: String, color: Color) {
-        // TODO
-    }
-
-    fun deleteTag(tagId: Long) {
-        // TODO
-    }
-
     fun onImagePicked(uri: Uri?) {
         val currentNote = _uiState.value.note ?: return
         if (currentNote.id <= 0L) {
