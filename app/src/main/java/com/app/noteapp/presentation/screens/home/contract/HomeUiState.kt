@@ -1,4 +1,4 @@
-package com.app.noteapp.presentation.screens.home
+package com.app.noteapp.presentation.screens.home.contract
 
 import com.app.noteapp.core.enums.LayoutMode
 import com.app.noteapp.domain.model.preferences_model.AvatarPref
@@ -6,6 +6,9 @@ import com.app.noteapp.domain.model.preferences_model.LanguagePref
 import com.app.noteapp.presentation.model.NoteUiModel
 import com.app.noteapp.presentation.model.SortOrder
 import com.app.noteapp.presentation.model.TagUiModel
+import com.app.noteapp.presentation.screens.home.ALL_TAG
+import com.app.noteapp.presentation.screens.home.ALL_TAG_ID
+import com.app.noteapp.presentation.screens.home.TimeFilter
 
 data class HomeUiState(
     val sortOrder: SortOrder = SortOrder.DESC,

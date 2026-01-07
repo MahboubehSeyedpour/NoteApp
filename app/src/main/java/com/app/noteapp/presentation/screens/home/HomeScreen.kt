@@ -1,6 +1,5 @@
 package com.app.noteapp.presentation.screens.home
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -55,11 +54,14 @@ import com.app.noteapp.presentation.common.components.NotesFilterSheet
 import com.app.noteapp.presentation.common.components.ToastHost
 import com.app.noteapp.presentation.common.components.TopBar
 import com.app.noteapp.presentation.model.AppDialogSpec
-import com.app.noteapp.presentation.model.DialogType
 import com.app.noteapp.presentation.model.NoteUiModel
 import com.app.noteapp.presentation.model.ToastUI
 import com.app.noteapp.presentation.model.iconRes
 import com.app.noteapp.presentation.navigation.Screens
+import com.app.noteapp.presentation.screens.home.contract.HomeEffect
+import com.app.noteapp.presentation.screens.home.contract.HomeUiActions
+import com.app.noteapp.presentation.screens.home.contract.HomeUiState
+import com.app.noteapp.presentation.screens.home.mapper.HomeEffectMapper
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -74,8 +76,6 @@ fun HomeScreen(
     val uiState by viewModel.homeUiState.collectAsStateWithLifecycle()
     remember(uiState.notes) { uiState.notes.filter { it.pinned } }
     remember(uiState.notes) { uiState.notes.filterNot { it.pinned } }
-
-    var confirmDeleteId by remember { mutableStateOf<Long?>(null) }
     rememberDrawerState(DrawerValue.Closed)
     rememberCoroutineScope()
 
@@ -85,41 +85,54 @@ fun HomeScreen(
 
     var activeDialog by remember { mutableStateOf<AppDialogSpec?>(null) }
     var toastMessage by remember { mutableStateOf<ToastUI?>(null) }
+    var confirmDeleteId by remember { mutableStateOf<Long?>(null) }
 
+
+    val actions = remember {
+        HomeUiActions(
+            onConfirmDelete = { id ->
+                viewModel.confirmDelete(id)
+                activeDialog = null
+            },
+            onDismissDialog = {
+                activeDialog = null
+            }
+        )
+    }
+
+    val mapper = remember { HomeEffectMapper(actions) }
 
     // ---------------------- Events ----------------------
     LaunchedEffect(viewModel.events) {
-        lifecycle.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.events.collectLatest { event ->
-                when (event) {
-                    is HomeEvents.NavigateToNoteDetailScreen -> navController.navigate(
-                        route = "${Screens.NoteDetailScreen.route}?id=${event.noteId}"
-                    )
 
-                    is HomeEvents.NavigateToSettingsScreen -> navController.navigate(Screens.Settings.route)
+                val effect = mapper.map(event)
 
-                    is HomeEvents.Error -> Toast.makeText(
-                        context, event.message, Toast.LENGTH_SHORT
-                    ).show()
+                when (effect) {
 
-                    is HomeEvents.RequestDeleteConfirm -> {
-                        activeDialog = AppDialogSpec(
-                            type = DialogType.ERROR,
-                            messageRes = R.string.delete_note_question,
-                            confirmTextRes = R.string.delete,
-                            dismissTextRes = R.string.dialog_dismiss_btn,
-                            onConfirm = {
-                                viewModel.confirmDelete(confirmDeleteId ?: 0)
-                                activeDialog = null
-                            },
-                            onDismiss = {
-                                activeDialog = null
-                            })
+                    is HomeEffect.NavigateToNoteDetail -> {
+                        navController.navigate(
+                            route = "${Screens.NoteDetailScreen.route}?id=${effect.noteId}"
+                        )
                     }
 
-                    is HomeEvents.ShowToast -> {
+                    HomeEffect.NavigateToSettings -> {
+                        navController.navigate(Screens.Settings.route)
+                    }
+
+                    is HomeEffect.Toast -> {
                         toastMessage = ToastUI(
-                            message = event.messageRes, type = event.type
+                            message = effect.message,
+                            type = effect.type
+                        )
+                    }
+
+                    is HomeEffect.Dialog -> {
+                        activeDialog = effect.spec.copy(
+                            onConfirm = {
+                                confirmDeleteId?.let(actions.onConfirmDelete)
+                            }
                         )
                     }
                 }
@@ -134,13 +147,10 @@ fun HomeScreen(
     toastMessage?.let { t ->
         ToastHost(
             toast = ToastUI(
-                message = t.message, type = t.type
-            ), onDismiss = { toastMessage = null }, modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = dimensionResource(R.dimen.toast_content_h_padding),
-                    vertical = dimensionResource(R.dimen.list_items_v_padding)
-                )
+                message = t.message,
+                type = t.type
+            ),
+            onDismiss = { toastMessage = null }
         )
     }
 
@@ -200,7 +210,10 @@ fun HomeScreen(
             gridState = gridState,
             onNoteClicked = { noteId -> viewModel.navigateToNoteDetails(noteId) },
             onNotePinned = { noteId -> viewModel.pinNote(noteId) },
-            onConfirmDelete = { noteId -> confirmDeleteId = noteId })
+            onConfirmDelete = { noteId ->
+                viewModel.deleteNote()
+//                confirmDeleteId = noteId
+            })
     }
 }
 

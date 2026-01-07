@@ -19,6 +19,8 @@ import com.app.noteapp.presentation.model.NoteUiModel
 import com.app.noteapp.presentation.model.SortOrder
 import com.app.noteapp.presentation.model.TagUiModel
 import com.app.noteapp.presentation.model.ToastType
+import com.app.noteapp.presentation.screens.home.contract.HomeEvent
+import com.app.noteapp.presentation.screens.home.contract.HomeUiState
 import com.app.noteapp.presentation.screens.settings.SettingsUiState
 import com.app.noteapp.presentation.theme.ReminderTagColor
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -51,7 +53,7 @@ class HomeViewModel @Inject constructor(
     @IoDispatcher private val io: CoroutineDispatcher
 ) : ViewModel() {
 
-    private val _events = MutableSharedFlow<HomeEvents>()
+    private val _events = MutableSharedFlow<HomeEvent>()
     val events = _events.asSharedFlow()
 
     private val zoneId: ZoneId = ZoneId.systemDefault()
@@ -167,7 +169,7 @@ class HomeViewModel @Inject constructor(
 
 
     fun addNote() = viewModelScope.launch {
-        _events.emit(HomeEvents.NavigateToNoteDetailScreen(null))
+        _events.emit(HomeEvent.NavigateToNoteDetail(null))
     }
 
     fun toggleList() {
@@ -176,35 +178,24 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun deleteNote() = viewModelScope.launch (io){
-        _events.emit(HomeEvents.RequestDeleteConfirm)
+    fun deleteNote() = viewModelScope.launch {
+        _events.emit(HomeEvent.DeleteConfirmationRequired)
     }
 
     fun confirmDelete(id: Long) {
         if (id == 0L) {
             viewModelScope.launch {
-                _events.emit(
-                    HomeEvents.ShowToast(
-                        messageRes = R.string.invalid_note_id,
-                        type = ToastType.ERROR
-                    )
-                )
+                _events.emit(HomeEvent.InvalidNoteId)
             }
             return
         }
+
         viewModelScope.launch(io) {
             runCatching {
                 val note = noteUseCase.getNoteById(id).firstOrNull()
-                note?.let {
-                    noteUseCase.deleteById(note.id)
-                }
+                note?.let { noteUseCase.deleteById(it.id) }
             }.onFailure {
-                _events.emit(
-                    HomeEvents.ShowToast(
-                        messageRes = R.string.fail_to_delete_note,
-                        type = ToastType.ERROR
-                    )
-                )
+                _events.emit(HomeEvent.DeleteFailed)
             }
         }
     }
@@ -212,40 +203,28 @@ class HomeViewModel @Inject constructor(
     fun pinNote(id: Long) {
         viewModelScope.launch(io) {
             runCatching {
-                // Snapshot from state (UI list)
                 val currentNotes = homeUiState.value.notes
                 val pinnedId = currentNotes.firstOrNull { it.pinned }?.id
                 val togglingOff = (pinnedId == id)
 
-                // Unpin existing pinned note (if any)
                 if (pinnedId != null) {
-                    val pinnedDomain = noteUseCase.getNoteById(pinnedId).firstOrNull()
-                    if (pinnedDomain != null) {
-                        noteUseCase.update(pinnedDomain.copy(pinned = false))
-                    }
+                    noteUseCase.getNoteById(pinnedId).firstOrNull()
+                        ?.let { noteUseCase.update(it.copy(pinned = false)) }
                 }
 
-                // Pin target unless toggling off
                 if (!togglingOff) {
-                    val target = noteUseCase.getNoteById(id).firstOrNull()
-                    if (target != null) {
-                        noteUseCase.update(target.copy(pinned = true))
-                    }
+                    noteUseCase.getNoteById(id).firstOrNull()
+                        ?.let { noteUseCase.update(it.copy(pinned = true)) }
                 }
             }.onFailure {
-                _events.emit(HomeEvents.Error("Failed to pin: ${it.message}"))
+                _events.emit(HomeEvent.PinFailed)
             }
         }
     }
 
-//    suspend fun exportNotesBytes(): ByteArray = exportNotesUseCase()
-//
-//    fun importBackup(bytes: ByteArray): Flow<Result<ImportResult>> =
-//        flow { emit(runCatching { importNotesUseCase(bytes) }) }.flowOn(io)
-
     // ============================================= navigation =============================================
     fun navigateToNoteDetails(noteId: Long) = viewModelScope.launch {
-        _events.emit(HomeEvents.NavigateToNoteDetailScreen(noteId))
+        _events.emit(HomeEvent.NavigateToNoteDetail(noteId))
     }
 
     // ============================================= search & filter =============================================
@@ -297,10 +276,8 @@ class HomeViewModel @Inject constructor(
 ////        languageUseCase(lang)
 //    }
 
-    fun onAvatarClicked(){
-        viewModelScope.launch {
-            _events.emit(HomeEvents.NavigateToSettingsScreen)
-        }
+    fun onAvatarClicked() = viewModelScope.launch {
+        _events.emit(HomeEvent.NavigateToSettings)
     }
 
 }

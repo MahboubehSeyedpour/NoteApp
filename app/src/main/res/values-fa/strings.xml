@@ -86,6 +86,7 @@
     <string name="empty_note_error">نوشتن عنوان و متن الزامی است!</string>
     <string name="fail_to_save_note">خطا در ذخیره یادداشت: %1$</string>
     <string name="fail_to_delete_note">خطا در حذف یادداشت</string>
+    <string name="fail_to_pin_note">خطا در سنجاق کردن یادداشت</string>
     <string name="invalid_note_id">شناسه نامعتبر</string>
     <string name="tag_is_reserved">تگ "همه" رزرو شده است</string>
 
