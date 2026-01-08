@@ -1,4 +1,4 @@
-package com.app.noteapp.presentation.common.components
+package com.app.noteapp.presentation.screens.home.ui.component
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -45,10 +45,13 @@ import androidx.compose.ui.text.style.TextAlign
 import com.app.noteapp.R
 import com.app.noteapp.core.enums.LayoutMode
 import com.app.noteapp.core.extensions.toLocalizedDigits
+import com.app.noteapp.presentation.common.components.CircularIconButton
+import com.app.noteapp.presentation.common.components.CustomSearchBar
+import com.app.noteapp.presentation.common.components.LabelCircularIconButton
 import java.util.Locale
 
 @Composable
-fun TopBar(
+fun HomeTopBar(
     notesSize: Int = 0,
     locale: Locale = LocalConfiguration.current.locales[0],
     avatar: Painter? = null,
@@ -67,59 +70,96 @@ fun TopBar(
             .fillMaxWidth()
             .padding(bottom = dimensionResource(R.dimen.screen_padding))
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(dimensionResource(R.dimen.topbar_height))
-                .padding(end = dimensionResource(R.dimen.icon_size) / 2),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Avatar(avatar, onAvatarClick)
-                Spacer(Modifier.width(dimensionResource(R.dimen.h_space_min)))
-                Text(
-                    text = notesSize.toLocalizedDigits(locale).plus(" ")
-                        .plus(stringResource(R.string.notes)),
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.labelLarge
-                )
-            }
-            Text(text = stringResource(R.string.app_name))
-        }
+        AppNameAndAvatarSection(
+            notesSize = notesSize,
+            locale = locale,
+            avatar = avatar,
+            onAvatarClick = onAvatarClick
+        )
 
         Spacer(Modifier.height(dimensionResource(R.dimen.v_space_min)))
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(dimensionResource(R.dimen.topbar_height)),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            CircularIconButton(
-                onClick = onGridToggleClicked, icon = {
-                    Icon(
-                        imageVector = when (layoutMode) {
-                            LayoutMode.LIST -> ImageVector.vectorResource(R.drawable.ic_vertical_list)
-                            LayoutMode.GRID -> ImageVector.vectorResource(R.drawable.ic_grid_list)
-                        }, contentDescription = stringResource(R.string.toggle_layout)
-                    )
-                })
-
-            Actions(
-                query = query,
-                onSearchChange = onSearchChange,
-                onFilterClick = onFilterClick,
-                onSortClick = onSortClick,
-                isFilterActive = isFilterActive
-            )
-        }
+        SearchAndFilterAndSortAndGridSection(
+            query = query,
+            onSearchChange = onSearchChange,
+            onGridToggleClicked = onGridToggleClicked,
+            layoutMode = layoutMode,
+            onFilterClick = onFilterClick,
+            onSortClick = onSortClick,
+            isFilterActive = isFilterActive
+        )
     }
 }
 
 @Composable
-fun Avatar(
+private fun AppNameAndAvatarSection(
+    notesSize: Int = 0,
+    locale: Locale = LocalConfiguration.current.locales[0],
+    avatar: Painter? = null,
+    onAvatarClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(dimensionResource(R.dimen.topbar_height))
+            .padding(end = dimensionResource(R.dimen.icon_size) / 2),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Avatar(avatar, onAvatarClick)
+            Spacer(Modifier.width(dimensionResource(R.dimen.h_space_min)))
+            Text(
+                text = notesSize.toLocalizedDigits(locale).plus(" ")
+                    .plus(stringResource(R.string.notes)),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.labelLarge
+            )
+        }
+        Text(text = stringResource(R.string.app_name))
+    }
+}
+
+@Composable
+private fun SearchAndFilterAndSortAndGridSection(
+    query: String,
+    onSearchChange: (String) -> Unit,
+    onGridToggleClicked: () -> Unit,
+    layoutMode: LayoutMode,
+    onFilterClick: () -> Unit,
+    onSortClick: () -> Unit,
+    isFilterActive: Boolean,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(dimensionResource(R.dimen.topbar_height)),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        CircularIconButton(
+            onClick = onGridToggleClicked, icon = {
+                Icon(
+                    imageVector = when (layoutMode) {
+                        LayoutMode.LIST -> ImageVector.vectorResource(R.drawable.ic_vertical_list)
+                        LayoutMode.GRID -> ImageVector.vectorResource(R.drawable.ic_grid_list)
+                    }, contentDescription = stringResource(R.string.toggle_layout)
+                )
+            })
+
+        Actions(
+            query = query,
+            onSearchChange = onSearchChange,
+            onFilterClick = onFilterClick,
+            onSortClick = onSortClick,
+            isFilterActive = isFilterActive
+        )
+    }
+}
+
+@Composable
+private fun Avatar(
     avatar: Painter? = null,
     onAvatarClick: () -> Unit,
 ) {
@@ -142,7 +182,7 @@ fun Avatar(
 }
 
 @Composable
-fun Actions(
+private fun Actions(
     query: String,
     onSearchChange: (String) -> Unit,
     onFilterClick: () -> Unit,
@@ -249,16 +289,6 @@ fun Actions(
                     )
                 })
             }
-
-//            CircularIconButton(
-//                onClick = onGridToggleClicked, icon = {
-//                    Icon(
-//                        imageVector = when (layoutMode) {
-//                            LayoutMode.LIST -> ImageVector.vectorResource(R.drawable.ic_vertical_list)
-//                            LayoutMode.GRID -> ImageVector.vectorResource(R.drawable.ic_grid_list)
-//                        }, contentDescription = stringResource(R.string.toggle_layout)
-//                    )
-//                })
         }
 
 //        CircularIconButton(onClick = { /* TODO notifications */ }, icon = {

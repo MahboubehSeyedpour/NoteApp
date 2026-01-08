@@ -1,12 +1,15 @@
 package com.app.noteapp.presentation.screens.home
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,7 +18,6 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
-import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
@@ -27,6 +29,7 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,7 +41,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -49,10 +51,9 @@ import com.app.noteapp.R
 import com.app.noteapp.core.enums.LayoutMode
 import com.app.noteapp.presentation.common.components.CustomAlertDialog
 import com.app.noteapp.presentation.common.components.CustomFab
-import com.app.noteapp.presentation.common.components.CustomNoteCard
+import com.app.noteapp.presentation.common.components.NoteCard
 import com.app.noteapp.presentation.common.components.NotesFilterSheet
 import com.app.noteapp.presentation.common.components.ToastHost
-import com.app.noteapp.presentation.common.components.TopBar
 import com.app.noteapp.presentation.model.AppDialogSpec
 import com.app.noteapp.presentation.model.NoteUiModel
 import com.app.noteapp.presentation.model.ToastUI
@@ -60,8 +61,8 @@ import com.app.noteapp.presentation.model.iconRes
 import com.app.noteapp.presentation.navigation.Screens
 import com.app.noteapp.presentation.screens.home.contract.HomeEffect
 import com.app.noteapp.presentation.screens.home.contract.HomeUiActions
-import com.app.noteapp.presentation.screens.home.contract.HomeUiState
 import com.app.noteapp.presentation.screens.home.mapper.HomeEffectMapper
+import com.app.noteapp.presentation.screens.home.ui.component.HomeTopBar
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -71,7 +72,7 @@ fun HomeScreen(
 ) {
 
     val lifecycle = LocalLifecycleOwner.current.lifecycle
-    val context = LocalContext.current
+    LocalContext.current
 
     val uiState by viewModel.homeUiState.collectAsStateWithLifecycle()
     remember(uiState.notes) { uiState.notes.filter { it.pinned } }
@@ -79,7 +80,12 @@ fun HomeScreen(
     rememberDrawerState(DrawerValue.Closed)
     rememberCoroutineScope()
 
-    val gridState = rememberLazyStaggeredGridState()
+    val gridState = rememberSaveable(
+        saver = LazyStaggeredGridState.Saver
+    ) {
+        LazyStaggeredGridState()
+    }
+
     val locale = LocalConfiguration.current.locales[0]
     var showFilterSheet by rememberSaveable { mutableStateOf(false) }
 
@@ -87,17 +93,26 @@ fun HomeScreen(
     var toastMessage by remember { mutableStateOf<ToastUI?>(null) }
     var confirmDeleteId by remember { mutableStateOf<Long?>(null) }
 
+    val notes by remember(uiState.notes) {
+        derivedStateOf { uiState.notes }
+    }
+
+    val pinnedNotes by remember(notes) {
+        derivedStateOf { notes.filter { it.pinned } }
+    }
+
+    val normalNotes by remember(notes) {
+        derivedStateOf { notes.filterNot { it.pinned } }
+    }
+
 
     val actions = remember {
-        HomeUiActions(
-            onConfirmDelete = { id ->
-                viewModel.confirmDelete(id)
-                activeDialog = null
-            },
-            onDismissDialog = {
-                activeDialog = null
-            }
-        )
+        HomeUiActions(onConfirmDelete = { id ->
+            viewModel.confirmDelete(id)
+            activeDialog = null
+        }, onDismissDialog = {
+            activeDialog = null
+        })
     }
 
     val mapper = remember { HomeEffectMapper(actions) }
@@ -123,8 +138,7 @@ fun HomeScreen(
 
                     is HomeEffect.Toast -> {
                         toastMessage = ToastUI(
-                            message = effect.message,
-                            type = effect.type
+                            message = effect.message, type = effect.type
                         )
                     }
 
@@ -132,8 +146,7 @@ fun HomeScreen(
                         activeDialog = effect.spec.copy(
                             onConfirm = {
                                 confirmDeleteId?.let(actions.onConfirmDelete)
-                            }
-                        )
+                            })
                     }
                 }
             }
@@ -147,11 +160,8 @@ fun HomeScreen(
     toastMessage?.let { t ->
         ToastHost(
             toast = ToastUI(
-                message = t.message,
-                type = t.type
-            ),
-            onDismiss = { toastMessage = null }
-        )
+                message = t.message, type = t.type
+            ), onDismiss = { toastMessage = null })
     }
 
     // ---------------------- Filter sheet ----------------------
@@ -180,6 +190,7 @@ fun HomeScreen(
                 })
         }
     }
+
     Scaffold(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.background)
@@ -187,7 +198,7 @@ fun HomeScreen(
             .padding(dimensionResource(R.dimen.screen_padding)),
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            TopBar(
+            HomeTopBar(
                 notesSize = uiState.notes.size,
                 locale = locale,
                 avatar = painterResource(uiState.avatar.iconRes()),
@@ -204,149 +215,149 @@ fun HomeScreen(
         floatingActionButton = { CustomFab({ viewModel.addNote() }) },
         floatingActionButtonPosition = FabPosition.End
     ) { inner ->
-        NotesContent(
-            uiState = uiState,
-            inner = inner,
+        Notes(
+            modifier = Modifier.padding(inner),
+            layoutMode = uiState.layoutMode,
+            pinnedNotes = pinnedNotes,
+            normalNotes = normalNotes,
+            selectedIds = uiState.selectedIds,
             gridState = gridState,
-            onNoteClicked = { noteId -> viewModel.navigateToNoteDetails(noteId) },
-            onNotePinned = { noteId -> viewModel.pinNote(noteId) },
-            onConfirmDelete = { noteId ->
-                viewModel.deleteNote()
-//                confirmDeleteId = noteId
-            })
-    }
-}
-
-@Composable
-private fun PinnedHeader(
-    pinned: NoteUiModel,
-    hasOthers: Boolean,
-    isSelected: Boolean,
-    onNoteClicked: () -> Unit,
-    onNotePinned: () -> Unit,
-    onDelete: () -> Unit,
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(vertical = dimensionResource(R.dimen.list_items_v_padding))
-    ) {
-        CustomNoteCard(
-            note = pinned,
-            isSelected = isSelected,
-            onNoteClicked = onNoteClicked,
-            onNotePinned = onNotePinned,
-            deleteNote = onDelete,
-            noteTitleStyle = MaterialTheme.typography.bodyMedium.copy(
-                fontWeight = FontWeight.SemiBold
-            ),
-            noteBodyStyle = MaterialTheme.typography.bodySmall,
+            onOpen = { noteId -> viewModel.navigateToNoteDetails(noteId) },
+            onPin = { noteId -> viewModel.pinNote(noteId) },
+            onDelete = { noteId -> viewModel.confirmDelete(noteId) },
         )
-
-        if (hasOthers) {
-            Spacer(Modifier.height(dimensionResource(R.dimen.v_space_min)))
-
-            HorizontalDivider(
-                modifier = Modifier.padding(top = dimensionResource(R.dimen.v_space_min)),
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
     }
 }
 
 @Composable
-private fun NotesContent(
-    uiState: HomeUiState,
-    inner: PaddingValues,
+fun Notes(
+    modifier: Modifier,
+    layoutMode: LayoutMode,
+    pinnedNotes: List<NoteUiModel>,
+    normalNotes: List<NoteUiModel>,
+    selectedIds: Set<Long>,
     gridState: LazyStaggeredGridState,
-    onNoteClicked: (Long) -> Unit,
-    onNotePinned: (Long) -> Unit,
-    onConfirmDelete: (Long) -> Unit
+    onOpen: (Long) -> Unit,
+    onPin: (Long) -> Unit,
+    onDelete: (Long) -> Unit,
 ) {
-    val pinned = uiState.notes.firstOrNull { it.pinned }
-    val others = uiState.notes.filterNot { it.pinned }
 
-    when (uiState.layoutMode) {
-        LayoutMode.LIST -> {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(inner)
-                    .padding(horizontal = dimensionResource(R.dimen.list_items_h_padding)),
-                contentPadding = PaddingValues(bottom = dimensionResource(R.dimen.list_items_v_padding)),
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_items_v_padding))
-            ) {
+    AnimatedContent(
+        targetState = layoutMode, transitionSpec = {
+            fadeIn() togetherWith fadeOut()
+        }, label = "layout-animation"
+    ) { mode ->
 
-                if (pinned != null) {
-                    stickyHeader(key = "pinned_header") {
-                        PinnedHeader(
-                            pinned = pinned,
-                            hasOthers = others.isNotEmpty(),
-                            isSelected = pinned.id in uiState.selectedIds,
-                            onNoteClicked = { onNoteClicked(pinned.id) },
-                            onNotePinned = { onNotePinned(pinned.id) },
-                            onDelete = { onConfirmDelete(pinned.id) })
-                    }
-                }
+        when (mode) {
 
-                items(others, key = { it.id }) { note ->
-                    CustomNoteCard(
-                        note = note,
-                        isSelected = note.id in uiState.selectedIds,
-                        onNoteClicked = { onNoteClicked(note.id) },
-                        onNotePinned = { onNotePinned(note.id) },
-                        deleteNote = { onConfirmDelete(note.id) },
-                        noteTitleStyle = MaterialTheme.typography.bodyMedium.copy(
-                            fontWeight = FontWeight.SemiBold
-                        ),
-                        noteBodyStyle = MaterialTheme.typography.bodySmall,
+            LayoutMode.LIST -> {
+                LazyColumn(
+                    modifier = modifier
+                        .fillMaxSize()
+                        .padding(horizontal = dimensionResource(R.dimen.list_items_h_padding)),
+                    contentPadding = PaddingValues(
+                        bottom = dimensionResource(R.dimen.list_items_v_padding)
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(
+                        dimensionResource(R.dimen.list_items_v_padding)
                     )
-                }
-            }
-        }
-
-        LayoutMode.GRID -> {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(inner)
-                    .padding(horizontal = dimensionResource(R.dimen.list_items_h_padding))
-            ) {
-
-                if (pinned != null) {
-                    PinnedHeader(
-                        pinned = pinned,
-                        hasOthers = others.isNotEmpty(),
-                        isSelected = pinned.id in uiState.selectedIds,
-                        onNoteClicked = { onNoteClicked(pinned.id) },
-                        onNotePinned = { onNotePinned(pinned.id) },
-                        onDelete = { onConfirmDelete(pinned.id) })
-                }
-
-                LazyVerticalStaggeredGrid(
-                    modifier = Modifier.fillMaxSize(),
-                    state = gridState,
-                    columns = StaggeredGridCells.Adaptive(minSize = dimensionResource(R.dimen.grid_min_size)),
-                    verticalItemSpacing = dimensionResource(R.dimen.list_items_v_padding),
-                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_items_h_padding)),
-                    contentPadding = PaddingValues(bottom = dimensionResource(R.dimen.list_items_v_padding))
                 ) {
-                    items(items = others, key = { it.id }) { note ->
-                        CustomNoteCard(
+
+                    item(key = "pinned-section") {
+                        PinnedNotesSection(
+                            pinnedNotes = pinnedNotes,
+                            showDivider = normalNotes.isNotEmpty(),
+                            selectedIds = selectedIds,
+                            onOpen = onOpen,
+                            onPin = onPin,
+                            onDelete = onDelete,
+                        )
+                    }
+
+                    items(
+                        items = normalNotes, key = { it.id }) { note ->
+                        NoteCard(
                             note = note,
-                            isSelected = note.id in uiState.selectedIds,
-                            onNoteClicked = { onNoteClicked(note.id) },
-                            onNotePinned = { onNotePinned(note.id) },
-                            deleteNote = { onConfirmDelete(note.id) },
-                            noteTitleStyle = MaterialTheme.typography.bodyMedium.copy(
-                                fontWeight = FontWeight.SemiBold
-                            ),
-                            noteBodyStyle = MaterialTheme.typography.bodySmall,
+                            isSelected = note.id in selectedIds,
+                            noteDetails = { onOpen(note.id) },
+                            pinNote = { onPin(note.id) },
+                            deleteNote = { onDelete(note.id) },
                         )
                     }
                 }
             }
+
+            LayoutMode.GRID -> {
+                Column(
+                    modifier = modifier
+                        .fillMaxSize()
+                        .padding(horizontal = dimensionResource(R.dimen.list_items_h_padding))
+                ) {
+
+                    PinnedNotesSection(
+                        pinnedNotes = pinnedNotes,
+                        showDivider = normalNotes.isNotEmpty(),
+                        selectedIds = selectedIds,
+                        onOpen = onOpen,
+                        onPin = onPin,
+                        onDelete = onDelete,
+                    )
+
+                    LazyVerticalStaggeredGrid(
+                        modifier = Modifier.fillMaxSize(),
+                        state = gridState,
+                        columns = StaggeredGridCells.Adaptive(
+                            minSize = dimensionResource(R.dimen.grid_min_size)
+                        ),
+                        verticalItemSpacing = dimensionResource(R.dimen.list_items_v_padding),
+                        horizontalArrangement = Arrangement.spacedBy(
+                            dimensionResource(R.dimen.list_items_h_padding)
+                        ),
+                        contentPadding = PaddingValues(
+                            bottom = dimensionResource(R.dimen.list_items_v_padding)
+                        )
+                    ) {
+                        items(
+                            items = normalNotes, key = { it.id }) { note ->
+                            NoteCard(
+                                note = note,
+                                isSelected = note.id in selectedIds,
+                                noteDetails = { onOpen(note.id) },
+                                pinNote = { onPin(note.id) },
+                                deleteNote = { onDelete(note.id) },
+                            )
+                        }
+                    }
+                }
+            }
         }
+    }
+}
+
+@Composable
+private fun PinnedNotesSection(
+    pinnedNotes: List<NoteUiModel>,
+    showDivider: Boolean,
+    selectedIds: Set<Long>,
+    onOpen: (Long) -> Unit,
+    onPin: (Long) -> Unit,
+    onDelete: (Long) -> Unit,
+) {
+    if (pinnedNotes.isEmpty()) return
+
+    pinnedNotes.forEach { note ->
+        NoteCard(
+            note = note,
+            isSelected = note.id in selectedIds,
+            noteDetails = { onOpen(note.id) },
+            pinNote = { onPin(note.id) },
+            deleteNote = { onDelete(note.id) },
+        )
+    }
+
+    if (showDivider) {
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space_mid)))
+        HorizontalDivider(color = MaterialTheme.colorScheme.primary)
+        Spacer(Modifier.height(dimensionResource(R.dimen.v_space_mid)))
     }
 }

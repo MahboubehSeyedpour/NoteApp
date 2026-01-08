@@ -8,7 +8,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -40,6 +39,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -52,19 +52,19 @@ import com.app.noteapp.presentation.model.TagUiModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun CustomNoteCard(
+fun NoteCard(
     note: NoteUiModel,
     isSelected: Boolean,
-    onNoteClicked: () -> Unit,
-    onNotePinned: () -> Unit,
+    noteDetails: () -> Unit,
+    pinNote: () -> Unit,
     deleteNote: () -> Unit,
-    noteTitleStyle: TextStyle,
-    noteBodyStyle: TextStyle,
+    noteTitleStyle: TextStyle = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+    noteBodyStyle: TextStyle = MaterialTheme.typography.bodySmall,
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onNoteClicked() },
+            .clickable { noteDetails() },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
             contentColor = MaterialTheme.colorScheme.onSurface
@@ -83,7 +83,7 @@ fun CustomNoteCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start
             ) {
-                MenuButton(onNotePinned, deleteNote)
+                MenuButton(pinNote, deleteNote)
 
                 Text(
                     modifier = Modifier.weight(1f),
@@ -100,21 +100,21 @@ fun CustomNoteCard(
                 textStyle = noteBodyStyle
             )
 
-            Spacer(Modifier.height(dimensionResource(R.dimen.v_space_min)*3))
-
-            FlowRow(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = dimensionResource(R.dimen.icon_size)),
-                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_items_h_padding)),
-                verticalArrangement = Arrangement.Center
-            ) {
-//                note.tag?.let {
-//                    NoteTag(it, icon = R.drawable.ic_hashtag)
-//                }
+//            Spacer(Modifier.height(dimensionResource(R.dimen.v_space_min)*3))
 //
-//                note.reminderTag?.let {
-//                    NoteTag(it, icon = R.drawable.ic_clock)
-//                }
-            }
+//            FlowRow(
+//                modifier = Modifier.fillMaxWidth().padding(horizontal = dimensionResource(R.dimen.icon_size)),
+//                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_items_h_padding)),
+//                verticalArrangement = Arrangement.Center
+//            ) {
+////                note.tag?.let {
+////                    NoteTag(it, icon = R.drawable.ic_hashtag)
+////                }
+////
+////                note.reminderTag?.let {
+////                    NoteTag(it, icon = R.drawable.ic_clock)
+////                }
+//            }
 
             Spacer(Modifier.height(dimensionResource(R.dimen.v_space_min)))
         }
@@ -186,6 +186,7 @@ fun MenuButton(pinNote: () -> Unit, deleteNote: () -> Unit) {
         }
 
         DropdownMenu(
+            modifier = Modifier.background(MaterialTheme.colorScheme.background),
             expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
             DropdownMenuItem(text = { Text(stringResource(R.string.pin)) }, onClick = {
                 menuExpanded = false
