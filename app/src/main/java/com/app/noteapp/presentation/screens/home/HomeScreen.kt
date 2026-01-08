@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,7 +14,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListPrefetchStrategy
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -65,7 +68,7 @@ import com.app.noteapp.presentation.screens.home.mapper.HomeEffectMapper
 import com.app.noteapp.presentation.screens.home.ui.component.HomeTopBar
 import kotlinx.coroutines.flow.collectLatest
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
     navController: NavController, viewModel: HomeViewModel = hiltViewModel()
@@ -104,7 +107,6 @@ fun HomeScreen(
     val normalNotes by remember(notes) {
         derivedStateOf { notes.filterNot { it.pinned } }
     }
-
 
     val actions = remember {
         HomeUiActions(onConfirmDelete = { id ->
@@ -229,6 +231,7 @@ fun HomeScreen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Notes(
     modifier: Modifier,
@@ -242,6 +245,11 @@ fun Notes(
     onDelete: (Long) -> Unit,
 ) {
 
+    val listState = rememberLazyListState(
+        prefetchStrategy = LazyListPrefetchStrategy(
+            nestedPrefetchItemCount = 6
+        )
+    )
     AnimatedContent(
         targetState = layoutMode, transitionSpec = {
             fadeIn() togetherWith fadeOut()
@@ -255,6 +263,7 @@ fun Notes(
                     modifier = modifier
                         .fillMaxSize()
                         .padding(horizontal = dimensionResource(R.dimen.list_items_h_padding)),
+                    state = listState,
                     contentPadding = PaddingValues(
                         bottom = dimensionResource(R.dimen.list_items_v_padding)
                     ),

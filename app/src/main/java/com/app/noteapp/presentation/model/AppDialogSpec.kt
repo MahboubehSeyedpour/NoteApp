@@ -16,6 +16,7 @@ data class AppDialogSpec(
     val onDismiss: () -> Unit,
 )
 
+@Immutable
 enum class DialogType {
     PERMISSION,
     WARNING,
